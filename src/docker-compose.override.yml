@@ -1,0 +1,34 @@
+version: '3.4'
+
+services:
+  catalogdb:
+    container_name: catalogdb
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "MyPass123"
+    ports:
+      - "1433:1433"
+
+  distributedcache:
+    container_name: distributedcache
+    restart: always
+    ports:
+      - "6379:6379"
+
+  catalog.api:
+    container_name: catalog-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__Database=Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123;TrustServerCertificate=True
+    depends_on:
+      - catalogdb
+      - distributedcache
+    ports:
+      - "7000:8080"
+      - "7070:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro

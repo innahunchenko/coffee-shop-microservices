@@ -1,0 +1,30 @@
+﻿using Catalog.Domain.Models.Dtos;
+using Catalog.Domain.Models.Pagination;
+using Catalog.Domain.Models;
+using Catalog.Domain.Services.Products;
+using MediatR;
+
+namespace Catalog.Application.Products.Queries
+{
+    public record GetProductsByNameRequest(string Name) : PaginationParameters(), IRequest<PaginatedList<ProductDto>>;
+
+    internal sealed class GetProductsByNameHandler : IRequestHandler<GetProductsByNameRequest, PaginatedList<ProductDto>>
+    {
+        private readonly IProductService productService;
+        public GetProductsByNameHandler(IProductService productService)
+        {
+            this.productService = productService;
+        }
+
+        public Task<PaginatedList<ProductDto>> Handle(GetProductsByNameRequest request, CancellationToken cancellationToken)
+        {
+            return productService.GetProductsByNameAsync(
+                request.Name, 
+                new PaginationParameters() 
+                { 
+                    PageNumber = request.PageNumber, 
+                    PageSize = request.PageSize 
+                });
+        }
+    }
+}
