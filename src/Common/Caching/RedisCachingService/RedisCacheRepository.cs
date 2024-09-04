@@ -160,14 +160,11 @@ namespace RedisCachingService
                     {
                         if (redLock.IsAcquired)
                         {
-                            Console.WriteLine($"Thread {threadId} acquired lock for key {key}.");
                             await action();
-                            Console.WriteLine($"Thread {threadId} released lock for key {key}. {redLock.Status}");
                             return true;
                         }
                         else
                         {
-                            Console.WriteLine($"Thread {threadId} could not acquire lock for key {key}. Retry {retries}.");
                             await Task.Delay(retryDelay.Value);
                         }
                     }

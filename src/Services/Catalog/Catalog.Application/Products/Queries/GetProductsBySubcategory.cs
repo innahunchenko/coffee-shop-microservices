@@ -18,7 +18,7 @@ namespace Catalog.Application.Products.Queries
 
         public Task<PaginatedList<ProductDto>> Handle(GetProductsBySubcategoryRequest request, CancellationToken cancellationToken)
         {
-            return productService.GetProductsByCategoryAsync(
+            return productService.GetProductsBySubcategoryAsync(
                 request.Subcategory, 
                 new PaginationParameters() 
                 { 

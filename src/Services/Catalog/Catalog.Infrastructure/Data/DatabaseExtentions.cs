@@ -1,5 +1,4 @@
 ﻿using Catalog.Domain.Models;
-using Catalog.Domain.ValueObjects;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,36 +24,36 @@ namespace Catalog.Infrastructure.Data
             if (await context.Categories.AnyAsync())
                 return;
 
-            var coffeeCategoryId = CategoryId.New();
-            var accessoriesCategoryId = CategoryId.New();
-            var foodItemsCategoryId = CategoryId.New();
-            var othersCategoryId = CategoryId.New();
+            var coffeeCategory = Category.Create("Coffee");
+            var accessoriesCategory = Category.Create("Accessories");
+            var foodItemsCategory = Category.Create("FoodItems");
+            var othersCategory = Category.Create("Others");
 
             var categories = new List<Category>
             {
-                Category.Create("Coffee"),
-                Category.Create("Accessories"),
-                Category.Create("FoodItems"),
-                Category.Create("Others"),
+                coffeeCategory,
+                accessoriesCategory,
+                foodItemsCategory,
+                othersCategory,
 
-                Category.Create("WholeBean", coffeeCategoryId),
-                Category.Create("Ground", coffeeCategoryId),
-                Category.Create("Instant", coffeeCategoryId),
-                Category.Create("Pods", coffeeCategoryId),
-                Category.Create("Specialty", coffeeCategoryId),
+                Category.Create("WholeBean", coffeeCategory.Id),
+                Category.Create("Ground", coffeeCategory.Id),
+                Category.Create("Instant", coffeeCategory.Id),
+                Category.Create("Pods", coffeeCategory.Id),
+                Category.Create("Specialty", coffeeCategory.Id),
 
-                Category.Create("CoffeeMakers", accessoriesCategoryId),
-                Category.Create("Grinders", accessoriesCategoryId),
-                Category.Create("Mugs", accessoriesCategoryId),
-                Category.Create("Filters", accessoriesCategoryId),
+                Category.Create("CoffeeMakers", accessoriesCategory.Id),
+                Category.Create("Grinders", accessoriesCategory.Id),
+                Category.Create("Mugs", accessoriesCategory.Id),
+                Category.Create("Filters", accessoriesCategory.Id),
 
-                Category.Create("Pastries", foodItemsCategoryId),
-                Category.Create("Snacks", foodItemsCategoryId),
-                Category.Create("Syrups", foodItemsCategoryId),
-                Category.Create("MilkAlternatives", foodItemsCategoryId),
+                Category.Create("Pastries", foodItemsCategory.Id),
+                Category.Create("Snacks", foodItemsCategory.Id),
+                Category.Create("Syrups", foodItemsCategory.Id),
+                Category.Create("MilkAlternatives", foodItemsCategory.Id),
 
-                Category.Create("Merchandise", othersCategoryId),
-                Category.Create("Subscriptions", othersCategoryId)
+                Category.Create("Merchandise", othersCategory.Id),
+                Category.Create("Subscriptions", othersCategory.Id)
             };
 
             await context.Categories.AddRangeAsync(categories);
@@ -68,20 +67,26 @@ namespace Catalog.Infrastructure.Data
 
             var random = new Random();
             var categories = await context.Categories.ToListAsync();
-            var subcategoryIds = categories.Where(c => c.ParentCategoryId != null).Select(c => c.Id.Value).ToList();
+            var subcategories = categories.Where(c => c.ParentCategoryId != null).ToList();
+            var parentCategories = categories.Where(c => c.ParentCategoryId == null).ToList();
 
             var products = new List<Product>();
 
-            foreach (var subcategoryId in subcategoryIds)
+            foreach (var subcategory in subcategories)
             {
+                var parentCategory = parentCategories.First(pc => pc.Id == subcategory.ParentCategoryId);
                 int productCount = random.Next(5, 11);
+
                 for (int j = 0; j < productCount; j++)
                 {
+                    var productName = $"{parentCategory.Name} {subcategory.Name} Product {j + 1}";
+                    var productDescription = $"Description for {parentCategory.Name} {subcategory.Name} Product {j + 1}";
+
                     products.Add(Product.Create(
-                        $"{subcategoryId}_Product_{j + 1}",
+                        productName,
                         (decimal)(random.NextDouble() * 100),
-                        CategoryId.Of(subcategoryId),
-                        $"Description for {subcategoryId}_Product_{j + 1}"
+                        subcategory.Id,
+                        productDescription
                     ));
                 }
             }

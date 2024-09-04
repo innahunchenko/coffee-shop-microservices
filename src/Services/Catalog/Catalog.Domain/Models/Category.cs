@@ -1,22 +1,21 @@
 ﻿using Catalog.Domain.Abstractions;
-using Catalog.Domain.ValueObjects;
 
 namespace Catalog.Domain.Models
 {
-    public class Category : Entity<CategoryId>
+    public class Category : Entity<Guid>
     {
         public string Name { get; private set; } = default!;
         public Category? ParentCategory { get; private set; }
-        public CategoryId ParentCategoryId { get; private set; } = CategoryId.Empty();
+        public Guid? ParentCategoryId { get; private set; }
         public ICollection<Category> Subcategories { get; private set; } = new List<Category>();
 
-        public static Category Create(string name, CategoryId? parentCategoryId = null)
+        public static Category Create(string name, Guid? parentCategoryId = null)
         {
             return new Category()
             {
-                Id = CategoryId.New(),
+                Id = Guid.NewGuid(),
                 Name = name,
-                ParentCategoryId = parentCategoryId ?? CategoryId.Empty(),
+                ParentCategoryId = parentCategoryId,
                 ParentCategory = null,
                 Subcategories = new List<Category>()
             };

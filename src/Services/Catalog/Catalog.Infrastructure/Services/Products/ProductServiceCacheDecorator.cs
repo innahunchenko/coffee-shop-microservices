@@ -71,8 +71,9 @@ namespace Catalog.Infrastructure.Services.Products
             var totalKey = $"{index}:total";
 
             var cachedResult = await cacheService.GetProductsFromCacheAsync(index, totalKey, paginationParameters);
-            if (cachedResult != null)
+            if (cachedResult.Items.Count() != 0)
             {
+                Console.WriteLine($"Products {index}, {cachedResult.TotalCount} from cache");
                 return cachedResult;
             }
 
@@ -84,6 +85,7 @@ namespace Catalog.Infrastructure.Services.Products
 
             await cacheService.AddProductsToCacheAsync(productsFromDb.Items);
             await cacheService.AddProductsToIndexAsync(index, productsFromDb.Items);
+            await cacheService.AddTotalProductsCountToCacheAsync(totalKey, productsFromDb.TotalCount);
 
             return productsFromDb;
         }

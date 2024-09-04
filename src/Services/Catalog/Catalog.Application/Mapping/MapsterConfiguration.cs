@@ -17,12 +17,23 @@ namespace Catalog.Application.Mapping
             config.NewConfig<CategoryDto, Category>();
 
             config.NewConfig<Product, ProductDto>()
+                .Map(dest => dest.Id, src => src.Id.ToString()) 
                 .Map(dest => dest.CategoryName,
-                     src => src.Category.ParentCategory != null ? src.Category.ParentCategory.Name : src.Category.Name)
+                     src => src.Category != null
+                         ? (src.Category.ParentCategory != null
+                             ? src.Category.ParentCategory.Name
+                             : src.Category.Name)
+                         : string.Empty)
                 .Map(dest => dest.SubcategoryName,
-                     src => src.Category.ParentCategory == null ? string.Empty : src.Category.Name);
+                     src => src.Category != null
+                         ? (src.Category.ParentCategory == null
+                             ? src.Category.Name
+                             : string.Empty)
+                         : string.Empty);
 
-            config.NewConfig<ProductDto, Product>();
+            //config.NewConfig<ProductDto, Product>()
+            //    .Map(dest => dest.Id, src => Guid.Parse(src.Id))
+            //    .Map(dest => dest.CategoryId, src => src.Category.Id != null ? Guid.Parse(src.CategoryId) : (Guid?)null);
 
             config.NewConfig<ProductDto, IDictionary<string, string>>()
                 .MapWith(src => MapFromProductDto(src));

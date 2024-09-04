@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
-using Catalog.Infrastructure.Repositories.Products;
 using Catalog.Domain.Repositories.Products;
 using Catalog.Infrastructure.Data;
 using Catalog.Domain.Services.Products;
@@ -14,6 +13,8 @@ using Catalog.Infrastructure.Repositories.Categories;
 using Catalog.Domain.Repositories.Categories;
 using Catalog.Domain.Services.Categories;
 using Catalog.Infrastructure.Services.Categories;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace Catalog.Infrastructure
 {
@@ -26,10 +27,12 @@ namespace Catalog.Infrastructure
             services.AddScoped<IRedisCacheRepository, RedisCacheRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IProductCacheService, ProductCacheService>();
             services.Decorate<IProductService, ProductServiceCacheDecorator>();
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<ICategoryCacheService, CategoryCacheService>();
             services.Decorate<ICategoryService, CategoryServiceCacheDecorator>();
 
             services.AddScoped<ISaveChangesInterceptor, SaveEntityInterceptor>();
@@ -40,6 +43,7 @@ namespace Catalog.Infrastructure
             });
 
             services.AddScoped<IAppDbContext, AppDbContext>();
+            services.AddScoped<IDbConnection>(sp => new SqlConnection(connectionString));
 
             return services;
         }

@@ -1,5 +1,4 @@
 ﻿using Catalog.Domain.Models;
-using Catalog.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -10,16 +9,6 @@ namespace Catalog.Infrastructure.Configurations
         public void Configure(EntityTypeBuilder<Category> builder)
         {
             builder.HasKey(c => c.Id);
-
-            builder.Property(c => c.Id)
-            .HasConversion(
-                categoryId => categoryId.Value, 
-                dbId => CategoryId.Of(dbId));   
-
-            builder.Property(c => c.ParentCategoryId)
-                .HasConversion(
-                    categoryId => categoryId.Value,  
-                    dbId => CategoryId.Of(dbId));
 
             builder.Property(c => c.Name)
                 .IsRequired()

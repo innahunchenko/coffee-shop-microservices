@@ -27,7 +27,6 @@ namespace Catalog.Infrastructure.Services.Categories
             if (categoriesFromDb.Any())
             {
                 await cacheService.AddCategoriesToCacheAsync(categoriesFromDb);
-                Console.WriteLine($"categories from db");
                 return categoriesFromDb;
             }
 

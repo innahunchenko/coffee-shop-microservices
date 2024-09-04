@@ -22,6 +22,7 @@ namespace Catalog.Infrastructure.Services.Categories
             
             if (categoriesFromDb.Any())
             {
+                Console.WriteLine($"Categories from db");
                 return mapper.Map<List<CategoryDto>>(categoriesFromDb);
             }
 

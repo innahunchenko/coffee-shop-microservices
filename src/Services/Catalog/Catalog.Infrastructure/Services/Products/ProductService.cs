@@ -28,6 +28,7 @@ namespace Catalog.Infrastructure.Services.Products
 
             var mappedProducts = mapper.Map<IEnumerable<ProductDto>>(products);
             var totalProducts = await productRepository.GetSubcategoryProductsTotalCountAsync(subcategory);
+            Console.WriteLine($"Products {totalProducts} from db");
             return new PaginatedList<ProductDto>(mappedProducts, totalProducts, paginationParameters.PageSize);
         }
 
@@ -41,19 +42,21 @@ namespace Catalog.Infrastructure.Services.Products
 
             var mappedProducts = mapper.Map<IEnumerable<ProductDto>>(products);
             var totalProducts = await productRepository.GetCategoryProductsTotalCountAsync(category);
+            Console.WriteLine($"Products {totalProducts} from db");
             return new PaginatedList<ProductDto>(mappedProducts, totalProducts, paginationParameters.PageSize);
         }
 
         public async Task<PaginatedList<ProductDto>> GetProductsByNameAsync(string name, PaginationParameters paginationParameters)
         {
             var products = await productRepository.GetProductsByProductNameAsync(name, paginationParameters);
-            if (products == null)
+            if (products == null || products.Count() == 0)
             {
                 return new PaginatedList<ProductDto>(new List<ProductDto>(), 0, paginationParameters.PageSize);
             }
 
             var mappedProducts = mapper.Map<IEnumerable<ProductDto>>(products);
             var totalProducts = await productRepository.GetProductNameTotalCountAsync(name);
+            Console.WriteLine($"Products {totalProducts} from db");
             return new PaginatedList<ProductDto>(mappedProducts, totalProducts, paginationParameters.PageSize);
         }
 
@@ -67,6 +70,7 @@ namespace Catalog.Infrastructure.Services.Products
 
             var mappedProducts = mapper.Map<IEnumerable<ProductDto>>(products);
             var totalProducts = await productRepository.GetAllProductsTotalCountAsync();
+            Console.WriteLine($"Products {totalProducts} from db");
             return new PaginatedList<ProductDto>(mappedProducts, totalProducts, paginationParameters.PageSize);
         }
     }

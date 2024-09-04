@@ -9,5 +9,6 @@ namespace Catalog.Domain.Services.Products
         Task<PaginatedList<ProductDto>> GetProductsFromCacheAsync(string index, string totalKey, PaginationParameters paginationParameters);
         Task AddProductsToCacheAsync(IEnumerable<ProductDto> products);
         Task AddProductsToIndexAsync(string index, IEnumerable<ProductDto> products);
+        Task AddTotalProductsCountToCacheAsync(string totalKey, int totalCount);
     }
 }

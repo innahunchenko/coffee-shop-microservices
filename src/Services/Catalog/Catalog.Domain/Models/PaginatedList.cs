@@ -7,5 +7,6 @@ namespace Catalog.Domain.Models
     {
         public IEnumerable<T> Items { get; } = items;
         public int TotalPages { get; } = (int)Math.Ceiling(totalCount / (double)pageSize);
+        public int TotalCount { get; } = totalCount;
     }
 }

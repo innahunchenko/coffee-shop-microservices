@@ -68,5 +68,10 @@ namespace Catalog.Infrastructure.Services.Products
 
             await Task.WhenAll(tasks);
         }
+
+        public async Task AddTotalProductsCountToCacheAsync(string totalKey, int totalCount)
+        {
+            await cacheRepository.AddStringAsync(totalKey, totalCount.ToString());
+        }
     }
 }
