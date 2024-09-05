@@ -17,19 +17,19 @@ public class ProductRepository : IProductRepository
         this.context = context;
     }
 
-    public async Task<IEnumerable<Product>> GetAllProductsAsync(PaginationParameters paginationParameters)
+    public async Task<IEnumerable<Product>> GetAllProductsAsync(PaginationParameters paginationParameters, CancellationToken cancellationToken)
     {
         var query = @"
             SELECT p.*
             FROM Products AS p";
 
         var products = await ExecuteProductQueryAsync(query, paginationParameters);
-        await LoadCategoriesForProductsAsync(products);
+        await LoadCategoriesForProductsAsync(products, cancellationToken);
 
         return products;
     }
 
-    public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(string category, PaginationParameters paginationParameters)
+    public async Task<IEnumerable<Product>> GetProductsByCategoryAsync(string category, PaginationParameters paginationParameters, CancellationToken cancellationToken)
     {
         var query = @"
             SELECT p.*
@@ -39,12 +39,12 @@ public class ProductRepository : IProductRepository
             WHERE LOWER(parentC.Name) = LOWER(@Category)";
 
         var products = await ExecuteProductQueryAsync(query, paginationParameters, new { Category = category });
-        await LoadCategoriesForProductsAsync(products);
+        await LoadCategoriesForProductsAsync(products, cancellationToken);
 
         return products;
     }
 
-    public async Task<IEnumerable<Product>> GetProductsBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters)
+    public async Task<IEnumerable<Product>> GetProductsBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters, CancellationToken cancellationToken)
     {
         var query = @"
             SELECT p.*
@@ -53,12 +53,12 @@ public class ProductRepository : IProductRepository
             WHERE LOWER(c.Name) = LOWER(@Subcategory)";
 
         var products = await ExecuteProductQueryAsync(query, paginationParameters, new { Subcategory = subcategory });
-        await LoadCategoriesForProductsAsync(products);
+        await LoadCategoriesForProductsAsync(products, cancellationToken);
 
         return products;
     }
 
-    public async Task<IEnumerable<Product>> GetProductsByProductNameAsync(string productName, PaginationParameters paginationParameters)
+    public async Task<IEnumerable<Product>> GetProductsByProductNameAsync(string productName, PaginationParameters paginationParameters, CancellationToken cancellationToken)
     {
         var query = @"
             SELECT p.*
@@ -66,7 +66,7 @@ public class ProductRepository : IProductRepository
             WHERE p.Name LIKE @ProductName";
 
         var products = await ExecuteProductQueryAsync(query, paginationParameters, new { ProductName = $"%{productName.Replace("_", "[_]")}%" });
-        await LoadCategoriesForProductsAsync(products);
+        await LoadCategoriesForProductsAsync(products, cancellationToken);
 
         return products;
     }
@@ -129,7 +129,7 @@ public class ProductRepository : IProductRepository
         return await dbConnection.ExecuteScalarAsync<int>(query, queryParameters);
     }
 
-    private async Task LoadCategoriesForProductsAsync(IEnumerable<Product> products)
+    private async Task LoadCategoriesForProductsAsync(IEnumerable<Product> products, CancellationToken cancellationToken)
     {
         if (products == null || products.Count() == 0)
             return;
@@ -138,7 +138,7 @@ public class ProductRepository : IProductRepository
         var categories = await context.Categories
             .Include(c => c.ParentCategory)
             .Where(c => categoryIds.Contains(c.Id))
-            .ToListAsync();
+            .ToListAsync(cancellationToken);
 
         foreach (var product in products)
         {

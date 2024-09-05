@@ -4,6 +4,6 @@ namespace Catalog.Domain.Repositories.Categories
 {
     public interface ICategoryRepository
     {
-        Task<List<Category>> GetMainCategoriesWithSubcategoriesAsync();
+        Task<List<Category>> GetMainCategoriesWithSubcategoriesAsync(CancellationToken cancellationToken);
     }
 }

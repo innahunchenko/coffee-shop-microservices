@@ -16,9 +16,9 @@ namespace Catalog.Infrastructure.Services.Categories
             this.mapper = mapper;
         }
 
-        public async Task<List<CategoryDto>> GetCategoriesAsync()
+        public async Task<List<CategoryDto>> GetCategoriesAsync(CancellationToken cancellationToken)
         {
-            var categoriesFromDb = await categoryRepository.GetMainCategoriesWithSubcategoriesAsync();
+            var categoriesFromDb = await categoryRepository.GetMainCategoriesWithSubcategoriesAsync(cancellationToken);
             
             if (categoriesFromDb.Any())
             {

@@ -5,6 +5,6 @@ namespace Catalog.Domain.Services.Categories
     public interface ICategoryCacheService
     {
         Task<List<CategoryDto>> GetCategoriesFromCacheAsync();
-        Task AddCategoriesToCacheAsync(List<CategoryDto> categories);
+        Task AddCategoriesToCacheAsync(List<CategoryDto> categories, CancellationToken cancellationToken);
     }
 }

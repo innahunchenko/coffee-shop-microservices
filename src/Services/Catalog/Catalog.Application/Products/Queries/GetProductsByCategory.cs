@@ -24,7 +24,7 @@ namespace Catalog.Application.Products.Queries
                 { 
                     PageNumber = request.PageNumber, 
                     PageSize = request.PageSize 
-                });
+                }, cancellationToken);
         }
     }
 }

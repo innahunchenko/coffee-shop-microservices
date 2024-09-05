@@ -14,12 +14,12 @@ namespace Catalog.Infrastructure.Repositories.Categories
             this.context = context;
         }
 
-        public async Task<List<Category>> GetMainCategoriesWithSubcategoriesAsync()
+        public async Task<List<Category>> GetMainCategoriesWithSubcategoriesAsync(CancellationToken cancellationToken)
         {
             return await context.Categories
                 .Where(c => c.ParentCategoryId == null)
                 .Include(c => c.Subcategories)
-                .ToListAsync();
+                .ToListAsync(cancellationToken);
         }
     }
 }

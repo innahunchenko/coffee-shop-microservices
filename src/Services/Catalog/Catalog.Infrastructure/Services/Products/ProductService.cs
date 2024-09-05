@@ -18,9 +18,9 @@ namespace Catalog.Infrastructure.Services.Products
             this.productRepository = productRepository;
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters, CancellationToken cancellationToken)
         {
-            var products = await productRepository.GetProductsBySubcategoryAsync(subcategory, paginationParameters);
+            var products = await productRepository.GetProductsBySubcategoryAsync(subcategory, paginationParameters, cancellationToken);
             if (products == null)
             {
                 return new PaginatedList<ProductDto>(new List<ProductDto>(), 0, paginationParameters.PageSize);
@@ -32,9 +32,9 @@ namespace Catalog.Infrastructure.Services.Products
             return new PaginatedList<ProductDto>(mappedProducts, totalProducts, paginationParameters.PageSize);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsByCategoryAsync(string category, PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetProductsByCategoryAsync(string category, PaginationParameters paginationParameters, CancellationToken cancellationToken)
         {
-            var products = await productRepository.GetProductsByCategoryAsync(category, paginationParameters);
+            var products = await productRepository.GetProductsByCategoryAsync(category, paginationParameters, cancellationToken);
             if (products == null)
             {
                 return new PaginatedList<ProductDto>(new List<ProductDto>(), 0, paginationParameters.PageSize);
@@ -46,9 +46,9 @@ namespace Catalog.Infrastructure.Services.Products
             return new PaginatedList<ProductDto>(mappedProducts, totalProducts, paginationParameters.PageSize);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsByNameAsync(string name, PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetProductsByNameAsync(string name, PaginationParameters paginationParameters, CancellationToken cancellationToken)
         {
-            var products = await productRepository.GetProductsByProductNameAsync(name, paginationParameters);
+            var products = await productRepository.GetProductsByProductNameAsync(name, paginationParameters, cancellationToken);
             if (products == null || products.Count() == 0)
             {
                 return new PaginatedList<ProductDto>(new List<ProductDto>(), 0, paginationParameters.PageSize);
@@ -60,9 +60,9 @@ namespace Catalog.Infrastructure.Services.Products
             return new PaginatedList<ProductDto>(mappedProducts, totalProducts, paginationParameters.PageSize);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetAllProductsAsync(PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetAllProductsAsync(PaginationParameters paginationParameters, CancellationToken cancellationToken)
         {
-            var products = await productRepository.GetAllProductsAsync(paginationParameters);
+            var products = await productRepository.GetAllProductsAsync(paginationParameters, cancellationToken);
             if (products == null)
             {
                 return new PaginatedList<ProductDto>(new List<ProductDto>(), 0, paginationParameters.PageSize);

@@ -14,7 +14,7 @@ namespace Catalog.Infrastructure.Services.Categories
             this.cacheService = cacheService;
         }
 
-        public async Task<List<CategoryDto>> GetCategoriesAsync()
+        public async Task<List<CategoryDto>> GetCategoriesAsync(CancellationToken cancellationToken)
         {
             var cachedCategories = await cacheService.GetCategoriesFromCacheAsync();
             if (cachedCategories.Any())
@@ -23,10 +23,10 @@ namespace Catalog.Infrastructure.Services.Categories
                 return cachedCategories;
             }
 
-            var categoriesFromDb = await categoryService.GetCategoriesAsync();
+            var categoriesFromDb = await categoryService.GetCategoriesAsync(cancellationToken);
             if (categoriesFromDb.Any())
             {
-                await cacheService.AddCategoriesToCacheAsync(categoriesFromDb);
+                await cacheService.AddCategoriesToCacheAsync(categoriesFromDb, cancellationToken);
                 return categoriesFromDb;
             }
 

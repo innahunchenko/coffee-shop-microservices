@@ -9,27 +9,27 @@ namespace Catalog.API.Endpoints
     public class ProductsController : ApiControllerBase
     {
         [HttpGet()]
-        public Task<PaginatedList<ProductDto>> GetAllProducts([FromQuery] GetAllProductsRequest request)
+        public Task<PaginatedList<ProductDto>> GetAllProducts([FromQuery] GetAllProductsRequest request, CancellationToken cancellationToken)
         {
-            return Mediator.Send(request);
+            return Mediator.Send(request, cancellationToken);
         }
 
         [HttpGet("category")]
-        public Task<PaginatedList<ProductDto>> GetProductsByCategory([FromQuery] GetProductsByCategoryRequest request)
+        public Task<PaginatedList<ProductDto>> GetProductsByCategory([FromQuery] GetProductsByCategoryRequest request, CancellationToken cancellationToken)
         {
-            return Mediator.Send(request);
+            return Mediator.Send(request, cancellationToken);
         }
 
         [HttpGet("name")]
-        public Task<PaginatedList<ProductDto>> GetProductsByName([FromQuery] GetProductsByNameRequest request)
+        public Task<PaginatedList<ProductDto>> GetProductsByName([FromQuery] GetProductsByNameRequest request, CancellationToken cancellationToken)
         {
-            return Mediator.Send(request);
+            return Mediator.Send(request, cancellationToken);
         }
 
         [HttpGet("subcategory")]
-        public Task<PaginatedList<ProductDto>> GetProductsBySubcategory([FromQuery] GetProductsBySubcategoryRequest request)
+        public Task<PaginatedList<ProductDto>> GetProductsBySubcategory([FromQuery] GetProductsBySubcategoryRequest request, CancellationToken cancellationToken)
         {
-            return Mediator.Send(request);
+            return Mediator.Send(request, cancellationToken);
         }
     }
 }

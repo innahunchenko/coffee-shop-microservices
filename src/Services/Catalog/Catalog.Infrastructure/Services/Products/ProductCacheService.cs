@@ -45,33 +45,33 @@ namespace Catalog.Infrastructure.Services.Products
             return new PaginatedList<ProductDto>(cachedProducts, totalProducts, paginationParameters.PageSize);
         }
 
-        public async Task AddProductsToCacheAsync(IEnumerable<ProductDto> products)
+        public async Task AddProductsToCacheAsync(IEnumerable<ProductDto> products, CancellationToken cancellationToken)
         {
             var tasks = products.Select(async product =>
             {
                 var productKey = $"product:{product.Id}";
 
                 var entries = mapper.Map<Dictionary<string, string>>(product);
-                await cacheRepository.AddEntityToHashAsync(productKey, entries);
+                await cacheRepository.AddEntityToHashAsync(productKey, entries, cancellationToken);
             });
 
             await Task.WhenAll(tasks);
         }
 
-        public async Task AddProductsToIndexAsync(string index, IEnumerable<ProductDto> products)
+        public async Task AddProductsToIndexAsync(string index, IEnumerable<ProductDto> products, CancellationToken cancellationToken)
         {
             var tasks = products.Select(async product =>
             {
                 var productKey = $"product:{product.Id}";
-                await cacheRepository.AddValueToSetAsync(index, productKey);
+                await cacheRepository.AddValueToSetAsync(index, productKey, cancellationToken);
             });
 
             await Task.WhenAll(tasks);
         }
 
-        public async Task AddTotalProductsCountToCacheAsync(string totalKey, int totalCount)
+        public async Task AddTotalProductsCountToCacheAsync(string totalKey, int totalCount, CancellationToken cancellationToken)
         {
-            await cacheRepository.AddStringAsync(totalKey, totalCount.ToString());
+            await cacheRepository.AddStringAsync(totalKey, totalCount.ToString(), cancellationToken);
         }
     }
 }

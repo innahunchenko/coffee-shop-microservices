@@ -35,10 +35,10 @@ namespace Catalog.Infrastructure.Services.Categories
             return categories;
         }
 
-        public async Task AddCategoriesToCacheAsync(List<CategoryDto> categories)
+        public async Task AddCategoriesToCacheAsync(List<CategoryDto> categories, CancellationToken cancellationToken)
         {
             var cachedCategries = categories.ToDictionary(category => category.Name, JsonConvert.SerializeObject);
-            await cacheRepository.AddEntityToHashAsync(CATEGORIES_KEY, cachedCategries);
+            await cacheRepository.AddEntityToHashAsync(CATEGORIES_KEY, cachedCategries, cancellationToken);
         }
     }
 }
