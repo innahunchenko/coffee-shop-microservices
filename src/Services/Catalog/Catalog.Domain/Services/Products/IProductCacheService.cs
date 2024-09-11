@@ -1,6 +1,6 @@
-﻿using Catalog.Domain.Models.Dtos;
-using Catalog.Domain.Models.Pagination;
+﻿using Catalog.Domain.Models.Pagination;
 using Catalog.Domain.Models;
+using Catalog.Domain.Models.Dtos;
 
 namespace Catalog.Domain.Services.Products
 {

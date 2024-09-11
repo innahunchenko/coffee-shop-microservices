@@ -1,6 +1,8 @@
 using Catalog.Infrastructure;
 using Catalog.Infrastructure.Data;
 using Catalog.Application;
+using Foundation.Exceptions;
+using Carter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +11,7 @@ builder.Services
     .AddApplicationServices();
 
 builder.Services.AddControllers();
-
+builder.Services.AddCarter();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
@@ -20,8 +22,10 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
-var app = builder.Build();
+builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
+var app = builder.Build();
+app.MapCarter();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseHttpsRedirection();

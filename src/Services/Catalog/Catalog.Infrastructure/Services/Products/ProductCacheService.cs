@@ -1,21 +1,19 @@
-﻿using Catalog.Domain.Models.Dtos;
-using Catalog.Domain.Models.Pagination;
+﻿using Catalog.Domain.Models.Pagination;
 using Catalog.Domain.Models;
-using MapsterMapper;
 using RedisCachingService;
 using Catalog.Domain.Services.Products;
+using Catalog.Domain.Models.Dtos;
+using Catalog.Application.Mapping;
 
 namespace Catalog.Infrastructure.Services.Products
 {
     public class ProductCacheService : IProductCacheService
     {
         private readonly IRedisCacheRepository cacheRepository;
-        private readonly IMapper mapper;
 
-        public ProductCacheService(IRedisCacheRepository cacheRepository, IMapper mapper)
+        public ProductCacheService(IRedisCacheRepository cacheRepository)
         {
             this.cacheRepository = cacheRepository;
-            this.mapper = mapper;
         }
 
         public async Task<PaginatedList<ProductDto>> GetProductsFromCacheAsync(string index, string totalKey, PaginationParameters paginationParameters)
@@ -29,7 +27,7 @@ namespace Catalog.Infrastructure.Services.Products
                 var entryDictionary = await cacheRepository.GetEntityFromHashAsync(key);
                 if (entryDictionary != null && entryDictionary.Count > 0)
                 {
-                    var productDto = mapper.Map<ProductDto>(entryDictionary);
+                    var productDto = entryDictionary.ToProductDto();
                     cachedProducts.Add(productDto);
                 }
             }
@@ -45,14 +43,14 @@ namespace Catalog.Infrastructure.Services.Products
             return new PaginatedList<ProductDto>(cachedProducts, totalProducts, paginationParameters.PageSize);
         }
 
-        public async Task AddProductsToCacheAsync(IEnumerable<ProductDto> products, CancellationToken cancellationToken)
+        public async Task AddProductsToCacheAsync(IEnumerable<ProductDto> productsDto, CancellationToken cancellationToken)
         {
-            var tasks = products.Select(async product =>
+            var tasks = productsDto.Select(async product =>
             {
                 var productKey = $"product:{product.Id}";
 
-                var entries = mapper.Map<Dictionary<string, string>>(product);
-                await cacheRepository.AddEntityToHashAsync(productKey, entries, cancellationToken);
+                var entity = product.ToEntity();
+                await cacheRepository.AddEntityToHashAsync(productKey, entity, cancellationToken);
             });
 
             await Task.WhenAll(tasks);

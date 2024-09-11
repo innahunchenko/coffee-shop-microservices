@@ -21,7 +21,8 @@ namespace Catalog.Infrastructure.Services.Products
             this.cacheService = cacheService;
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters, CancellationToken cancellationToken)
+        public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, 
+            PaginationParameters paginationParameters, CancellationToken cancellationToken)
         {
             return await GetProductsAsync(
                 () => productService.GetProductsBySubcategoryAsync(subcategory, paginationParameters, cancellationToken),
@@ -32,7 +33,8 @@ namespace Catalog.Infrastructure.Services.Products
             );
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsByCategoryAsync(string category, PaginationParameters paginationParameters, CancellationToken cancellationToken)
+        public async Task<PaginatedList<ProductDto>> GetProductsByCategoryAsync(string category, 
+            PaginationParameters paginationParameters, CancellationToken cancellationToken)
         {
             return await GetProductsAsync(
                 () => productService.GetProductsByCategoryAsync(category, paginationParameters, cancellationToken),
@@ -43,7 +45,8 @@ namespace Catalog.Infrastructure.Services.Products
             );
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsByNameAsync(string name, PaginationParameters paginationParameters, CancellationToken cancellationToken)
+        public async Task<PaginatedList<ProductDto>> GetProductsByNameAsync(string name, 
+            PaginationParameters paginationParameters, CancellationToken cancellationToken)
         {
             return await GetProductsAsync(
                 () => productService.GetProductsByNameAsync(name, paginationParameters, cancellationToken),
@@ -54,7 +57,8 @@ namespace Catalog.Infrastructure.Services.Products
             );
         }
 
-        public async Task<PaginatedList<ProductDto>> GetAllProductsAsync(PaginationParameters paginationParameters, CancellationToken cancellationToken)
+        public async Task<PaginatedList<ProductDto>> GetAllProductsAsync(PaginationParameters paginationParameters, 
+            CancellationToken cancellationToken)
         {
             return await GetProductsAsync(
                 () => productService.GetAllProductsAsync(paginationParameters, cancellationToken),
@@ -67,9 +71,7 @@ namespace Catalog.Infrastructure.Services.Products
 
         private async Task<PaginatedList<ProductDto>> GetProductsAsync(
             Func<Task<PaginatedList<ProductDto>>> getProductsFromDbFunc,
-            string indexKeyTemplate,
-            string filterKey,
-            PaginationParameters paginationParameters, 
+            string indexKeyTemplate, string filterKey, PaginationParameters paginationParameters, 
             CancellationToken cancellationToken)
         {
             var index = string.Format(indexKeyTemplate + ":page:{1}", filterKey.ToLower(), paginationParameters.PageNumber);

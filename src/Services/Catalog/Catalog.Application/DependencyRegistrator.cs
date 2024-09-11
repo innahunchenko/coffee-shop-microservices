@@ -1,6 +1,4 @@
-﻿using Catalog.Application.Mapping;
-using MapsterMapper;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace Catalog.Application
@@ -13,10 +11,6 @@ namespace Catalog.Application
             {
                 config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             });
-
-            var mapsterConfig = MapsterConfiguration.Configure();
-            services.AddSingleton(mapsterConfig);
-            services.AddScoped<IMapper>(sp => new Mapper(mapsterConfig));
 
             return services;
         }

@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Catalog.Application.Products.Queries
 {
-    public record GetAllProductsRequest() : PaginationParameters(), IRequest<PaginatedList<ProductDto>>;
+    public record GetAllProductsRequest(int PageNumber, int PageSize) : PaginationParameters(PageNumber, PageSize), IRequest<PaginatedList<ProductDto>>;
 
     internal sealed class GetAllProductsHandler : IRequestHandler<GetAllProductsRequest, PaginatedList<ProductDto>>
     {
@@ -19,11 +19,7 @@ namespace Catalog.Application.Products.Queries
         public Task<PaginatedList<ProductDto>> Handle(GetAllProductsRequest request, CancellationToken cancellationToken)
         {
             return productService.GetAllProductsAsync(
-                new PaginationParameters() 
-                { 
-                    PageNumber = request.PageNumber, 
-                    PageSize = request.PageSize 
-                }, cancellationToken);
+                new PaginationParameters(request.PageNumber, request.PageSize), cancellationToken);
         }
     }
 }

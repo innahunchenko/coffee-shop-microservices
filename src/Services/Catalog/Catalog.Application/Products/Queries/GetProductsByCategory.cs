@@ -1,12 +1,13 @@
-﻿using Catalog.Domain.Models.Dtos;
-using Catalog.Domain.Models.Pagination;
+﻿using Catalog.Domain.Models.Pagination;
 using Catalog.Domain.Models;
 using Catalog.Domain.Services.Products;
 using MediatR;
+using Catalog.Domain.Models.Dtos;
 
 namespace Catalog.Application.Products.Queries
 {
-    public record GetProductsByCategoryRequest(string Category) : PaginationParameters(), IRequest<PaginatedList<ProductDto>>;
+    public record GetProductsByCategoryRequest(string Category, int PageNumber, int PageSize) 
+        : PaginationParameters(PageNumber, PageSize), IRequest<PaginatedList<ProductDto>>;
 
     internal sealed class GetProductsByCategoryHandler : IRequestHandler<GetProductsByCategoryRequest, PaginatedList<ProductDto>>
     {
@@ -20,11 +21,7 @@ namespace Catalog.Application.Products.Queries
         {
             return productService.GetProductsByCategoryAsync(
                 request.Category, 
-                new PaginationParameters() 
-                { 
-                    PageNumber = request.PageNumber, 
-                    PageSize = request.PageSize 
-                }, cancellationToken);
+                new PaginationParameters(request.PageNumber, request.PageSize), cancellationToken);
         }
     }
 }
