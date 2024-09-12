@@ -1,7 +1,6 @@
 ﻿using Carter;
 using Catalog.Application.Products.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Catalog.API.Endpoints
 {

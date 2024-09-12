@@ -4,16 +4,19 @@ using Catalog.Domain.Models.Dtos;
 using Catalog.Domain.Models.Pagination;
 using Catalog.Domain.Repositories.Products;
 using Catalog.Domain.Services.Products;
+using Microsoft.Extensions.Logging;
 
 namespace Catalog.Infrastructure.Services.Products
 {
     public class ProductService : IProductService
     {
         private readonly IProductRepository productRepository;
+        private readonly ILogger<ProductService> logger;
 
-        public ProductService(IProductRepository productRepository)
+        public ProductService(IProductRepository productRepository, ILogger<ProductService> logger)
         {
             this.productRepository = productRepository;
+            this.logger = logger;
         }
 
         public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters, CancellationToken cancellationToken)
@@ -26,7 +29,7 @@ namespace Catalog.Infrastructure.Services.Products
 
             var productsDto = products.Select(product => product.ToProductDto());
             var totalProducts = await productRepository.GetSubcategoryProductsTotalCountAsync(subcategory);
-            Console.WriteLine($"Products {totalProducts} from db");
+            logger.LogInformation($"{products.Count()} products retrieved from db by subcategory");
             return new PaginatedList<ProductDto>(productsDto, totalProducts, paginationParameters.PageSize);
         }
 
@@ -40,7 +43,7 @@ namespace Catalog.Infrastructure.Services.Products
 
             var productsDto = products.Select(product => product.ToProductDto());
             var totalProducts = await productRepository.GetCategoryProductsTotalCountAsync(category);
-            Console.WriteLine($"Products {totalProducts} from db");
+            logger.LogInformation($"{products.Count()} products retrieved from db by category");
             return new PaginatedList<ProductDto>(productsDto, totalProducts, paginationParameters.PageSize);
         }
 
@@ -54,7 +57,7 @@ namespace Catalog.Infrastructure.Services.Products
 
             var productsDto = products.Select(product => product.ToProductDto());
             var totalProducts = await productRepository.GetProductNameTotalCountAsync(name);
-            Console.WriteLine($"Products {totalProducts} from db");
+            logger.LogInformation($"{products.Count()} products retrieved from db by name");
             return new PaginatedList<ProductDto>(productsDto, totalProducts, paginationParameters.PageSize);
         }
 
@@ -68,7 +71,7 @@ namespace Catalog.Infrastructure.Services.Products
 
             var productsDto = products.Select(product => product.ToProductDto());
             var totalProducts = await productRepository.GetAllProductsTotalCountAsync();
-            Console.WriteLine($"Products {totalProducts} from db");
+            logger.LogInformation($"{products.Count()} products retrieved from db");
             return new PaginatedList<ProductDto>(productsDto, totalProducts, paginationParameters.PageSize);
         }
     }
