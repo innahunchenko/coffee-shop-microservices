@@ -15,7 +15,7 @@ namespace Catalog.API.Endpoints
             {
                 var result = await sender.Send(request, ct);
                 return Results.Ok(result);
-            });
+            }).CacheOutput(policyBuilder => policyBuilder.Expire(TimeSpan.FromMinutes(10)));
         }        
     }
 }

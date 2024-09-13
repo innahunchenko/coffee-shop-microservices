@@ -12,6 +12,14 @@ builder.Services
 
 builder.Services.AddControllers();
 builder.Services.AddCarter();
+builder.Services.AddOutputCache();
+
+builder.Services.AddStackExchangeRedisOutputCache(options =>
+{
+    options.Configuration = builder.Configuration.GetValue<string>("CacheSettings:RedisConnectionString");
+    options.InstanceName = "catalog-api_";
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigin",
@@ -26,6 +34,7 @@ builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 var app = builder.Build();
 app.MapCarter();
+app.UseResponseCaching();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseHttpsRedirection();
@@ -34,7 +43,7 @@ app.MapControllers();
 app.UseCors("AllowSpecificOrigin");
 
 app.UseExceptionHandler(options => { });
-
+app.UseOutputCache();
 await app.InitialiseDatabaseAsync();
 
 app.Run();
