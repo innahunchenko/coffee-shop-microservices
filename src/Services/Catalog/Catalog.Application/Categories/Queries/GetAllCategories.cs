@@ -6,7 +6,7 @@ namespace Catalog.Application.Categories.Queries
 {
     public record GetAllCategoriesRequest() : IRequest<List<CategoryDto>>;
 
-    internal sealed class GetAllCategoriesHandler : IRequestHandler<GetAllCategoriesRequest, List<CategoryDto>>
+    public sealed class GetAllCategoriesHandler : IRequestHandler<GetAllCategoriesRequest, List<CategoryDto>>
     {
         private readonly ICategoryService categoryService;
         public GetAllCategoriesHandler(ICategoryService categoryService)

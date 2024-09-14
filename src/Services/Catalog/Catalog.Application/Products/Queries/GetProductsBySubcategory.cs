@@ -8,7 +8,7 @@ namespace Catalog.Application.Products.Queries
 {
     public record GetProductsBySubcategoryRequest(string Subcategory, int PageNumber, int PageSize) : PaginationParameters(PageNumber, PageSize), IRequest<PaginatedList<ProductDto>>;
 
-    internal sealed class GetProductsBySubcategoryHandler : IRequestHandler<GetProductsBySubcategoryRequest, PaginatedList<ProductDto>>
+    public sealed class GetProductsBySubcategoryHandler : IRequestHandler<GetProductsBySubcategoryRequest, PaginatedList<ProductDto>>
     {
         private readonly IProductService productService;
         public GetProductsBySubcategoryHandler(IProductService productService)

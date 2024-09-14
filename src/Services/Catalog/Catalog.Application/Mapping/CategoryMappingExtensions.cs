@@ -10,7 +10,7 @@ namespace Catalog.Application.Mapping
             return new CategoryDto
             {
                 Name = src.Name,
-                Subcategories = src.Subcategories.Select(sc => sc.Name).ToList()
+                Subcategories = src.Subcategories.Select(src => src.Name).ToList()
             };
         }
     }

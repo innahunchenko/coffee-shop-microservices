@@ -10,7 +10,8 @@ namespace Catalog.Infrastructure.Services.Categories
         private readonly ICategoryCacheService cacheService;
         private readonly ILogger<CategoryServiceCacheDecorator> logger;
 
-        public CategoryServiceCacheDecorator(ICategoryService categoryService, ICategoryCacheService cacheService, ILogger<CategoryServiceCacheDecorator> logger)
+        public CategoryServiceCacheDecorator(ICategoryService categoryService, 
+            ICategoryCacheService cacheService, ILogger<CategoryServiceCacheDecorator> logger)
         {
             this.categoryService = categoryService;
             this.cacheService = cacheService;

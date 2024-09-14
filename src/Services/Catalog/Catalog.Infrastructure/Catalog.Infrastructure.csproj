@@ -22,7 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\Caching\RedisCachingService\RedisCachingService.csproj" />
     <ProjectReference Include="..\Catalog.Application\Catalog.Application.csproj" />
-    <ProjectReference Include="..\Catalog.Domain\Catalog.Domain.csproj" />
   </ItemGroup>
 
 </Project>

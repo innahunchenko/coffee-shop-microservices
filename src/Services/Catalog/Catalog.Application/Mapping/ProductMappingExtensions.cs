@@ -13,16 +13,8 @@ namespace Catalog.Application.Mapping
                 Name = src.Name,
                 Description = src.Description,
                 Price = src.Price,
-                CategoryName = src.Category != null
-                    ? (src.Category.ParentCategory != null
-                        ? src.Category.ParentCategory.Name
-                        : src.Category.Name)
-                    : string.Empty,
-                SubcategoryName = src.Category != null 
-                    ? (src.Category.ParentCategory == null 
-                        ? src.Category.Name 
-                        : string.Empty) 
-                    : string.Empty
+                CategoryName = src.Category?.ParentCategory?.Name ?? src.Category?.Name ?? string.Empty,
+                SubcategoryName = src.Category?.ParentCategory == null ? src.Category?.Name ?? string.Empty : string.Empty
             };
         }
 

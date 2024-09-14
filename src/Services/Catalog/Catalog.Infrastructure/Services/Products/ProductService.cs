@@ -19,7 +19,8 @@ namespace Catalog.Infrastructure.Services.Products
             this.logger = logger;
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters, CancellationToken cancellationToken)
+        public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, 
+            PaginationParameters paginationParameters, CancellationToken cancellationToken)
         {
             var products = await productRepository.GetProductsBySubcategoryAsync(subcategory, paginationParameters, cancellationToken);
             if (products == null)
@@ -33,7 +34,8 @@ namespace Catalog.Infrastructure.Services.Products
             return new PaginatedList<ProductDto>(productsDto, totalProducts, paginationParameters.PageSize);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsByCategoryAsync(string category, PaginationParameters paginationParameters, CancellationToken cancellationToken)
+        public async Task<PaginatedList<ProductDto>> GetProductsByCategoryAsync(string category, 
+            PaginationParameters paginationParameters, CancellationToken cancellationToken)
         {
             var products = await productRepository.GetProductsByCategoryAsync(category, paginationParameters, cancellationToken);
             if (products == null)
@@ -47,7 +49,8 @@ namespace Catalog.Infrastructure.Services.Products
             return new PaginatedList<ProductDto>(productsDto, totalProducts, paginationParameters.PageSize);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsByNameAsync(string name, PaginationParameters paginationParameters, CancellationToken cancellationToken)
+        public async Task<PaginatedList<ProductDto>> GetProductsByNameAsync(string name, 
+            PaginationParameters paginationParameters, CancellationToken cancellationToken)
         {
             var products = await productRepository.GetProductsByProductNameAsync(name, paginationParameters, cancellationToken);
             if (products == null || products.Count() == 0)

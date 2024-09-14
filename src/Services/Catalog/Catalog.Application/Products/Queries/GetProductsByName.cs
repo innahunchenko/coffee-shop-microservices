@@ -8,7 +8,7 @@ namespace Catalog.Application.Products.Queries
 {
     public record GetProductsByNameRequest(string Name, int PageNumber, int PageSize) : PaginationParameters(PageNumber, PageSize), IRequest<PaginatedList<ProductDto>>;
 
-    internal sealed class GetProductsByNameHandler : IRequestHandler<GetProductsByNameRequest, PaginatedList<ProductDto>>
+    public sealed class GetProductsByNameHandler : IRequestHandler<GetProductsByNameRequest, PaginatedList<ProductDto>>
     {
         private readonly IProductService productService;
         public GetProductsByNameHandler(IProductService productService)
