@@ -16,13 +16,6 @@ namespace CoffeeShop.IntegrationTests
             var connectionMultiplexer = ConnectionMultiplexer.Connect("localhost:6379");
             var expiryTime = TimeSpan.FromMinutes(5);
             logger = Mock.Of<ILogger<RedisCacheRepository>>();
-            //var loggerFactory = LoggerFactory.Create(builder =>
-            //{
-            //    builder.AddConsole();
-            //    builder.SetMinimumLevel(LogLevel.Information);
-            //});
-
-           // logger = loggerFactory.CreateLogger<RedisCacheRepository>();
             redisCacheRepository = new RedisCacheRepository(connectionMultiplexer, expiryTime, logger);
         }
 
