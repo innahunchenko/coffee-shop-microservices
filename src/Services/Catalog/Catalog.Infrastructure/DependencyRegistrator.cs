@@ -15,6 +15,8 @@ using Catalog.Domain.Services.Categories;
 using Catalog.Infrastructure.Services.Categories;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using StackExchange.Redis;
+using Microsoft.Extensions.Logging;
 
 namespace Catalog.Infrastructure
 {
@@ -22,9 +24,19 @@ namespace Catalog.Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
+            var redisConnectionString = configuration.GetValue<string>("CacheSettings:RedisConnectionString");
+            var expiryTime = TimeSpan.FromMinutes(configuration.GetValue<double>("CacheSettings:DefaultCacheDurationMinutes"));
+            var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConnectionString!);
+            services.AddSingleton(connectionMultiplexer);
+            services.AddScoped<IRedisCacheRepository, RedisCacheRepository>(provider =>
+            {
+                var multiplexer = provider.GetRequiredService<ConnectionMultiplexer>();
+                var logger = provider.GetRequiredService<ILogger<RedisCacheRepository>>();
+                return new RedisCacheRepository(multiplexer, expiryTime, logger);
+            });
+
             var connectionString = configuration.GetConnectionString("ProductsConnection");
             services.AddHttpContextAccessor();
-            services.AddScoped<IRedisCacheRepository, RedisCacheRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<IProductCacheService, ProductCacheService>();

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "CoffeeShop.IntegrationTests": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}

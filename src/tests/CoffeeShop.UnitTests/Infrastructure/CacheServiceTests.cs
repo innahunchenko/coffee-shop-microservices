@@ -1,10 +1,8 @@
 ﻿using AutoFixture;
 using Catalog.Domain.Models.Dtos;
-using Catalog.Domain.Services.Categories;
 using Catalog.Infrastructure.Services.Categories;
 using Catalog.Infrastructure.Services.Products;
 using FluentAssertions;
-using Microsoft.AspNetCore.SignalR;
 using Moq;
 using Newtonsoft.Json;
 using RedisCachingService;

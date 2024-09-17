@@ -27,7 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Foundation", "Common\Founda
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{8D2B627F-62F8-4E3E-BDFA-E1EA9FF8721B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffeeShop.UnitTests", "tests\CoffeeShop.UnitTests\CoffeeShop.UnitTests.csproj", "{CEAA9D06-9C52-4F38-BFBC-2B91D56A2498}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoffeeShop.UnitTests", "tests\CoffeeShop.UnitTests\CoffeeShop.UnitTests.csproj", "{CEAA9D06-9C52-4F38-BFBC-2B91D56A2498}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoffeeShop.IntegrationTests", "tests\CoffeeShop.IntegrationTests\CoffeeShop.IntegrationTests.csproj", "{BB60D8DF-2371-47B4-91BE-16453559AF7D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +69,10 @@ Global
 		{CEAA9D06-9C52-4F38-BFBC-2B91D56A2498}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEAA9D06-9C52-4F38-BFBC-2B91D56A2498}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEAA9D06-9C52-4F38-BFBC-2B91D56A2498}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB60D8DF-2371-47B4-91BE-16453559AF7D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB60D8DF-2371-47B4-91BE-16453559AF7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB60D8DF-2371-47B4-91BE-16453559AF7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB60D8DF-2371-47B4-91BE-16453559AF7D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +87,7 @@ Global
 		{9B70D335-FBA3-4C50-9059-5B4693F80198} = {10812AE8-38A1-4044-AAC4-715FE51305E3}
 		{E18C24D6-9E3E-4F5A-9135-5BC9AE426824} = {BA53CC20-9D39-49F6-93FF-D011AF57D293}
 		{CEAA9D06-9C52-4F38-BFBC-2B91D56A2498} = {8D2B627F-62F8-4E3E-BDFA-E1EA9FF8721B}
+		{BB60D8DF-2371-47B4-91BE-16453559AF7D} = {8D2B627F-62F8-4E3E-BDFA-E1EA9FF8721B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1CA2C4BF-718C-4F08-8432-92F523020E90}

@@ -1,6 +1,5 @@
 ﻿using AutoFixture;
 using Catalog.Domain.Models;
-using Catalog.Domain.Models.Dtos;
 using Catalog.Domain.Models.Pagination;
 using Catalog.Domain.Repositories.Categories;
 using Catalog.Domain.Repositories.Products;
