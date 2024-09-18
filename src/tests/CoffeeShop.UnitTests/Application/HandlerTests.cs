@@ -1,6 +1,4 @@
-﻿using Catalog.Application.Categories.Queries;
-using Catalog.Application.Products.Queries;
-using Catalog.Domain.Models;
+﻿using Catalog.Domain.Models;
 using Catalog.Domain.Models.Dtos;
 using Catalog.Domain.Models.Pagination;
 using Catalog.Domain.Services.Categories;
@@ -28,7 +26,7 @@ namespace CoffeeShop.UnitTests.Application
                 new ProductDto()
             };
 
-            mockProductService.Setup(service => service.GetAllProductsAsync(It.IsAny<PaginationParameters>(), It.IsAny<CancellationToken>()))
+            mockProductService.Setup(service => service.GetAllAsync(It.IsAny<PaginationParameters>()))
                 .ReturnsAsync(new PaginatedList<ProductDto>(products, totalCount, pageSize));
             var handler = new Catalog.Application.Products.Queries.GetAllHandler(mockProductService.Object);
 
@@ -54,7 +52,7 @@ namespace CoffeeShop.UnitTests.Application
                 new CategoryDto()
             };
 
-            mockCategoriesService.Setup(service => service.GetCategoriesAsync(It.IsAny<CancellationToken>()))
+            mockCategoriesService.Setup(service => service.GetAllAsync())
                 .ReturnsAsync(new List<CategoryDto>(categoories));
             var handler = new Catalog.Application.Categories.Queries.GetAllHandler(mockCategoriesService.Object);
 

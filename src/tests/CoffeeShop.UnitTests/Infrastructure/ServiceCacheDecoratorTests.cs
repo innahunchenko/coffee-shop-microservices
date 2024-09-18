@@ -47,12 +47,12 @@ namespace CoffeeShop.UnitTests.Infrastructure
             productCacheServiceMock.Setup(c => c.GetProductsFromCacheAsync(It.IsAny<string>())).ReturnsAsync(expectedCachedProduct);
             productCacheServiceMock.Setup(c => c.GetCachedTotalProductsCountAsync(It.IsAny<string>())).ReturnsAsync(expectedTotalCount);
 
-            var cachedResult = await productServiceCacheDecorator.GetAllProductsAsync(paginationParameters, CancellationToken.None);
+            var cachedResult = await productServiceCacheDecorator.GetAllAsync(paginationParameters);
 
             cachedResult.Should().NotBeNull("because the product cache decorator should return a cached result");
             cachedResult.Items.Count().Should().Be(expectedCachedProduct.Count(), "because the number of cached items should match the products list");
             cachedResult.TotalCount.Should().Be(expectedTotalCount, "because the cached total count products should match the expected value");
-            productServiceMock.Verify(s => s.GetAllProductsAsync(It.IsAny<PaginationParameters>(), It.IsAny<CancellationToken>()), Times.Never);  
+            productServiceMock.Verify(s => s.GetAllAsync(It.IsAny<PaginationParameters>()), Times.Never);  
         }
 
         [Fact]
@@ -61,11 +61,11 @@ namespace CoffeeShop.UnitTests.Infrastructure
             var expectedCachedCategories = fixture.Build<CategoryDto>().CreateMany(2).ToList();
             categoryCacheServiceMock.Setup(c => c.GetFromCacheAsync()).ReturnsAsync(expectedCachedCategories);
 
-            var cachedResult = await categoryServiceCacheDecorator.GetCategoriesAsync(CancellationToken.None);
+            var cachedResult = await categoryServiceCacheDecorator.GetAllAsync();
 
             cachedResult.Should().NotBeNull("because the category cache decorator should return a cached result");
             cachedResult.Count().Should().Be(expectedCachedCategories.Count(), "because the number of cached categories should match the expected categories list");
-            categoryServiceMock.Verify(s => s.GetCategoriesAsync(It.IsAny<CancellationToken>()), Times.Never);
+            categoryServiceMock.Verify(s => s.GetAllAsync(), Times.Never);
         }
     }
 }

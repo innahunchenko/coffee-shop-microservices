@@ -1,5 +1,5 @@
 ﻿using AutoFixture;
-using Catalog.Domain.Models;
+using Catalog.Domain.Models.Dtos;
 using Catalog.Domain.Models.Pagination;
 using Catalog.Domain.Repositories.Categories;
 using Catalog.Domain.Repositories.Products;
@@ -39,13 +39,13 @@ namespace CoffeeShop.UnitTests.Infrastructure
         {
             // Arrange
             var paginationParameters = new PaginationParameters(1, 8);
-            var products = fixture.Build<Product>().CreateMany(2).ToList();
+            var products = fixture.Build<ProductDto>().CreateMany(2).ToList();
             var expectedTotalCountProducts = 1;
-            productRepositoryMock.Setup(p => p.GetAllAsync(paginationParameters, It.IsAny<CancellationToken>())).ReturnsAsync(products);
+            productRepositoryMock.Setup(p => p.GetAllAsync(paginationParameters)).ReturnsAsync(products);
             productRepositoryMock.Setup(p => p.GetAllTotalCountAsync()).ReturnsAsync(expectedTotalCountProducts);
 
             // Act
-            var productsDto = await productService.GetAllProductsAsync(paginationParameters, CancellationToken.None);
+            var productsDto = await productService.GetAllAsync(paginationParameters);
 
             // Assert
             productsDto.Should().NotBeNull("because the product service should return a result");
@@ -57,11 +57,11 @@ namespace CoffeeShop.UnitTests.Infrastructure
         public async Task GetAllCategoriesAsync_ShouldReturnList_WhenCategoriesExist()
         {
             // Arrange
-            var categories = fixture.Build<Category>().CreateMany(2).ToList();
-            categoryRepositoryMock.Setup(c => c.GetAsync(It.IsAny<CancellationToken>())).ReturnsAsync(categories);
+            var categories = fixture.Build<CategoryDto>().CreateMany(2).ToList();
+            categoryRepositoryMock.Setup(c => c.GetAllAsync()).ReturnsAsync(categories);
 
             // Act
-            var categoiesDto = await categoryService.GetCategoriesAsync(CancellationToken.None);
+            var categoiesDto = await categoryService.GetAllAsync();
 
             // Assert
             categoiesDto.Should().NotBeNull("because the category service should return a result");

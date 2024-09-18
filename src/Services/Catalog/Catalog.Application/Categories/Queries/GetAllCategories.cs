@@ -16,7 +16,7 @@ namespace Catalog.Application.Categories.Queries
 
         public async Task<List<CategoryDto>> Handle(GetAllRequest request, CancellationToken cancellationToken)
         {
-            return await categoryService.GetAsync();
+            return await categoryService.GetAllAsync();
         }
     }
 }

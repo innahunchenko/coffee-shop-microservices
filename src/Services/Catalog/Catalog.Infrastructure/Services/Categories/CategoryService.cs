@@ -16,7 +16,7 @@ namespace Catalog.Infrastructure.Services.Categories
             this.logger = logger;
         }
 
-        public async Task<List<CategoryDto>> GetAsync()
+        public async Task<List<CategoryDto>> GetAllAsync()
         {
             var categoriesFromDb = await categoryRepository.GetAllAsync();
             

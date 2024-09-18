@@ -30,7 +30,7 @@ namespace CoffeeShop.IntegrationTests
             {
                 tasks.Add(Task.Run(async () =>
                 {
-                    await redisCacheRepository.AddValueToSetAsync(key, value, CancellationToken.None);
+                    await redisCacheRepository.AddValueToSetAsync(key, value);
                 }));
             }
 
@@ -54,7 +54,7 @@ namespace CoffeeShop.IntegrationTests
 
             async Task<bool> TrySetValueAsync(CancellationToken ct)
             {
-                var result = await redisCacheRepository.AddValueToSetAsync(key, expectedValue, ct);
+                var result = await redisCacheRepository.AddValueToSetAsync(key, expectedValue);
                 if (result)
                 {
                     Interlocked.Increment(ref successfulSetOperations);

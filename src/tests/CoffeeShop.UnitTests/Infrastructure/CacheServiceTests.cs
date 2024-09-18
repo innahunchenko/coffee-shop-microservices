@@ -64,15 +64,15 @@ namespace CoffeeShop.UnitTests.Infrastructure
                 new ProductDto { Id = "1", Name = "Product 1" },
                 new ProductDto { Id = "2", Name = "Product 2" }
             };
-            redisCacheRepositoryMock.Setup(repo => repo.AddEntityToHashAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>(), 
-                It.IsAny<CancellationToken>())).Returns(Task.FromResult(true));
+            redisCacheRepositoryMock.Setup(repo => repo.AddEntityToHashAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
+                .Returns(Task.FromResult(true));
 
-            await productCacheService.AddProductsToCacheAsync(products, CancellationToken.None);
+            await productCacheService.AddProductsToCacheAsync(products);
 
             redisCacheRepositoryMock.Verify(repo => repo.AddEntityToHashAsync(It.Is<string>(key => key == "product:1"), 
-                It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Once);
+                It.IsAny<Dictionary<string, string>>()), Times.Once);
             redisCacheRepositoryMock.Verify(repo => repo.AddEntityToHashAsync(It.Is<string>(key => key == "product:2"), 
-                It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Once);
+                It.IsAny<Dictionary<string, string>>()), Times.Once);
         }
 
         [Fact]
@@ -83,13 +83,13 @@ namespace CoffeeShop.UnitTests.Infrastructure
                 new ProductDto { Id = "1", Name = "Product 1" },
                 new ProductDto { Id = "2", Name = "Product 2" }
             };
-            redisCacheRepositoryMock.Setup(e => e.AddValueToSetAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            redisCacheRepositoryMock.Setup(e => e.AddValueToSetAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(true));
 
-            await productCacheService.AddProductsToIndexAsync("productIndex", products, CancellationToken.None);
+            await productCacheService.AddProductsToIndexAsync("productIndex", products);
 
-            redisCacheRepositoryMock.Verify(r => r.AddValueToSetAsync("productIndex", "product:1", It.IsAny<CancellationToken>()), Times.Once);
-            redisCacheRepositoryMock.Verify(r => r.AddValueToSetAsync("productIndex", "product:2", It.IsAny<CancellationToken>()), Times.Once);
+            redisCacheRepositoryMock.Verify(r => r.AddValueToSetAsync("productIndex", "product:1"), Times.Once);
+            redisCacheRepositoryMock.Verify(r => r.AddValueToSetAsync("productIndex", "product:2"), Times.Once);
         }
 
         [Fact]
@@ -107,12 +107,12 @@ namespace CoffeeShop.UnitTests.Infrastructure
         [Fact]
         public async Task AddTotalProductsCountToCacheAsync_ShouldAddTotalCountToCache_WhenCalled()
         {
-            redisCacheRepositoryMock.Setup(repo => repo.AddStringAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            redisCacheRepositoryMock.Setup(repo => repo.AddStringAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(true));
 
-            await productCacheService.AddTotalProductsCountToCacheAsync("totalKey", 100, CancellationToken.None);
+            await productCacheService.AddTotalProductsCountToCacheAsync("totalKey", 100);
 
-            redisCacheRepositoryMock.Verify(repo => repo.AddStringAsync("totalKey", "100", It.IsAny<CancellationToken>()), Times.Once);
+            redisCacheRepositoryMock.Verify(repo => repo.AddStringAsync("totalKey", "100"), Times.Once);
         }
 
         [Fact]
@@ -153,13 +153,13 @@ namespace CoffeeShop.UnitTests.Infrastructure
                 new CategoryDto { Name = "Category 2" }
             };
 
-            redisCacheRepositoryMock.Setup(repo => repo.AddEntityToHashAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>(),
-                It.IsAny<CancellationToken>())).Returns(Task.FromResult(true));
+            redisCacheRepositoryMock.Setup(repo => repo.AddEntityToHashAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
+                .Returns(Task.FromResult(true));
 
-            await categoryCacheService.AddCategoriesToCacheAsync(categories, CancellationToken.None);
+            await categoryCacheService.AddToCacheAsync(categories);
 
             redisCacheRepositoryMock.Verify(repo => repo.AddEntityToHashAsync(It.Is<string>(key => key == categoryKey),
-                It.IsAny<Dictionary<string, string>>(), It.IsAny<CancellationToken>()), Times.Once);
+                It.IsAny<Dictionary<string, string>>()), Times.Once);
         }
     }
 }
