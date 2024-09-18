@@ -11,25 +11,25 @@ namespace Catalog.API.Endpoints
 
         public override void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet("/", async ([AsParameters] GetAllProductsRequest request, CancellationToken ct, ISender sender) =>
+            app.MapGet("/", async ([AsParameters] GetAllRequest request, CancellationToken ct, ISender sender) =>
             {
                 var result = await sender.Send(request, ct);
                 return Results.Ok(result);
             }).CacheOutput(policyBuilder => policyBuilder.Expire(TimeSpan.FromMinutes(10)));
 
-            app.MapGet("/category", async ([AsParameters] GetProductsByCategoryRequest request, CancellationToken ct, ISender sender) =>
+            app.MapGet("/category", async ([AsParameters] GetByCategoryRequest request, CancellationToken ct, ISender sender) =>
             {
                 var result = await sender.Send(request, ct);
                 return Results.Ok(result);
             }).CacheOutput(policyBuilder => policyBuilder.Expire(TimeSpan.FromMinutes(10)));
 
-            app.MapGet("/subcategory", async ([AsParameters] GetProductsBySubcategoryRequest request, CancellationToken ct, ISender sender) =>
+            app.MapGet("/subcategory", async ([AsParameters] GetBySubcategoryRequest request, CancellationToken ct, ISender sender) =>
             {
                 var result = await sender.Send(request, ct);
                 return Results.Ok(result);
             }).CacheOutput(policyBuilder => policyBuilder.Expire(TimeSpan.FromMinutes(10)));
 
-            app.MapGet("/name", async ([AsParameters] GetProductsByNameRequest request, CancellationToken ct, ISender sender) =>
+            app.MapGet("/name", async ([AsParameters] GetByNameRequest request, CancellationToken ct, ISender sender) =>
             {
                 var result = await sender.Send(request, ct);
                 return Results.Ok(result);

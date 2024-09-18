@@ -6,21 +6,21 @@ using Catalog.Domain.Models.Dtos;
 
 namespace Catalog.Application.Products.Queries
 {
-    public record GetProductsByNameRequest(string Name, int PageNumber, int PageSize) : PaginationParameters(PageNumber, PageSize), IRequest<PaginatedList<ProductDto>>;
+    public record GetByNameRequest(string Name, int PageNumber, int PageSize) : PaginationParameters(PageNumber, PageSize), IRequest<PaginatedList<ProductDto>>;
 
-    public sealed class GetProductsByNameHandler : IRequestHandler<GetProductsByNameRequest, PaginatedList<ProductDto>>
+    public sealed class GetByNameHandler : IRequestHandler<GetByNameRequest, PaginatedList<ProductDto>>
     {
         private readonly IProductService productService;
-        public GetProductsByNameHandler(IProductService productService)
+        public GetByNameHandler(IProductService productService)
         {
             this.productService = productService;
         }
 
-        public Task<PaginatedList<ProductDto>> Handle(GetProductsByNameRequest request, CancellationToken cancellationToken)
+        public Task<PaginatedList<ProductDto>> Handle(GetByNameRequest request, CancellationToken cancellationToken)
         {
-            return productService.GetProductsByNameAsync(
+            return productService.GetByNameAsync(
                 request.Name, 
-                new PaginationParameters(request.PageNumber, request.PageSize), cancellationToken);
+                new PaginationParameters(request.PageNumber, request.PageSize));
         }
     }
 }

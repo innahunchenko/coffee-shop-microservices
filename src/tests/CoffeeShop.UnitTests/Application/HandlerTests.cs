@@ -21,7 +21,7 @@ namespace CoffeeShop.UnitTests.Application
             var pageSize = 8;
             var totalCount = 25;
             var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-            var request = new GetAllProductsRequest(pageNumber, pageSize);
+            var request = new Catalog.Application.Products.Queries.GetAllRequest(pageNumber, pageSize);
             var products = new List<ProductDto>
             {
                 new ProductDto(),
@@ -30,7 +30,7 @@ namespace CoffeeShop.UnitTests.Application
 
             mockProductService.Setup(service => service.GetAllProductsAsync(It.IsAny<PaginationParameters>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new PaginatedList<ProductDto>(products, totalCount, pageSize));
-            var handler = new GetAllProductsHandler(mockProductService.Object);
+            var handler = new Catalog.Application.Products.Queries.GetAllHandler(mockProductService.Object);
 
             // Act
             var result = await handler.Handle(request, CancellationToken.None);
@@ -47,7 +47,7 @@ namespace CoffeeShop.UnitTests.Application
         {
             // Arrange
             var mockCategoriesService = new Mock<ICategoryService>();
-            var request = new GetAllCategoriesRequest();
+            var request = new Catalog.Application.Categories.Queries.GetAllRequest();
             var categoories = new List<CategoryDto>
             {
                 new CategoryDto(),
@@ -56,7 +56,7 @@ namespace CoffeeShop.UnitTests.Application
 
             mockCategoriesService.Setup(service => service.GetCategoriesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<CategoryDto>(categoories));
-            var handler = new GetAllCategoriesHandler(mockCategoriesService.Object);
+            var handler = new Catalog.Application.Categories.Queries.GetAllHandler(mockCategoriesService.Object);
 
             // Act
             var result = await handler.Handle(request, CancellationToken.None);

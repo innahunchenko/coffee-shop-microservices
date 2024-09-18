@@ -16,7 +16,7 @@ namespace Catalog.Infrastructure.Services.Categories
             this.cacheRepository = cacheRepository;
         }
 
-        public async Task<List<CategoryDto>> GetCategoriesFromCacheAsync()
+        public async Task<List<CategoryDto>> GetFromCacheAsync()
         {
             var cachedValues = await cacheRepository.GetEntityFromHashAsync(CATEGORIES_KEY);
             var categories = new List<CategoryDto>();
@@ -35,10 +35,10 @@ namespace Catalog.Infrastructure.Services.Categories
             return categories;
         }
 
-        public async Task AddCategoriesToCacheAsync(List<CategoryDto> categories, CancellationToken cancellationToken)
+        public async Task AddToCacheAsync(List<CategoryDto> categories)
         {
             var cachedCategries = categories.ToDictionary(category => category.Name, JsonConvert.SerializeObject);
-            await cacheRepository.AddEntityToHashAsync(CATEGORIES_KEY, cachedCategries, cancellationToken);
+            await cacheRepository.AddEntityToHashAsync(CATEGORIES_KEY, cachedCategries);
         }
     }
 }

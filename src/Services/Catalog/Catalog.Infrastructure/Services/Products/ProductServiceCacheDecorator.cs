@@ -25,40 +25,35 @@ namespace Catalog.Infrastructure.Services.Products
             this.logger = logger;
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, 
-            PaginationParameters paginationParameters, CancellationToken ct)
+        public async Task<PaginatedList<ProductDto>> GetBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters)
         {
             var cachedContext = new CachedContext(SubcategoryIndexTemplate, subcategory, paginationParameters);
             return await GetProductsAsync(
-                () => productService.GetProductsBySubcategoryAsync(subcategory, paginationParameters, ct), cachedContext, ct);
+                () => productService.GetBySubcategoryAsync(subcategory, paginationParameters), cachedContext);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsByCategoryAsync(string category, 
-            PaginationParameters paginationParameters, CancellationToken ct)
+        public async Task<PaginatedList<ProductDto>> GetByCategoryAsync(string category, PaginationParameters paginationParameters)
         {
             var cachedContext = new CachedContext(CategoryIndexTemplate, category, paginationParameters);
             return await GetProductsAsync(
-                () => productService.GetProductsByCategoryAsync(category, paginationParameters, ct), cachedContext, ct);
+                () => productService.GetByCategoryAsync(category, paginationParameters), cachedContext);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsByNameAsync(string name, 
-            PaginationParameters paginationParameters, CancellationToken ct)
+        public async Task<PaginatedList<ProductDto>> GetByNameAsync(string name, PaginationParameters paginationParameters)
         {
             var cachedContext = new CachedContext(ProductNameIndexTemplate, name, paginationParameters);
             return await GetProductsAsync(
-                () => productService.GetProductsByNameAsync(name, paginationParameters, ct), cachedContext, ct);
+                () => productService.GetByNameAsync(name, paginationParameters), cachedContext);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetAllProductsAsync(PaginationParameters paginationParameters, 
-            CancellationToken ct)
+        public async Task<PaginatedList<ProductDto>> GetAllAsync(PaginationParameters paginationParameters)
         {
             var cachedContext = new CachedContext(AllProductsIndexTemplate, string.Empty, paginationParameters);
             return await GetProductsAsync(
-                () => productService.GetAllProductsAsync(paginationParameters, ct), cachedContext, ct);
+                () => productService.GetAllAsync(paginationParameters), cachedContext);
         }
 
-        private async Task<PaginatedList<ProductDto>> GetProductsAsync(
-            Func<Task<PaginatedList<ProductDto>>> getProductsFromDbFunc, CachedContext cachedContext, CancellationToken ct)
+        private async Task<PaginatedList<ProductDto>> GetProductsAsync(Func<Task<PaginatedList<ProductDto>>> fromDbFunc, CachedContext cachedContext)
         {
             var cachedProducts  = await cacheService.GetProductsFromCacheAsync(cachedContext.Index);
             var cachedTotalCount = await cacheService.GetCachedTotalProductsCountAsync(cachedContext.TotalKey);
@@ -69,20 +64,20 @@ namespace Catalog.Infrastructure.Services.Products
                 return new PaginatedList<ProductDto>(cachedProducts, cachedTotalCount, cachedContext.PaginationParameters.PageSize);
             }
 
-            var productsFromDb = await getProductsFromDbFunc();
+            var productsFromDb = await fromDbFunc();
 
             if (productsFromDb.Items.Count() == 0)
             {
                 return new PaginatedList<ProductDto>(new List<ProductDto>(), 0, cachedContext.PaginationParameters.PageSize);
             }
 
-            await cacheService.AddProductsToCacheAsync(productsFromDb.Items, ct);
+            await cacheService.AddProductsToCacheAsync(productsFromDb.Items);
             logger.LogInformation($"{productsFromDb.Items.Count()} products added to cache");
 
-            await cacheService.AddProductsToIndexAsync(cachedContext.Index, productsFromDb.Items, ct);
+            await cacheService.AddProductsToIndexAsync(cachedContext.Index, productsFromDb.Items);
             logger.LogInformation($"Products added to index {cachedContext.Index}");
             
-            await cacheService.AddTotalProductsCountToCacheAsync(cachedContext.TotalKey, productsFromDb.TotalCount, ct);
+            await cacheService.AddTotalProductsCountToCacheAsync(cachedContext.TotalKey, productsFromDb.TotalCount);
             logger.LogInformation($"Total products count {productsFromDb.TotalCount} added to cache by key {cachedContext.TotalKey}");
 
             return productsFromDb;

@@ -33,25 +33,25 @@ namespace Catalog.Infrastructure.Services.Products
             return cachedProducts;
         }
 
-        public async Task AddProductsToCacheAsync(IEnumerable<ProductDto> productsDto, CancellationToken cancellationToken)
+        public async Task AddProductsToCacheAsync(IEnumerable<ProductDto> productsDto)
         {
             var tasks = productsDto.Select(async product =>
             {
                 var productKey = GetCacheKey(product.Id);
 
                 var entity = product.ToEntity();
-                await cacheRepository.AddEntityToHashAsync(productKey, entity, cancellationToken);
+                await cacheRepository.AddEntityToHashAsync(productKey, entity);
             });
 
             await Task.WhenAll(tasks);
         }
 
-        public async Task AddProductsToIndexAsync(string index, IEnumerable<ProductDto> products, CancellationToken cancellationToken)
+        public async Task AddProductsToIndexAsync(string index, IEnumerable<ProductDto> products)
         {
             var tasks = products.Select(async product =>
             {
                 var productKey = GetCacheKey(product.Id);
-                await cacheRepository.AddValueToSetAsync(index, productKey, cancellationToken);
+                await cacheRepository.AddValueToSetAsync(index, productKey);
             });
 
             await Task.WhenAll(tasks);
@@ -63,9 +63,9 @@ namespace Catalog.Infrastructure.Services.Products
             return string.IsNullOrEmpty(cachedTotalProducts) ? 0 : int.Parse(cachedTotalProducts);
         }
 
-        public async Task AddTotalProductsCountToCacheAsync(string totalKey, int totalCount, CancellationToken cancellationToken)
+        public async Task AddTotalProductsCountToCacheAsync(string totalKey, int totalCount)
         {
-            await cacheRepository.AddStringAsync(totalKey, totalCount.ToString(), cancellationToken);
+            await cacheRepository.AddStringAsync(totalKey, totalCount.ToString());
         }
 
         private string GetCacheKey(string productId)

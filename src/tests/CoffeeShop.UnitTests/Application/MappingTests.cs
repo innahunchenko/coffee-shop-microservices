@@ -1,5 +1,4 @@
 ﻿using AutoFixture;
-using Catalog.Domain.Models;
 using Catalog.Application.Mapping;
 using FluentAssertions;
 using Catalog.Domain.Models.Dtos;
@@ -13,34 +12,6 @@ namespace CoffeeShop.UnitTests.Application
         public MappingTests()
         {
             fixture = new Fixture();
-        }
-
-        [Theory]        
-        [InlineData("Coffee", "WholeBean")]
-        [InlineData("Coffee", null)]
-        [InlineData(null, "WholeBean")]
-        [InlineData(null, null)]
-        public void ToProductDto_FromProduct_ShouldMapProperties(string parentCategoryName, string categoryName)
-        {
-            // Arrange
-            var product = fixture.Build<Product>()
-                .With(x => x.Category, 
-                    CreateCategory(parentCategoryName, categoryName))
-                .Create();
-
-            // Act
-            var productDto = product.ToProductDto();
-
-            // Assert
-            productDto.Should().BeEquivalentTo(new ProductDto
-            {
-                Id = product.Id.ToString(),
-                Name = product.Name,
-                Description = product.Description,
-                Price = product.Price,
-                CategoryName = product.Category?.ParentCategory?.Name ?? product.Category?.Name ?? string.Empty,
-                SubcategoryName = product.Category?.ParentCategory == null ? product.Category?.Name ?? string.Empty : string.Empty
-            }, "ProductDto should match the mapped properties from Product");
         }
 
         [Fact]
@@ -85,15 +56,6 @@ namespace CoffeeShop.UnitTests.Application
 
             // Assert
             dictionary.Should().BeEquivalentTo(expectedDictionary, "Dictionary should match the mapped properties from ProductDto");
-        }
-
-        private Category CreateCategory(string parentCategoryName, string categoryName)
-        {
-            return new Category
-            {
-                Name = categoryName,
-                ParentCategory = new Category() { Name = parentCategoryName }
-            };
         }
     }
 }

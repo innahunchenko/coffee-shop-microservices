@@ -23,12 +23,12 @@ namespace RedisCachingService
             redLockFactory = RedLockFactory.Create(new List<RedLockMultiplexer> { connectionMultiplexer });
         }
 
-        public async Task<bool> AddEntityToHashAsync(string key, IDictionary<string, string> dictionary, CancellationToken cancellationToken)
+        public async Task<bool> AddEntityToHashAsync(string key, IDictionary<string, string> dictionary)
         {
             int threadId = Thread.CurrentThread.ManagedThreadId;
             var hashEntries = dictionary.Select(kvp => new HashEntry(kvp.Key, kvp.Value)).ToArray();
 
-            return await AcquireLockAsync(key, async (ct) =>
+            return await AcquireLockAsync(key, async () =>
             {
                 var existingEntries = await db.HashGetAllAsync(key);
                 if (existingEntries.Any())
@@ -41,7 +41,7 @@ namespace RedisCachingService
                 logger.LogInformation($"Entity {JsonSerializer.Serialize(dictionary)} add for key {key}. ThreadId {threadId}");
                 await db.KeyExpireAsync(key, expiryTime);
                 return true;
-            }, cancellationToken);
+            });
         }
 
         public async Task<IDictionary<string, string>> GetEntityFromHashAsync(string hashKey)
@@ -58,9 +58,9 @@ namespace RedisCachingService
             }
         }
 
-        public async Task<bool> AddEntryToHashAsync(string key, string entryName, string entryValue, CancellationToken cancellationToken)
+        public async Task<bool> AddEntryToHashAsync(string key, string entryName, string entryValue)
         {
-            return await AcquireLockAsync(key, async (ct) =>
+            return await AcquireLockAsync(key, async () =>
             {
                 int threadId = Thread.CurrentThread.ManagedThreadId;
                 var existingValue = await db.HashGetAsync(key, entryName);
@@ -74,7 +74,7 @@ namespace RedisCachingService
                 logger.LogInformation($"Entry {JsonSerializer.Serialize(new HashEntry(entryName, entryValue))} add for key {key}. ThreadId {threadId}");
                 await db.KeyExpireAsync(key, expiryTime);
                 return true;
-            }, cancellationToken);
+            });
         }
 
         public async Task<string> GetEntryValueFromHashAsync(string key, string entryName)
@@ -91,10 +91,10 @@ namespace RedisCachingService
             }
         }
 
-        public async Task<bool> AddValueToSetAsync(string key, string value, CancellationToken cancellationToken)
+        public async Task<bool> AddValueToSetAsync(string key, string value)
         {
             int threadId = Thread.CurrentThread.ManagedThreadId;
-            return await AcquireLockAsync(key, async (ct) =>
+            return await AcquireLockAsync(key, async () =>
             {
                 var members = await db.SetMembersAsync(key);
                 if (members.Contains(value))
@@ -107,7 +107,7 @@ namespace RedisCachingService
                 logger.LogInformation($"Value {value} added to set to index {key}. ThreadId {threadId}");
                 
                 return true;
-            }, cancellationToken);
+            });
         }
 
         public async Task<List<string>> GetValuesFromSetAsync(string key)
@@ -124,15 +124,15 @@ namespace RedisCachingService
             }
         }
 
-        public async Task<bool> AddStringAsync(string key, string value, CancellationToken cancellationToken)
+        public async Task<bool> AddStringAsync(string key, string value)
         {
             int threadId = Thread.CurrentThread.ManagedThreadId;
-            return await AcquireLockAsync(key, async (ct) =>
+            return await AcquireLockAsync(key, async () =>
             {
                 logger.LogInformation($"Save string {value} with {key}. ThreadId {threadId}");
                 await db.StringSetAsync(key, value, expiryTime);
                 return true;
-            }, cancellationToken);
+            });
         }
 
         public async Task<string> GetStringAsync(string key)
@@ -156,20 +156,19 @@ namespace RedisCachingService
             }
         }
 
-        public Task<bool> DeleteEntryFromHashAsync(string key, string entryName, CancellationToken cancellationToken)
+        public Task<bool> DeleteEntryFromHashAsync(string key, string entryName)
         {
-            return AcquireLockAsync(key, async (ct) => await db.HashDeleteAsync(key, entryName), cancellationToken);
+            return AcquireLockAsync(key, async () => await db.HashDeleteAsync(key, entryName));
         }
 
-        public Task<bool> DeleteEntityFromHashAsync(string key, CancellationToken cancellationToken = default)
+        public Task<bool> DeleteEntityFromHashAsync(string key)
         {
-            return AcquireLockAsync(key, async (ct) => await db.KeyDeleteAsync(key), cancellationToken);
+            return AcquireLockAsync(key, async () => await db.KeyDeleteAsync(key));
         }
 
         public async Task<bool> AcquireLockAsync(
             string key, 
-            Func<CancellationToken, Task<bool>> action, 
-            CancellationToken cancellationToken = default, 
+            Func<Task<bool>> action,  
             int maxRetries = 5)
         {
             int retries = 0;
@@ -183,11 +182,11 @@ namespace RedisCachingService
                 retries++;
                 try
                 {
-                    await using (var redLock = await redLockFactory.CreateLockAsync(key, expiryTime, waitTime, retryTime, cancellationToken))
+                    await using (var redLock = await redLockFactory.CreateLockAsync(key, expiryTime, waitTime, retryTime))
                     {
                         if (redLock.IsAcquired)
                         {
-                            var result = await action(cancellationToken);
+                            var result = await action();
                             logger.LogInformation($"ThreadId {threadId} made action.");
                             return result;
                         }

@@ -126,7 +126,7 @@ namespace CoffeeShop.UnitTests.Infrastructure
 
             redisCacheRepositoryMock.Setup(r => r.GetEntityFromHashAsync(It.IsAny<string>())).ReturnsAsync(categories);
 
-            var result = await categoryCacheService.GetCategoriesFromCacheAsync();
+            var result = await categoryCacheService.GetFromCacheAsync();
 
             result.Should().NotBeNull();
             result.First().Name.Should().Be(category.Name);
@@ -138,7 +138,7 @@ namespace CoffeeShop.UnitTests.Infrastructure
             redisCacheRepositoryMock.Setup(repo => repo.GetEntityFromHashAsync(It.IsAny<string>()))
                 .ReturnsAsync(new Dictionary<string, string>());
 
-            var result = await categoryCacheService.GetCategoriesFromCacheAsync();
+            var result = await categoryCacheService.GetFromCacheAsync();
 
             Assert.Empty(result);
         }

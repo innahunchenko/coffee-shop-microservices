@@ -4,7 +4,7 @@ namespace Catalog.Domain.Services.Categories
 {
     public interface ICategoryCacheService
     {
-        Task<List<CategoryDto>> GetCategoriesFromCacheAsync();
-        Task AddCategoriesToCacheAsync(List<CategoryDto> categories, CancellationToken cancellationToken);
+        Task<List<CategoryDto>> GetFromCacheAsync();
+        Task AddToCacheAsync(List<CategoryDto> categories);
     }
 }

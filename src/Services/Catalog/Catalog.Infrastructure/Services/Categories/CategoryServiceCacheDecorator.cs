@@ -18,19 +18,19 @@ namespace Catalog.Infrastructure.Services.Categories
             this.logger = logger;
         }
 
-        public async Task<List<CategoryDto>> GetCategoriesAsync(CancellationToken ct)
+        public async Task<List<CategoryDto>> GetAsync()
         {
-            var cachedCategories = await cacheService.GetCategoriesFromCacheAsync();
+            var cachedCategories = await cacheService.GetFromCacheAsync();
             if (cachedCategories.Any())
             {
                 logger.LogInformation($"{cachedCategories.Count} categories retrieved from cache");
                 return cachedCategories;
             }
 
-            var categoriesFromDb = await categoryService.GetCategoriesAsync(ct);
+            var categoriesFromDb = await categoryService.GetAsync();
             if (categoriesFromDb.Any())
             {
-                await cacheService.AddCategoriesToCacheAsync(categoriesFromDb, ct);
+                await cacheService.AddToCacheAsync(categoriesFromDb);
                 logger.LogInformation($"{categoriesFromDb.Count} categories added to cache");
                 return categoriesFromDb;
             }

@@ -4,6 +4,6 @@ namespace Catalog.Domain.Services.Categories
 {
     public interface ICategoryService
     {
-        Task<List<CategoryDto>> GetCategoriesAsync(CancellationToken cancellationToken);
+        Task<List<CategoryDto>> GetAsync();
     }
 }

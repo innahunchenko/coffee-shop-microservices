@@ -6,20 +6,20 @@ using MediatR;
 
 namespace Catalog.Application.Products.Queries
 {
-    public record GetAllProductsRequest(int PageNumber, int PageSize) : PaginationParameters(PageNumber, PageSize), IRequest<PaginatedList<ProductDto>>;
+    public record GetAllRequest(int PageNumber, int PageSize) : PaginationParameters(PageNumber, PageSize), IRequest<PaginatedList<ProductDto>>;
 
-    public sealed class GetAllProductsHandler : IRequestHandler<GetAllProductsRequest, PaginatedList<ProductDto>>
+    public sealed class GetAllHandler : IRequestHandler<GetAllRequest, PaginatedList<ProductDto>>
     {
         private readonly IProductService productService;
-        public GetAllProductsHandler(IProductService productService) 
+        public GetAllHandler(IProductService productService) 
         { 
             this.productService = productService;
         }
 
-        public Task<PaginatedList<ProductDto>> Handle(GetAllProductsRequest request, CancellationToken cancellationToken)
+        public Task<PaginatedList<ProductDto>> Handle(GetAllRequest request, CancellationToken cancellationToken)
         {
-            return productService.GetAllProductsAsync(
-                new PaginationParameters(request.PageNumber, request.PageSize), cancellationToken);
+            return productService.GetAllAsync(
+                new PaginationParameters(request.PageNumber, request.PageSize));
         }
     }
 }

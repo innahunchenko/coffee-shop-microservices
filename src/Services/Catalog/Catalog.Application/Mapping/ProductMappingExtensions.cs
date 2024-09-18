@@ -1,23 +1,9 @@
-﻿using Catalog.Domain.Models;
-using Catalog.Domain.Models.Dtos;
+﻿using Catalog.Domain.Models.Dtos;
 
 namespace Catalog.Application.Mapping
 {
     public static class ProductMappingExtensions
     {
-        public static ProductDto ToProductDto(this Product src)
-        {
-            return new ProductDto
-            {
-                Id = src.Id.ToString(),
-                Name = src.Name,
-                Description = src.Description,
-                Price = src.Price,
-                CategoryName = src.Category?.ParentCategory?.Name ?? src.Category?.Name ?? string.Empty,
-                SubcategoryName = src.Category?.ParentCategory == null ? src.Category?.Name ?? string.Empty : string.Empty
-            };
-        }
-
         public static ProductDto ToProductDto(this IDictionary<string, string> src)
         {
             return new ProductDto

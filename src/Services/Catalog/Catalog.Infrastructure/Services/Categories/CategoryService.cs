@@ -1,7 +1,6 @@
 ﻿using Catalog.Domain.Models.Dtos;
 using Catalog.Domain.Repositories.Categories;
 using Catalog.Domain.Services.Categories;
-using Catalog.Application.Mapping;
 using Microsoft.Extensions.Logging;
 
 namespace Catalog.Infrastructure.Services.Categories
@@ -17,14 +16,14 @@ namespace Catalog.Infrastructure.Services.Categories
             this.logger = logger;
         }
 
-        public async Task<List<CategoryDto>> GetCategoriesAsync(CancellationToken ct)
+        public async Task<List<CategoryDto>> GetAsync()
         {
-            var categoriesFromDb = await categoryRepository.GetMainCategoriesWithSubcategoriesAsync(ct);
+            var categoriesFromDb = await categoryRepository.GetAllAsync();
             
             if (categoriesFromDb.Any())
             {
                 logger.LogInformation($"{categoriesFromDb.Count} categories retrieved from db");
-                return categoriesFromDb.Select(category => category.ToCategoryDto()).ToList();
+                return categoriesFromDb;
             }
 
             return new List<CategoryDto>();

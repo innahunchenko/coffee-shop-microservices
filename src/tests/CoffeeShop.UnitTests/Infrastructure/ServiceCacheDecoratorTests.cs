@@ -59,7 +59,7 @@ namespace CoffeeShop.UnitTests.Infrastructure
         public async Task GetAllCategoriesAsync_ShouldReturnFromCache_WhenCacheIsAvailable()
         {
             var expectedCachedCategories = fixture.Build<CategoryDto>().CreateMany(2).ToList();
-            categoryCacheServiceMock.Setup(c => c.GetCategoriesFromCacheAsync()).ReturnsAsync(expectedCachedCategories);
+            categoryCacheServiceMock.Setup(c => c.GetFromCacheAsync()).ReturnsAsync(expectedCachedCategories);
 
             var cachedResult = await categoryServiceCacheDecorator.GetCategoriesAsync(CancellationToken.None);
 

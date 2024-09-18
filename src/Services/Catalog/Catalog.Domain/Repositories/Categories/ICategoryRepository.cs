@@ -1,9 +1,9 @@
-﻿using Catalog.Domain.Models;
+﻿using Catalog.Domain.Models.Dtos;
 
 namespace Catalog.Domain.Repositories.Categories
 {
     public interface ICategoryRepository
     {
-        Task<List<Category>> GetMainCategoriesWithSubcategoriesAsync(CancellationToken cancellationToken);
+        Task<List<CategoryDto>> GetAllAsync();
     }
 }
