@@ -3,7 +3,6 @@ using Dapper;
 using Catalog.Domain.Models.Pagination;
 using Catalog.Domain.Repositories.Products;
 using Catalog.Domain.Models.Dtos;
-using System.Dynamic;
 
 public class ProductRepository : IProductRepository
 {
@@ -14,12 +13,33 @@ public class ProductRepository : IProductRepository
         this.dbConnection = dbConnection;
     }
 
-    private async Task<IEnumerable<ProductDto>> GetProductsAsync(
-        string filterCondition, 
-        object parameters, 
-        PaginationParameters paginationParameters)
+    public async Task<IEnumerable<ProductDto>> GetAllAsync(PaginationParameters paginationParameters)
     {
-        var sql = $@"
+        return await GetProductsAsync(string.Empty, new Dictionary<string, object>(), paginationParameters);
+    }
+
+    public async Task<IEnumerable<ProductDto>> GetByCategoryAsync(string category, PaginationParameters paginationParameters)
+    {
+        return await GetProductsAsync("WHERE LOWER(parentC.Name) = LOWER(@Category)", 
+            new Dictionary<string, object> { { "Category", category } }, paginationParameters);
+    }
+
+    public async Task<IEnumerable<ProductDto>> GetBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters)
+    {
+        return await GetProductsAsync("WHERE LOWER(c.Name) = LOWER(@Subcategory)", 
+            new Dictionary<string, object> { { "Subcategory", subcategory } }, paginationParameters);
+    }
+
+    public async Task<IEnumerable<ProductDto>> GetByProductNameAsync(string productName, PaginationParameters paginationParameters)
+    {
+        return await GetProductsAsync("WHERE p.Name LIKE @ProductName", 
+            new Dictionary<string, object> { { "ProductName", $"%{productName.Replace("_", "[_]")}%" } }, paginationParameters);
+    }
+
+    private async Task<IEnumerable<ProductDto>> GetProductsAsync(string filterCondition,
+        Dictionary<string, object> filterParameters, PaginationParameters paginationParameters)
+    {
+        var sqlQuery = $@"
         SELECT  CONVERT(VARCHAR(36), 
                 p.Id)           AS  {nameof(ProductDto.Id)},  
                 p.Name          AS  {nameof(ProductDto.Name)},
@@ -46,57 +66,22 @@ public class ProductRepository : IProductRepository
         FETCH 
         NEXT    @PageSize ROWS ONLY";
 
+        filterParameters.Add("Offset", (paginationParameters.PageNumber - 1) * paginationParameters.PageSize);
+        filterParameters.Add("PageSize", paginationParameters.PageSize);
+
         var productDtos = await dbConnection.QueryAsync<ProductDto>(
-            sql,
-            MergeObjects(parameters, new
-            {
-                Offset = (paginationParameters.PageNumber - 1) * paginationParameters.PageSize,
-                paginationParameters.PageSize
-            })
+            sqlQuery,
+            filterParameters
         );
 
         return productDtos;
     }
 
-    public static object MergeObjects(object first, object second)
-    {
-        var result = new ExpandoObject() as IDictionary<string, object>;
-        foreach (var property in first.GetType().GetProperties())
-        {
-            result[property.Name] = property.GetValue(first)!;
-        }
-        foreach (var property in second.GetType().GetProperties())
-        {
-            result[property.Name] = property.GetValue(second)!;
-        }
-        return result;
-    }
-
-    public async Task<IEnumerable<ProductDto>> GetAllAsync(PaginationParameters paginationParameters)
-    {
-        return await GetProductsAsync(string.Empty, new { }, paginationParameters);
-    }
-
-    public async Task<IEnumerable<ProductDto>> GetByCategoryAsync(string category, PaginationParameters paginationParameters)
-    {
-        return await GetProductsAsync("WHERE LOWER(parentC.Name) = LOWER(@Category)", new { Category = category }, paginationParameters);
-    }
-
-    public async Task<IEnumerable<ProductDto>> GetBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters)
-    {
-        return await GetProductsAsync("WHERE LOWER(c.Name) = LOWER(@Subcategory)", new { Subcategory = subcategory }, paginationParameters);
-    }
-
-    public async Task<IEnumerable<ProductDto>> GetByProductNameAsync(string productName, PaginationParameters paginationParameters)
-    {
-        return await GetProductsAsync("WHERE p.Name LIKE @ProductName", new { ProductName = $"%{productName.Replace("_", "[_]")}%" }, paginationParameters);
-    }
-
     public async Task<int> GetAllTotalCountAsync()
     {
         var query = @"
-            SELECT COUNT(*)
-            FROM Products";
+            SELECT  COUNT(*)
+            FROM    Products";
 
         return await dbConnection.ExecuteScalarAsync<int>(query);
     }
@@ -104,11 +89,13 @@ public class ProductRepository : IProductRepository
     public async Task<int> GetTotalCountByCategoryAsync(string category)
     {
         var query = @"
-            SELECT COUNT(*)
-            FROM Products AS p
-            JOIN Categories AS c ON p.CategoryId = c.Id
-            JOIN Categories AS parentC ON c.ParentCategoryId = parentC.Id
-            WHERE LOWER(parentC.Name) = LOWER(@Category)";
+            SELECT  COUNT(*)
+            FROM    Products    AS  p
+            JOIN    Categories  AS  c 
+                    ON  p.CategoryId = c.Id
+            JOIN    Categories  AS  parentC 
+                    ON  c.ParentCategoryId = parentC.Id
+            WHERE   LOWER(parentC.Name) = LOWER(@Category)";
 
         return await dbConnection.ExecuteScalarAsync<int>(query, new { Category = category });
     }
@@ -116,10 +103,11 @@ public class ProductRepository : IProductRepository
     public async Task<int> GetTotalCountBySubcategoryAsync(string subcategory)
     {
         var query = @"
-            SELECT COUNT(*)
-            FROM Products AS p
-            JOIN Categories AS c ON p.CategoryId = c.Id
-            WHERE LOWER(c.Name) = LOWER(@Subcategory)";
+            SELECT  COUNT(*)
+            FROM    Products    AS  p
+            JOIN    Categories  AS  c 
+                    ON  p.CategoryId = c.Id
+            WHERE   LOWER(c.Name) = LOWER(@Subcategory)";
 
         return await dbConnection.ExecuteScalarAsync<int>(query, new { Subcategory = subcategory });
     }
@@ -127,9 +115,9 @@ public class ProductRepository : IProductRepository
     public async Task<int> GetTotalCountByNameAsync(string productName)
     {
         var query = @"
-            SELECT COUNT(*)
-            FROM Products AS p
-            WHERE p.Name LIKE @ProductName";
+            SELECT  COUNT(*)
+            FROM    Products    AS  p
+            WHERE   p.Name  LIKE @ProductName";
 
         return await dbConnection.ExecuteScalarAsync<int>(query, new { ProductName = $"%{productName.Replace("_", "[_]")}%" });
     }

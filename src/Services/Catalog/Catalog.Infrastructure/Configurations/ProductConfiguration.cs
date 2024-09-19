@@ -24,6 +24,8 @@ namespace Catalog.Infrastructure.Configurations
                 .WithMany()
                 .HasForeignKey(p => p.CategoryId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            builder.HasIndex(p => p.Name);
         }
     }
 }

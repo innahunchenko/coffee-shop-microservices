@@ -53,7 +53,7 @@ namespace Catalog.Infrastructure.Services.Products
                 () => productService.GetAllAsync(paginationParameters), cachedContext);
         }
 
-        private async Task<PaginatedList<ProductDto>> GetProductsAsync(Func<Task<PaginatedList<ProductDto>>> fromDbFunc, CachedContext cachedContext)
+        private async Task<PaginatedList<ProductDto>> GetProductsAsync(Func<Task<PaginatedList<ProductDto>>> getFromDb, CachedContext cachedContext)
         {
             var cachedProducts  = await cacheService.GetProductsFromCacheAsync(cachedContext.Index);
             var cachedTotalCount = await cacheService.GetCachedTotalProductsCountAsync(cachedContext.TotalKey);
@@ -64,23 +64,23 @@ namespace Catalog.Infrastructure.Services.Products
                 return new PaginatedList<ProductDto>(cachedProducts, cachedTotalCount, cachedContext.PaginationParameters.PageSize);
             }
 
-            var productsFromDb = await fromDbFunc();
+            var dbProducts = await getFromDb();
 
-            if (productsFromDb.Items.Count() == 0)
+            if (dbProducts.Items.Count() == 0)
             {
                 return new PaginatedList<ProductDto>(new List<ProductDto>(), 0, cachedContext.PaginationParameters.PageSize);
             }
 
-            await cacheService.AddProductsToCacheAsync(productsFromDb.Items);
-            logger.LogInformation($"{productsFromDb.Items.Count()} products added to cache");
+            await cacheService.AddProductsToCacheAsync(dbProducts.Items);
+            logger.LogInformation($"{dbProducts.Items.Count()} products added to cache");
 
-            await cacheService.AddProductsToIndexAsync(cachedContext.Index, productsFromDb.Items);
+            await cacheService.AddProductsToIndexAsync(cachedContext.Index, dbProducts.Items);
             logger.LogInformation($"Products added to index {cachedContext.Index}");
             
-            await cacheService.AddTotalProductsCountToCacheAsync(cachedContext.TotalKey, productsFromDb.TotalCount);
-            logger.LogInformation($"Total products count {productsFromDb.TotalCount} added to cache by key {cachedContext.TotalKey}");
+            await cacheService.AddTotalProductsCountToCacheAsync(cachedContext.TotalKey, dbProducts.TotalCount);
+            logger.LogInformation($"Total products count {dbProducts.TotalCount} added to cache by key {cachedContext.TotalKey}");
 
-            return productsFromDb;
+            return dbProducts;
         }
     }
 

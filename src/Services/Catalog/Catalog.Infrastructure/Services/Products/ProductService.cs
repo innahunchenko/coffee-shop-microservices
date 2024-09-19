@@ -18,8 +18,7 @@ namespace Catalog.Infrastructure.Services.Products
             this.logger = logger;
         }
 
-        public async Task<PaginatedList<ProductDto>> GetBySubcategoryAsync(string subcategory, 
-            PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters)
         {
             var products = await productRepository.GetBySubcategoryAsync(subcategory, paginationParameters);
             if (products == null)
@@ -32,8 +31,7 @@ namespace Catalog.Infrastructure.Services.Products
             return new PaginatedList<ProductDto>(products, totalProducts, paginationParameters.PageSize);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetByCategoryAsync(string category, 
-            PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetByCategoryAsync(string category, PaginationParameters paginationParameters)
         {
             var products = await productRepository.GetByCategoryAsync(category, paginationParameters);
             if (products == null)
@@ -46,8 +44,7 @@ namespace Catalog.Infrastructure.Services.Products
             return new PaginatedList<ProductDto>(products, totalProducts, paginationParameters.PageSize);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetByNameAsync(string name, 
-            PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetByNameAsync(string name, PaginationParameters paginationParameters)
         {
             var products = await productRepository.GetByProductNameAsync(name, paginationParameters);
             if (products == null || products.Count() == 0)
