@@ -1,4 +1,4 @@
-﻿namespace Catalog.Domain.Abstractions
+﻿namespace Foundation.Abstractions.Models
 {
     public interface IEntity<T> : IEntity
     {

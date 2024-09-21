@@ -4,6 +4,6 @@ namespace Catalog.Domain.Services.Categories
 {
     public interface ICategoryService
     {
-        Task<List<CategoryDto>> GetAllAsync();
+        Task<List<CategoryDto>> GetAllCategoriesAsync();
     }
 }

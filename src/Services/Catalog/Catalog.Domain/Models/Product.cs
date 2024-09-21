@@ -1,4 +1,4 @@
-﻿using Catalog.Domain.Abstractions;
+﻿using Foundation.Abstractions.Models;
 
 namespace Catalog.Domain.Models
 {

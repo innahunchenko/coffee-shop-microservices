@@ -11,7 +11,7 @@ namespace Catalog.API.Endpoints
 
         public override void AddRoutes(IEndpointRouteBuilder app)
         {
-            app.MapGet("/", async ([AsParameters] GetAllRequest request, CancellationToken ct, ISender sender) =>
+            app.MapGet("/", async ([AsParameters] GetAllCategoriesRequest request, CancellationToken ct, ISender sender) =>
             {
                 var result = await sender.Send(request, ct);
                 return Results.Ok(result);

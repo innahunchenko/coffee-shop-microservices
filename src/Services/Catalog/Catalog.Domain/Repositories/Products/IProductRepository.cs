@@ -7,13 +7,14 @@ namespace Catalog.Domain.Repositories.Products
 {
     public interface IProductRepository
     {
-        Task<IEnumerable<ProductDto>> GetByCategoryAsync(string category, PaginationParameters paginationParameters);
-        Task<IEnumerable<ProductDto>> GetBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters);
-        Task<IEnumerable<ProductDto>> GetByProductNameAsync(string productName, PaginationParameters paginationParameters);
-        Task<IEnumerable<ProductDto>> GetAllAsync(PaginationParameters paginationParameters);
-        Task<int> GetAllTotalCountAsync();
-        Task<int> GetTotalCountByCategoryAsync(string category);
-        Task<int> GetTotalCountBySubcategoryAsync(string subcategory);
-        Task<int> GetTotalCountByNameAsync(string productName);
+        Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(string category, PaginationParameters paginationParameters);
+        Task<IEnumerable<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters);
+        Task<IEnumerable<ProductDto>> GetProductsByNameAsync(string productName, PaginationParameters paginationParameters);
+        Task<IEnumerable<ProductDto>> GetAllProductsAsync(PaginationParameters paginationParameters);
+        Task<ProductDto?> GetProductByIdAsync(Guid productId);
+        Task<int> GetAllProductsTotalCountAsync();
+        Task<int> GetProductsTotalCountByCategoryAsync(string category);
+        Task<int> GetProductsTotalCountBySubcategoryAsync(string subcategory);
+        Task<int> GetProductsTotalCountByNameAsync(string productName);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Catalog.Domain.Abstractions
+﻿namespace Foundation.Abstractions.Models
 {
     public abstract class Entity<T> : IEntity<T>
     {

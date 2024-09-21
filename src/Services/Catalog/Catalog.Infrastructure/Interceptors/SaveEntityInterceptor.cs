@@ -1,4 +1,4 @@
-﻿using Catalog.Domain.Abstractions;
+﻿using Foundation.Abstractions.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;

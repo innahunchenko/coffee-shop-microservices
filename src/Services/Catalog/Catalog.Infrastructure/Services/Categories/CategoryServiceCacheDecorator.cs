@@ -18,7 +18,7 @@ namespace Catalog.Infrastructure.Services.Categories
             this.logger = logger;
         }
 
-        public async Task<List<CategoryDto>> GetAllAsync()
+        public async Task<List<CategoryDto>> GetAllCategoriesAsync()
         {
             var cachedCategories = await cacheService.GetFromCacheAsync();
             if (cachedCategories.Any())
@@ -27,7 +27,7 @@ namespace Catalog.Infrastructure.Services.Categories
                 return cachedCategories;
             }
 
-            var categoriesFromDb = await categoryService.GetAllAsync();
+            var categoriesFromDb = await categoryService.GetAllCategoriesAsync();
             if (categoriesFromDb.Any())
             {
                 await cacheService.AddToCacheAsync(categoriesFromDb);

@@ -4,6 +4,6 @@ namespace Catalog.Domain.Repositories.Categories
 {
     public interface ICategoryRepository
     {
-        Task<List<CategoryDto>> GetAllAsync();
+        Task<List<CategoryDto>> GetAllCategoriesAsync();
     }
 }

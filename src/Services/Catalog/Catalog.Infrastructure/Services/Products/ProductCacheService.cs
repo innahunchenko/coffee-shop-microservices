@@ -14,6 +14,13 @@ namespace Catalog.Infrastructure.Services.Products
             this.cacheRepository = cacheRepository;
         }
 
+        public async Task<ProductDto> GetProductByIdAsync(Guid productId)
+        {
+            var key = GetCacheKey(productId.ToString());
+            var cachedProduct = await cacheRepository.GetEntityFromHashAsync(key);
+            return cachedProduct.ToProductDto();
+        }
+
         public async Task<IList<ProductDto>> GetProductsFromCacheAsync(string index)
         {
             var productsKeys = await cacheRepository.GetValuesFromSetAsync(index);
@@ -37,7 +44,7 @@ namespace Catalog.Infrastructure.Services.Products
         {
             var tasks = productsDto.Select(async product =>
             {
-                var productKey = GetCacheKey(product.Id);
+                var productKey = GetCacheKey(product.Id!);
 
                 var entity = product.ToEntity();
                 await cacheRepository.AddEntityToHashAsync(productKey, entity);
@@ -50,7 +57,7 @@ namespace Catalog.Infrastructure.Services.Products
         {
             var tasks = products.Select(async product =>
             {
-                var productKey = GetCacheKey(product.Id);
+                var productKey = GetCacheKey(product.Id!);
                 await cacheRepository.AddValueToSetAsync(index, productKey);
             });
 

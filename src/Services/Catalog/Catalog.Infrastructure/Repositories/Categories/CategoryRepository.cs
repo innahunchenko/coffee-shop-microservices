@@ -14,7 +14,7 @@ namespace Catalog.Infrastructure.Repositories.Categories
             this.dbConnection = dbConnection;
         }
 
-        public async Task<List<CategoryDto>> GetAllAsync()
+        public async Task<List<CategoryDto>> GetAllCategoriesAsync()
         {
             var sql = $@"
                 SELECT  c.Name  AS CategoryName, 

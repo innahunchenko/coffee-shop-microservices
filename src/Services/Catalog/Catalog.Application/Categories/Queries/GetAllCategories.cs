@@ -4,19 +4,19 @@ using Catalog.Domain.Services.Categories;
 
 namespace Catalog.Application.Categories.Queries
 {
-    public record GetAllRequest() : IRequest<List<CategoryDto>>;
+    public record GetAllCategoriesRequest() : IRequest<List<CategoryDto>>;
 
-    public sealed class GetAllHandler : IRequestHandler<GetAllRequest, List<CategoryDto>>
+    public sealed class GetAllCategoriesHandler : IRequestHandler<GetAllCategoriesRequest, List<CategoryDto>>
     {
         private readonly ICategoryService categoryService;
-        public GetAllHandler(ICategoryService categoryService)
+        public GetAllCategoriesHandler(ICategoryService categoryService)
         {
             this.categoryService = categoryService;
         }
 
-        public async Task<List<CategoryDto>> Handle(GetAllRequest request, CancellationToken cancellationToken)
+        public async Task<List<CategoryDto>> Handle(GetAllCategoriesRequest request, CancellationToken cancellationToken)
         {
-            return await categoryService.GetAllAsync();
+            return await categoryService.GetAllCategoriesAsync();
         }
     }
 }

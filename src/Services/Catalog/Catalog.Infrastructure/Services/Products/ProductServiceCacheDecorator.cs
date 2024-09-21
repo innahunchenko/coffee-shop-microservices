@@ -3,6 +3,7 @@ using Catalog.Domain.Models.Dtos;
 using Catalog.Domain.Models.Pagination;
 using Catalog.Domain.Services.Products;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace Catalog.Infrastructure.Services.Products
 {
@@ -25,32 +26,32 @@ namespace Catalog.Infrastructure.Services.Products
             this.logger = logger;
         }
 
-        public async Task<PaginatedList<ProductDto>> GetBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters)
         {
             var cachedContext = new CachedContext(SubcategoryIndexTemplate, subcategory, paginationParameters);
             return await GetProductsAsync(
-                () => productService.GetBySubcategoryAsync(subcategory, paginationParameters), cachedContext);
+                () => productService.GetProductsBySubcategoryAsync(subcategory, paginationParameters), cachedContext);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetByCategoryAsync(string category, PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetProductsByCategoryAsync(string category, PaginationParameters paginationParameters)
         {
             var cachedContext = new CachedContext(CategoryIndexTemplate, category, paginationParameters);
             return await GetProductsAsync(
-                () => productService.GetByCategoryAsync(category, paginationParameters), cachedContext);
+                () => productService.GetProductsByCategoryAsync(category, paginationParameters), cachedContext);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetByNameAsync(string name, PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetProductsByNameAsync(string name, PaginationParameters paginationParameters)
         {
             var cachedContext = new CachedContext(ProductNameIndexTemplate, name, paginationParameters);
             return await GetProductsAsync(
-                () => productService.GetByNameAsync(name, paginationParameters), cachedContext);
+                () => productService.GetProductsByNameAsync(name, paginationParameters), cachedContext);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetAllAsync(PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetAllProductsAsync(PaginationParameters paginationParameters)
         {
             var cachedContext = new CachedContext(AllProductsIndexTemplate, string.Empty, paginationParameters);
             return await GetProductsAsync(
-                () => productService.GetAllAsync(paginationParameters), cachedContext);
+                () => productService.GetAllProductsAsync(paginationParameters), cachedContext);
         }
 
         private async Task<PaginatedList<ProductDto>> GetProductsAsync(Func<Task<PaginatedList<ProductDto>>> getFromDb, CachedContext cachedContext)
@@ -81,6 +82,23 @@ namespace Catalog.Infrastructure.Services.Products
             logger.LogInformation($"Total products count {dbProducts.TotalCount} added to cache by key {cachedContext.TotalKey}");
 
             return dbProducts;
+        }
+
+        public async Task<ProductDto> GetProductByIdAsync(Guid productId)
+        {
+            var cachedProduct = await cacheService.GetProductByIdAsync(productId);
+            
+            if (cachedProduct != null && !string.IsNullOrEmpty(cachedProduct.Id)) 
+            {
+                logger.LogInformation($"Cached product {productId} is {JsonSerializer.Serialize(cachedProduct)}");
+                return cachedProduct;
+            }
+
+            var dbProduct = await productService.GetProductByIdAsync(productId);
+            await cacheService.AddProductsToCacheAsync(new List<ProductDto> { dbProduct });
+            logger.LogInformation($"Product {productId} added to cache");
+
+            return dbProduct;
         }
     }
 

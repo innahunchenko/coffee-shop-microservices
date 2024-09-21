@@ -41,11 +41,11 @@ namespace CoffeeShop.UnitTests.Infrastructure
             var paginationParameters = new PaginationParameters(1, 8);
             var products = fixture.Build<ProductDto>().CreateMany(2).ToList();
             var expectedTotalCountProducts = 1;
-            productRepositoryMock.Setup(p => p.GetAllAsync(paginationParameters)).ReturnsAsync(products);
-            productRepositoryMock.Setup(p => p.GetAllTotalCountAsync()).ReturnsAsync(expectedTotalCountProducts);
+            productRepositoryMock.Setup(p => p.GetAllProductsAsync(paginationParameters)).ReturnsAsync(products);
+            productRepositoryMock.Setup(p => p.GetAllProductsTotalCountAsync()).ReturnsAsync(expectedTotalCountProducts);
 
             // Act
-            var productsDto = await productService.GetAllAsync(paginationParameters);
+            var productsDto = await productService.GetAllProductsAsync(paginationParameters);
 
             // Assert
             productsDto.Should().NotBeNull("because the product service should return a result");
@@ -58,10 +58,10 @@ namespace CoffeeShop.UnitTests.Infrastructure
         {
             // Arrange
             var categories = fixture.Build<CategoryDto>().CreateMany(2).ToList();
-            categoryRepositoryMock.Setup(c => c.GetAllAsync()).ReturnsAsync(categories);
+            categoryRepositoryMock.Setup(c => c.GetAllCategoriesAsync()).ReturnsAsync(categories);
 
             // Act
-            var categoiesDto = await categoryService.GetAllAsync();
+            var categoiesDto = await categoryService.GetAllCategoriesAsync();
 
             // Assert
             categoiesDto.Should().NotBeNull("because the category service should return a result");
