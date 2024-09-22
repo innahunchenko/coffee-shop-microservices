@@ -1,6 +1,5 @@
 ﻿using Catalog.Domain.Models.Dtos;
 using Catalog.Domain.Services.Categories;
-using Microsoft.Extensions.Logging;
 
 namespace Catalog.Infrastructure.Services.Categories
 {
@@ -8,22 +7,18 @@ namespace Catalog.Infrastructure.Services.Categories
     {
         private readonly ICategoryService categoryService;
         private readonly ICategoryCacheService cacheService;
-        private readonly ILogger<CategoryServiceCacheDecorator> logger;
 
-        public CategoryServiceCacheDecorator(ICategoryService categoryService, 
-            ICategoryCacheService cacheService, ILogger<CategoryServiceCacheDecorator> logger)
+        public CategoryServiceCacheDecorator(ICategoryService categoryService, ICategoryCacheService cacheService)
         {
             this.categoryService = categoryService;
             this.cacheService = cacheService;
-            this.logger = logger;
         }
 
         public async Task<List<CategoryDto>> GetAllCategoriesAsync()
         {
-            var cachedCategories = await cacheService.GetFromCacheAsync();
+            var cachedCategories = await cacheService.GetCategoriesFromCacheAsync();
             if (cachedCategories.Any())
             {
-                logger.LogInformation($"{cachedCategories.Count} categories retrieved from cache");
                 return cachedCategories;
             }
 
@@ -31,7 +26,6 @@ namespace Catalog.Infrastructure.Services.Categories
             if (categoriesFromDb.Any())
             {
                 await cacheService.AddToCacheAsync(categoriesFromDb);
-                logger.LogInformation($"{categoriesFromDb.Count} categories added to cache");
                 return categoriesFromDb;
             }
 

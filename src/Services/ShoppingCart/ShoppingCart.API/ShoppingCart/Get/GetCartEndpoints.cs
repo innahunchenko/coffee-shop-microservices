@@ -1,9 +1,6 @@
 ﻿using Carter;
 using MediatR;
-using Microsoft.AspNetCore.OutputCaching;
-using ShoppingCart.API.Models;
 using ShoppingCart.API.ShoppingCart.Store;
-using System.Text.Json;
 
 namespace ShoppingCart.API.ShoppingCart.Get
 {

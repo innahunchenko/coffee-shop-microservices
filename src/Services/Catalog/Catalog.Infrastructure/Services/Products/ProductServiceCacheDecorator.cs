@@ -2,8 +2,6 @@
 using Catalog.Domain.Models.Dtos;
 using Catalog.Domain.Models.Pagination;
 using Catalog.Domain.Services.Products;
-using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace Catalog.Infrastructure.Services.Products
 {
@@ -11,19 +9,16 @@ namespace Catalog.Infrastructure.Services.Products
     {
         private readonly IProductService productService;
         private readonly IProductCacheService cacheService;
-        private readonly ILogger<ProductServiceCacheDecorator> logger;
 
         public static readonly string SubcategoryIndexTemplate = "index:product:subcategory:{0}";
         public static readonly string CategoryIndexTemplate = "index:product:category:{0}";
         public static readonly string ProductNameIndexTemplate = "index:product:name:{0}";
         public static readonly string AllProductsIndexTemplate = "index:product:all";
 
-        public ProductServiceCacheDecorator(IProductService productService, 
-            IProductCacheService cacheService, ILogger<ProductServiceCacheDecorator> logger)
+        public ProductServiceCacheDecorator(IProductService productService, IProductCacheService cacheService)
         {
             this.productService = productService;
             this.cacheService = cacheService;
-            this.logger = logger;
         }
 
         public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters)
@@ -61,7 +56,6 @@ namespace Catalog.Infrastructure.Services.Products
             
             if (cachedProducts.Count() != 0)
             {
-                logger.LogInformation($"{cachedTotalCount} products with {cachedContext.Index} retrieved from cache");
                 return new PaginatedList<ProductDto>(cachedProducts, cachedTotalCount, cachedContext.PaginationParameters.PageSize);
             }
 
@@ -73,13 +67,8 @@ namespace Catalog.Infrastructure.Services.Products
             }
 
             await cacheService.AddProductsToCacheAsync(dbProducts.Items);
-            logger.LogInformation($"{dbProducts.Items.Count()} products added to cache");
-
             await cacheService.AddProductsToIndexAsync(cachedContext.Index, dbProducts.Items);
-            logger.LogInformation($"Products added to index {cachedContext.Index}");
-            
             await cacheService.AddTotalProductsCountToCacheAsync(cachedContext.TotalKey, dbProducts.TotalCount);
-            logger.LogInformation($"Total products count {dbProducts.TotalCount} added to cache by key {cachedContext.TotalKey}");
 
             return dbProducts;
         }
@@ -90,13 +79,11 @@ namespace Catalog.Infrastructure.Services.Products
             
             if (cachedProduct != null && !string.IsNullOrEmpty(cachedProduct.Id)) 
             {
-                logger.LogInformation($"Cached product {productId} is {JsonSerializer.Serialize(cachedProduct)}");
                 return cachedProduct;
             }
 
             var dbProduct = await productService.GetProductByIdAsync(productId);
             await cacheService.AddProductsToCacheAsync(new List<ProductDto> { dbProduct });
-            logger.LogInformation($"Product {productId} added to cache");
 
             return dbProduct;
         }

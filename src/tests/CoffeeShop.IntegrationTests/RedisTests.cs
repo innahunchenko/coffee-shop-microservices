@@ -1,6 +1,4 @@
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using Moq;
 using RedisCachingService;
 using StackExchange.Redis;
 
@@ -9,14 +7,12 @@ namespace CoffeeShop.IntegrationTests
     public class RedisTests
     {
         private readonly RedisCacheRepository redisCacheRepository;
-        private readonly ILogger<RedisCacheRepository> logger;
 
         public RedisTests()
         {
             var connectionMultiplexer = ConnectionMultiplexer.Connect("localhost:6379");
             var expiryTime = TimeSpan.FromMinutes(5);
-            logger = Mock.Of<ILogger<RedisCacheRepository>>();
-            redisCacheRepository = new RedisCacheRepository(connectionMultiplexer, expiryTime, logger);
+            redisCacheRepository = new RedisCacheRepository(connectionMultiplexer, expiryTime);
         }
 
         [Fact]

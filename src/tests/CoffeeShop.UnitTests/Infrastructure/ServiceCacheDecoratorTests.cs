@@ -25,15 +25,11 @@ namespace CoffeeShop.UnitTests.Infrastructure
         {
             productCacheServiceMock = new Mock<IProductCacheService>();
             productServiceMock = new Mock<IProductService>();
-            var productLoggerMock = new Mock<ILogger<ProductServiceCacheDecorator>>();
-            productServiceCacheDecorator = new ProductServiceCacheDecorator(productServiceMock.Object, 
-                productCacheServiceMock.Object, productLoggerMock.Object);
+            productServiceCacheDecorator = new ProductServiceCacheDecorator(productServiceMock.Object, productCacheServiceMock.Object);
 
             categoryCacheServiceMock = new Mock<ICategoryCacheService>();
             categoryServiceMock = new Mock<ICategoryService>();
-            var categooryLoggerMock = new Mock<ILogger<CategoryServiceCacheDecorator>>();
-            categoryServiceCacheDecorator = new CategoryServiceCacheDecorator(categoryServiceMock.Object,
-                categoryCacheServiceMock.Object, categooryLoggerMock.Object);
+            categoryServiceCacheDecorator = new CategoryServiceCacheDecorator(categoryServiceMock.Object, categoryCacheServiceMock.Object);
 
             fixture = new Fixture();
         }
@@ -59,7 +55,7 @@ namespace CoffeeShop.UnitTests.Infrastructure
         public async Task GetAllCategoriesAsync_ShouldReturnFromCache_WhenCacheIsAvailable()
         {
             var expectedCachedCategories = fixture.Build<CategoryDto>().CreateMany(2).ToList();
-            categoryCacheServiceMock.Setup(c => c.GetFromCacheAsync()).ReturnsAsync(expectedCachedCategories);
+            categoryCacheServiceMock.Setup(c => c.GetCategoriesFromCacheAsync()).ReturnsAsync(expectedCachedCategories);
 
             var cachedResult = await categoryServiceCacheDecorator.GetAllCategoriesAsync();
 

@@ -23,8 +23,11 @@ namespace Catalog.Infrastructure.Repositories.Categories
                 JOIN    Categories AS sc 
                         ON  c.Id = sc.ParentCategoryId
                 WHERE   c.ParentCategoryId IS NULL
-                ORDER
-                BY      c.Name, sc.Name";
+                ORDER BY CASE 
+                            WHEN c.Name = 'Coffee' THEN 0 
+                            ELSE 1 
+                         END, 
+                         c.Name, sc.Name";
 
             var categoryDictionary = new Dictionary<string, CategoryDto>();
 

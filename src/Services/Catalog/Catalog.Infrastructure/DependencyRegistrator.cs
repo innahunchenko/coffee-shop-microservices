@@ -16,7 +16,6 @@ using Catalog.Infrastructure.Services.Categories;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using StackExchange.Redis;
-using Microsoft.Extensions.Logging;
 
 namespace Catalog.Infrastructure
 {
@@ -31,8 +30,7 @@ namespace Catalog.Infrastructure
             services.AddScoped<IRedisCacheRepository, RedisCacheRepository>(provider =>
             {
                 var multiplexer = provider.GetRequiredService<ConnectionMultiplexer>();
-                var logger = provider.GetRequiredService<ILogger<RedisCacheRepository>>();
-                return new RedisCacheRepository(multiplexer, expiryTime, logger);
+                return new RedisCacheRepository(multiplexer, expiryTime);
             });
 
             var connectionString = configuration.GetConnectionString("ProductsConnection");

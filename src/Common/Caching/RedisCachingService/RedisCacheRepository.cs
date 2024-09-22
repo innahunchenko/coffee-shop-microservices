@@ -1,9 +1,7 @@
 ﻿using Foundation.Exceptions;
-using Microsoft.Extensions.Logging;
 using RedLockNet.SERedis;
 using RedLockNet.SERedis.Configuration;
 using StackExchange.Redis;
-using System.Text.Json;
 
 namespace RedisCachingService
 {
@@ -11,13 +9,10 @@ namespace RedisCachingService
     {
         private readonly IDatabase db;
         private readonly TimeSpan expiryTime;
-        private readonly ILogger<RedisCacheRepository> logger;
         private readonly RedLockFactory redLockFactory;
 
-        public RedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, 
-            TimeSpan expiryTime, ILogger<RedisCacheRepository> logger)
+        public RedisCacheRepository(ConnectionMultiplexer connectionMultiplexer, TimeSpan expiryTime)
         {
-            this.logger = logger;
             this.expiryTime = expiryTime;
             db = connectionMultiplexer.GetDatabase();
             redLockFactory = RedLockFactory.Create(new List<RedLockMultiplexer> { connectionMultiplexer });
@@ -25,7 +20,6 @@ namespace RedisCachingService
 
         public async Task<bool> AddEntityToHashAsync(string key, IDictionary<string, string> dictionary)
         {
-            int threadId = Thread.CurrentThread.ManagedThreadId;
             var hashEntries = dictionary.Select(kvp => new HashEntry(kvp.Key, kvp.Value)).ToArray();
 
             return await AcquireLockAsync(key, async () =>
@@ -33,12 +27,10 @@ namespace RedisCachingService
                 var existingEntries = await db.HashGetAllAsync(key);
                 if (existingEntries.Any())
                 {
-                    logger.LogInformation($"Entity already exists for key {key}. Skipping update. ThreadId {threadId}");
                     return false;
                 }
 
                 await db.HashSetAsync(key, hashEntries);
-                logger.LogInformation($"Entity {JsonSerializer.Serialize(dictionary)} add for key {key}. ThreadId {threadId}");
                 await db.KeyExpireAsync(key, expiryTime);
                 return true;
             });
@@ -53,7 +45,6 @@ namespace RedisCachingService
             }
             catch (RedisException ex)
             {
-                logger.LogError($"Error getting all hash values for key {hashKey}");
                 throw new CustomRedisException($"Error getting all hash values for key {hashKey}", ex.Message);
             }
         }
@@ -62,16 +53,13 @@ namespace RedisCachingService
         {
             return await AcquireLockAsync(key, async () =>
             {
-                int threadId = Thread.CurrentThread.ManagedThreadId;
                 var existingValue = await db.HashGetAsync(key, entryName);
                 if (existingValue.HasValue)
                 {
-                    logger.LogError($"Entry already exists for key {key} and id {entryName}. Skipping update. ThreadId {threadId}");
                     return false;
                 }
 
                 await db.HashSetAsync(key, [new HashEntry(entryName, entryValue)]);
-                logger.LogInformation($"Entry {JsonSerializer.Serialize(new HashEntry(entryName, entryValue))} add for key {key}. ThreadId {threadId}");
                 await db.KeyExpireAsync(key, expiryTime);
                 return true;
             });
@@ -86,26 +74,21 @@ namespace RedisCachingService
             }
             catch (RedisException ex)
             {
-                logger.LogError($"Error getting hash data for key {key} and field {entryName}");
                 throw new CustomRedisException($"Error getting hash data for key {key} and field {entryName}", ex.Message);
             }
         }
 
         public async Task<bool> AddValueToSetAsync(string key, string value)
         {
-            int threadId = Thread.CurrentThread.ManagedThreadId;
             return await AcquireLockAsync(key, async () =>
             {
                 var members = await db.SetMembersAsync(key);
                 if (members.Contains(value))
                 {
-                    logger.LogInformation($"Value {value} already exists in index {key} in set. Skipping update. ThreadId {threadId}");
                     return false;
                 }
 
                 await db.SetAddAsync(key, value);
-                logger.LogInformation($"Value {value} added to set to index {key}. ThreadId {threadId}");
-                
                 return true;
             });
         }
@@ -119,17 +102,14 @@ namespace RedisCachingService
             }
             catch (RedisException ex)
             {
-                logger.LogError($"Error getting members of set with {key}");
                 throw new CustomRedisException($"Error getting members of set with {key}", ex.Message);
             }
         }
 
         public async Task<bool> AddStringAsync(string key, string value)
         {
-            int threadId = Thread.CurrentThread.ManagedThreadId;
             return await AcquireLockAsync(key, async () =>
             {
-                logger.LogInformation($"Save string {value} with {key}. ThreadId {threadId}");
                 await db.StringSetAsync(key, value, expiryTime);
                 return true;
             });
@@ -143,7 +123,6 @@ namespace RedisCachingService
 
                 if (result.IsNullOrEmpty)
                 {
-                    logger.LogInformation($"No cached string found for key {key}");
                     return string.Empty;
                 }
 
@@ -151,7 +130,6 @@ namespace RedisCachingService
             }
             catch (RedisException ex)
             {
-                logger.LogError($"Error getting value for key {key}");
                 throw new CustomRedisException($"Redis error for key {key}", ex.Message);
             }
         }
@@ -175,8 +153,6 @@ namespace RedisCachingService
             var waitTime = TimeSpan.FromSeconds(10);  // Maximum time to wait for the lock
             var retryTime = TimeSpan.FromMilliseconds(200);  // Interval between retries
 
-            int threadId = Thread.CurrentThread.ManagedThreadId;
-
             while (retries < maxRetries)
             {
                 retries++;
@@ -187,7 +163,6 @@ namespace RedisCachingService
                         if (redLock.IsAcquired)
                         {
                             var result = await action();
-                            logger.LogInformation($"ThreadId {threadId} made action.");
                             return result;
                         }
                         // If the lock was not acquired, wait for retryTime and try again.
@@ -195,13 +170,11 @@ namespace RedisCachingService
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError($"Redis error performing action with key {key}: {ex.Message}");
-                    return false;
+                    throw new CustomRedisException($"Redis error performing action with key {key}", ex.Message);
                 }
             }
 
-            logger.LogError($"Unable to acquire lock for key {key}.");
-            return false;
+            throw new CustomRedisException($"Unable to acquire lock for key {key}");
         }
     }
 }

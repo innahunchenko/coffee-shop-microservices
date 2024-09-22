@@ -4,20 +4,16 @@ using Catalog.Domain.Models.Dtos;
 using Catalog.Domain.Models.Pagination;
 using Catalog.Domain.Repositories.Products;
 using Catalog.Domain.Services.Products;
-using Microsoft.Extensions.Logging;
-using System.Text.Json;
 
 namespace Catalog.Infrastructure.Services.Products
 {
     public class ProductService : IProductService
     {
         private readonly IProductRepository productRepository;
-        private readonly ILogger<ProductService> logger;
 
-        public ProductService(IProductRepository productRepository, ILogger<ProductService> logger)
+        public ProductService(IProductRepository productRepository)
         {
             this.productRepository = productRepository;
-            this.logger = logger;
         }
 
         public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters)
@@ -29,7 +25,6 @@ namespace Catalog.Infrastructure.Services.Products
             }
 
             var totalProducts = await productRepository.GetProductsTotalCountBySubcategoryAsync(subcategory);
-            logger.LogInformation($"{products.Count()} products retrieved from db by subcategory");
             return new PaginatedList<ProductDto>(products, totalProducts, paginationParameters.PageSize);
         }
 
@@ -42,7 +37,6 @@ namespace Catalog.Infrastructure.Services.Products
             }
 
             var totalProducts = await productRepository.GetProductsTotalCountByCategoryAsync(category);
-            logger.LogInformation($"{products.Count()} products retrieved from db by category");
             return new PaginatedList<ProductDto>(products, totalProducts, paginationParameters.PageSize);
         }
 
@@ -55,7 +49,6 @@ namespace Catalog.Infrastructure.Services.Products
             }
 
             var totalProducts = await productRepository.GetProductsTotalCountByNameAsync(name);
-            logger.LogInformation($"{products.Count()} products retrieved from db by name");
             return new PaginatedList<ProductDto>(products, totalProducts, paginationParameters.PageSize);
         }
 
@@ -68,7 +61,6 @@ namespace Catalog.Infrastructure.Services.Products
             }
 
             var totalProducts = await productRepository.GetAllProductsTotalCountAsync();
-            logger.LogInformation($"{products.Count()} products retrieved from db");
             return new PaginatedList<ProductDto>(products, totalProducts, paginationParameters.PageSize);
         }
 
@@ -77,10 +69,9 @@ namespace Catalog.Infrastructure.Services.Products
             var product = await productRepository.GetProductByIdAsync(productId);
             if (product == null)
             {
-                logger.LogError($"Db Product {productId} has not found");
                 throw new ProductNotFoundException(productId.ToString());
             }
-            logger.LogInformation($"Db product {productId} is {JsonSerializer.Serialize(product)}");
+
             return product;
         }
     }

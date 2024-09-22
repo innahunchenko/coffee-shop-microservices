@@ -22,11 +22,9 @@ namespace CoffeeShop.UnitTests.Infrastructure
         public ServiceTests() 
         {
             productRepositoryMock = new Mock<IProductRepository>();
-            var loggerProductMock = new Mock<ILogger<ProductService>>();
-            productService = new ProductService(productRepositoryMock.Object, loggerProductMock.Object);
+            productService = new ProductService(productRepositoryMock.Object);
             categoryRepositoryMock = new Mock<ICategoryRepository>();
-            var loggerCategoryMock = new Mock<ILogger<CategoryService>>();
-            categoryService = new CategoryService(categoryRepositoryMock.Object, loggerCategoryMock.Object);
+            categoryService = new CategoryService(categoryRepositoryMock.Object);
             fixture = new Fixture();
             fixture.Behaviors.OfType<ThrowingRecursionBehavior>()
                 .ToList()

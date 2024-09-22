@@ -66,11 +66,14 @@ public class ProductRepository : IProductRepository
         JOIN    Categories  AS   parentC 
                 ON c.ParentCategoryId = parentC.Id
         {filterCondition}
-        ORDER 
-        BY      p.Name
+        ORDER BY CASE 
+                    WHEN parentC.Name = 'Coffee' OR c.Name = 'Coffee' THEN 0 
+                    ELSE 1 
+                 END, 
+                 COALESCE(parentC.Name, c.Name), 
+                 p.Name
         OFFSET  @Offset ROWS 
-        FETCH 
-        NEXT    @PageSize ROWS ONLY";
+        FETCH NEXT @PageSize ROWS ONLY";
 
         filterParameters.Add("Offset", (paginationParameters.PageNumber - 1) * paginationParameters.PageSize);
         filterParameters.Add("PageSize", paginationParameters.PageSize);

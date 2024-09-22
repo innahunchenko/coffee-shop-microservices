@@ -2,23 +2,28 @@
 using Catalog.Domain.Services.Products;
 using Catalog.Domain.Models.Dtos;
 using Catalog.Application.Mapping;
+using Microsoft.Extensions.Logging;
 
 namespace Catalog.Infrastructure.Services.Products
 {
     public class ProductCacheService : IProductCacheService
     {
         private readonly IRedisCacheRepository cacheRepository;
+        private readonly ILogger<ProductCacheService> logger;
 
-        public ProductCacheService(IRedisCacheRepository cacheRepository)
+        public ProductCacheService(IRedisCacheRepository cacheRepository, ILogger<ProductCacheService> logger)
         {
             this.cacheRepository = cacheRepository;
+            this.logger = logger;
         }
 
         public async Task<ProductDto> GetProductByIdAsync(Guid productId)
         {
             var key = GetCacheKey(productId.ToString());
             var cachedProduct = await cacheRepository.GetEntityFromHashAsync(key);
-            return cachedProduct.ToProductDto();
+            var products = cachedProduct.ToProductDto();
+
+            return products;
         }
 
         public async Task<IList<ProductDto>> GetProductsFromCacheAsync(string index)
@@ -36,7 +41,9 @@ namespace Catalog.Infrastructure.Services.Products
                     cachedProducts.Add(productDto);
                 }
             }
-            
+
+            logger.LogInformation($"{cachedProducts.Count()} cached products with {index} retrieved from cache");
+
             return cachedProducts;
         }
 
@@ -47,9 +54,9 @@ namespace Catalog.Infrastructure.Services.Products
                 var productKey = GetCacheKey(product.Id!);
 
                 var entity = product.ToEntity();
-                await cacheRepository.AddEntityToHashAsync(productKey, entity);
+                var result = await cacheRepository.AddEntityToHashAsync(productKey, entity);
+                logger.LogInformation($"Product {product.Id} {(result ? "added" : "has not been added")} for key {productKey} to cache");
             });
-
             await Task.WhenAll(tasks);
         }
 
@@ -58,7 +65,8 @@ namespace Catalog.Infrastructure.Services.Products
             var tasks = products.Select(async product =>
             {
                 var productKey = GetCacheKey(product.Id!);
-                await cacheRepository.AddValueToSetAsync(index, productKey);
+                var result = await cacheRepository.AddValueToSetAsync(index, productKey);
+                logger.LogInformation($"Product {product.Id} {(result ? "added" : "has not been added")} to index {index} to cache");
             });
 
             await Task.WhenAll(tasks);
@@ -72,12 +80,13 @@ namespace Catalog.Infrastructure.Services.Products
 
         public async Task AddTotalProductsCountToCacheAsync(string totalKey, int totalCount)
         {
-            await cacheRepository.AddStringAsync(totalKey, totalCount.ToString());
+            var result = await cacheRepository.AddStringAsync(totalKey, totalCount.ToString());
+            logger.LogInformation($"Total count of products {totalCount} with {totalKey} {(result ? "added" : "has not been added")} to cache");
         }
 
         private string GetCacheKey(string productId)
         {
-            return $"product:{productId}";
+            return $"product:{productId.ToLower()}";
         }
     }
 }

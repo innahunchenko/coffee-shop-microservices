@@ -39,7 +39,7 @@ namespace Catalog.API.Endpoints
             {
                 var result = await sender.Send(new GetProductByIdRequest(id), ct);
                 return Results.Ok(result);
-            }).CacheOutput(policyBuilder => policyBuilder.Expire(TimeSpan.FromSeconds(20)));
+            }).CacheOutput(policyBuilder => policyBuilder.Expire(TimeSpan.FromMinutes(10)));
 
         }
     }

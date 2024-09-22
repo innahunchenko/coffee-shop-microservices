@@ -7,36 +7,54 @@ namespace ShoppingCart.API.Services
     public class ShoppingCartService : IShoppingCartService
     {
         private readonly IShoppingCartRepository cartRepository;
+        private readonly ICatalogService catalogService;
         private readonly HttpContext? httpContext;
         private string? sessionId;
-        public ShoppingCartService(IShoppingCartRepository cartRepository, IHttpContextAccessor httpContextAccessor)
+        public ShoppingCartService(IShoppingCartRepository cartRepository, 
+            IHttpContextAccessor httpContextAccessor,
+            ICatalogService catalogService)
         {
             this.cartRepository = cartRepository;
             httpContext = httpContextAccessor.HttpContext;
+            this.catalogService = catalogService;
         }
 
-        public async Task<Cart> GetAsync(string? userId, CancellationToken cancellationToken)
+        public async Task<Cart> GetCartAsync(string userId, CancellationToken cancellationToken)
         {
             Cart? cart = null;
 
-            if (string.IsNullOrEmpty(userId))
+            if (!string.IsNullOrEmpty(userId))
             {
                 cart = await cartRepository.GetByUserIdAsync(userId!, cancellationToken);
+                return cart; 
             }
-
-            if (cart != null)
-                return cart;
 
             var sessionId = GetSessionId();
 
-            return await cartRepository.GetBySessionIdAsync(sessionId, cancellationToken);
+            cart =  await cartRepository.GetBySessionIdAsync(sessionId, cancellationToken);
+            return cart;
         }
 
-        public Task<Cart> StoreAsync(Cart cart, CancellationToken cancellationToken)
+        public async Task<Cart> StoreCartAsync(Cart cart, CancellationToken cancellationToken)
         {
-            cart.SessionId = string.IsNullOrEmpty(cart.UserId) && string.IsNullOrEmpty(cart.SessionId) ? CreateSessionId() : cart.SessionId;
-            cart.Id = Guid.NewGuid();
-            return cartRepository.StoreAsync(cart, cancellationToken);           
+            cart.SessionId = string.IsNullOrEmpty(cart.UserId) && string.IsNullOrEmpty(cart.SessionId)
+                ? CreateSessionId()
+                : cart.SessionId;
+
+            var productTasks = cart.Selections
+                .Select(async selection =>
+                {
+                    if (Guid.TryParse(selection.ProductId, out var productId))
+                    {
+                        var product = await catalogService.GetProductByIdAsync(productId);
+                        selection.Price = product.Price;
+                        selection.ProductName = product.Name ?? string.Empty;
+                    }
+                }).ToList();
+
+            await Task.WhenAll(productTasks);
+
+            return await cartRepository.StoreAsync(cart, cancellationToken);
         }
 
         public Task<bool> DeleteAllProductsAsync(string shoppingCartId, CancellationToken cancellationToken)
@@ -46,7 +64,7 @@ namespace ShoppingCart.API.Services
 
         public async Task<bool> DeleteProductsAsync(string userId, IList<ProductSelection> products, CancellationToken cancellationToken)
         {
-            var cart = await GetAsync(userId, cancellationToken);
+            var cart = await GetCartAsync(userId, cancellationToken);
 
             if (cart == null)
             {

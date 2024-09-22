@@ -3,6 +3,7 @@ using Catalog.Domain.Models.Dtos;
 using Catalog.Infrastructure.Services.Categories;
 using Catalog.Infrastructure.Services.Products;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json;
 using RedisCachingService;
@@ -12,6 +13,9 @@ namespace CoffeeShop.UnitTests.Infrastructure
     public class CacheServiceTests
     {
         private readonly Mock<IRedisCacheRepository> redisCacheRepositoryMock;
+        private readonly Mock<ILogger<ProductCacheService>> productLoggerMock;
+        private readonly Mock<ILogger<CategoryCacheService>> categoryLoggerMock;
+
         private readonly ProductCacheService productCacheService;
         private readonly CategoryCacheService categoryCacheService;
 
@@ -20,8 +24,10 @@ namespace CoffeeShop.UnitTests.Infrastructure
         public CacheServiceTests() 
         {
             redisCacheRepositoryMock = new Mock<IRedisCacheRepository>();
-            productCacheService = new ProductCacheService(redisCacheRepositoryMock.Object);
-            categoryCacheService = new CategoryCacheService(redisCacheRepositoryMock.Object);
+            productLoggerMock = new Mock<ILogger<ProductCacheService>>();
+            categoryLoggerMock = new Mock<ILogger<CategoryCacheService>>();
+            productCacheService = new ProductCacheService(redisCacheRepositoryMock.Object, productLoggerMock.Object);
+            categoryCacheService = new CategoryCacheService(redisCacheRepositoryMock.Object, categoryLoggerMock.Object);
             fixture = new Fixture();
         }
 
@@ -126,7 +132,7 @@ namespace CoffeeShop.UnitTests.Infrastructure
 
             redisCacheRepositoryMock.Setup(r => r.GetEntityFromHashAsync(It.IsAny<string>())).ReturnsAsync(categories);
 
-            var result = await categoryCacheService.GetFromCacheAsync();
+            var result = await categoryCacheService.GetCategoriesFromCacheAsync();
 
             result.Should().NotBeNull();
             result.First().Name.Should().Be(category.Name);
@@ -138,7 +144,7 @@ namespace CoffeeShop.UnitTests.Infrastructure
             redisCacheRepositoryMock.Setup(repo => repo.GetEntityFromHashAsync(It.IsAny<string>()))
                 .ReturnsAsync(new Dictionary<string, string>());
 
-            var result = await categoryCacheService.GetFromCacheAsync();
+            var result = await categoryCacheService.GetCategoriesFromCacheAsync();
 
             Assert.Empty(result);
         }
