@@ -9,7 +9,6 @@ namespace ShoppingCart.API.Services
         private readonly IShoppingCartRepository cartRepository;
         private readonly ICatalogService catalogService;
         private readonly HttpContext? httpContext;
-        private string? sessionId;
         public ShoppingCartService(IShoppingCartRepository cartRepository, 
             IHttpContextAccessor httpContextAccessor,
             ICatalogService catalogService)
@@ -19,7 +18,7 @@ namespace ShoppingCart.API.Services
             this.catalogService = catalogService;
         }
 
-        public async Task<Cart> GetCartAsync(string userId, CancellationToken cancellationToken)
+        public async Task<Cart> GetCartAsync(string? userId, CancellationToken cancellationToken)
         {
             Cart? cart = null;
 
@@ -31,15 +30,30 @@ namespace ShoppingCart.API.Services
 
             var sessionId = GetSessionId();
 
+            if (string.IsNullOrEmpty(sessionId))
+            {
+                CreateSessionId();
+                return new Cart();
+            }
+
             cart =  await cartRepository.GetBySessionIdAsync(sessionId, cancellationToken);
             return cart;
         }
 
         public async Task<Cart> StoreCartAsync(Cart cart, CancellationToken cancellationToken)
         {
+            Guid.TryParse(cart.Selections.FirstOrDefault().ProductId, out var productId);
+
+            var pro = await catalogService.GetProductByIdAsync(productId);
+
             cart.SessionId = string.IsNullOrEmpty(cart.UserId) && string.IsNullOrEmpty(cart.SessionId)
-                ? CreateSessionId()
+                ? GetSessionId()
                 : cart.SessionId;
+
+            if (string.IsNullOrEmpty(cart.SessionId))
+            {
+                cart.SessionId = CreateSessionId();
+            }
 
             var productTasks = cart.Selections
                 .Select(async selection =>
@@ -109,13 +123,8 @@ namespace ShoppingCart.API.Services
             }
         }
 
-        public string GetSessionId()
+        public string? GetSessionId()
         {
-            if (this.sessionId != null)
-            {
-                return this.sessionId;
-            }
-
             if (httpContext == null)
             {
                 throw new InvalidOperationException("HttpContext is null. This method must be called in an HTTP request context.");
@@ -123,7 +132,6 @@ namespace ShoppingCart.API.Services
 
             if (httpContext.Request.Cookies.TryGetValue("SessionId", out var sessionId))
             {
-                this.sessionId = sessionId;
                 return sessionId;
             }
 
@@ -139,13 +147,17 @@ namespace ShoppingCart.API.Services
                 throw new InvalidOperationException("HttpContext is null. This method must be called in an HTTP request context.");
             }
 
-            httpContext.Response.Cookies.Append("SessionId", sessionId, new CookieOptions
+            if (httpContext != null)
             {
-                Expires = DateTime.UtcNow.AddDays(30)
-            });
+                httpContext.Response.Cookies.Append("SessionId", sessionId, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false,
+                    SameSite = SameSiteMode.Strict
+                });
+            }
 
             return sessionId;
         }
-
     }
 }

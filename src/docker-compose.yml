@@ -12,3 +12,22 @@ services:
     build:
       context: .
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
+
+  shoppingCartdb:
+    image: postgres
+
+  shoppingCart.api:
+    image: ${DOCKER_REGISTRY-}shoppingcartapi
+    build:
+      context: .
+      dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
+
+  apigateway:
+    image: ${DOCKER_REGISTRY-}apigateway
+    build:
+      context: .
+      dockerfile: ApiGateway/ApiGateway/Dockerfile
+      
+volumes:
+  mssql_catalog:
+  postgres_shoppingcart:

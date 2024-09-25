@@ -2,16 +2,18 @@ version: '3.4'
 
 services:
   catalogdb:
-    container_name: catalogdb
+    container_name: catalog-db
     restart: always
     environment:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: "MyPass123"
     ports:
       - "1433:1433"
+    volumes:
+      - mssql_catalog:/var/opt/mssql
 
   distributedcache:
-    container_name: distributedcache
+    container_name: distributed-cache
     restart: always
     ports:
       - "6379:6379"
@@ -29,6 +31,52 @@ services:
     ports:
       - "7000:8080"
       - "7070:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+
+  shoppingCartdb:
+    container_name: shopping-cart-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=ShoppingCartDb
+    restart: always
+    ports:
+        - "5433:5432"
+    volumes:
+      - postgres_shoppingcart:/var/lib/postgresql/data/ 
+
+  shoppingCart.api:
+    container_name: shopping-cart-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - ConnectionStrings__Database=Server=shoppingcartdb;Port=5432;Database=ShoppingCartDb;User Id=postgres;Password=postgres;Include Error Detail=true
+      - ConnectionStrings__Redis=distributedcache:6379
+    depends_on:
+      - shoppingCartdb
+      - distributedcache
+    ports:
+      - "7001:8080"
+      - "7071:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+
+  apigateway:
+    container_name: api-gateway
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+    depends_on:
+      - catalog.api
+      - shoppingCart.api
+    ports:
+      - "7005:8080"
+      - "7075:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
