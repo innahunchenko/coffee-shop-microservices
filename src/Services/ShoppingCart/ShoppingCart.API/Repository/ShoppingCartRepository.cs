@@ -6,7 +6,7 @@ namespace ShoppingCart.API.Repository
 {
     public class ShoppingCartRepository(IDocumentSession session) : IShoppingCartRepository
     {
-        public async Task<Cart> GetByUserIdAsync(string userId, CancellationToken cancellationToken)
+        public async Task<Cart> GetCartByUserIdAsync(string userId, CancellationToken cancellationToken)
         {
             var cart = await session
                 .Query<Cart>()
@@ -16,31 +16,31 @@ namespace ShoppingCart.API.Repository
             return cart is null ? throw new ShoppingCartNotFoundException(userId) : cart;
         }
 
-        public async Task<Cart> GetBySessionIdAsync(string sessionId, CancellationToken cancellationToken)
+        public async Task<Cart> GetCartByCartIdAsync(string cartId, CancellationToken cancellationToken)
         {
             var cart = await session
                 .Query<Cart>()
-                .Where(c => c.SessionId == sessionId)
+                .Where(c => c.CartId == cartId)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            return cart is null ? throw new ShoppingCartNotFoundException(sessionId) : cart;
+            return cart is null ? throw new ShoppingCartNotFoundException(cartId) : cart;
         }
 
-        public async Task<Cart> StoreAsync(Cart cart, CancellationToken cancellationToken)
+        public async Task<Cart> StoreCartAsync(Cart cart, CancellationToken cancellationToken)
         {
             session.Store(cart);
             await session.SaveChangesAsync(cancellationToken);
             return cart;
         }
 
-        public async Task<bool> DeleteAllAsync(string shoppingCartId, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAllFromCartAsync(Guid shoppingCartId, CancellationToken cancellationToken)
         {
             session.Delete<Cart>(shoppingCartId);
             await session.SaveChangesAsync(cancellationToken);
             return true;
         }
 
-        public async Task<bool> DeleteProductsAsync(Cart cart, IList<ProductSelection> products, CancellationToken cancellationToken)
+        public async Task<bool> DeleteProductsFromCartAsync(Cart cart, IList<ProductSelection> products, CancellationToken cancellationToken)
         {
             foreach (var product in products)
             {

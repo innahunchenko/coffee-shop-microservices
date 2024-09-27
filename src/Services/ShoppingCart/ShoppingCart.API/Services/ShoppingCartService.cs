@@ -1,6 +1,9 @@
-﻿using ShoppingCart.API.Exceptions;
+﻿using LanguageExt.Pipes;
+using MediatR;
+using ShoppingCart.API.Exceptions;
 using ShoppingCart.API.Models;
 using ShoppingCart.API.Repository;
+using static System.Net.WebRequestMethods;
 
 namespace ShoppingCart.API.Services
 {
@@ -18,44 +21,52 @@ namespace ShoppingCart.API.Services
             this.catalogService = catalogService;
         }
 
-        public async Task<Cart> GetCartAsync(string? userId, CancellationToken cancellationToken)
+        public string GenerateUniqueId()
         {
-            Cart? cart = null;
+            return Guid.NewGuid().ToString();
+        }
+
+        public async Task<Cart> GetOrCreateCartAsync(string? userId, CancellationToken cancellationToken)
+        {
+            Cart cart = new Cart();
 
             if (!string.IsNullOrEmpty(userId))
             {
-                cart = await cartRepository.GetByUserIdAsync(userId!, cancellationToken);
-                return cart; 
+                cart = await cartRepository.GetCartByUserIdAsync(userId, cancellationToken);
+                
+                if (cart == null)
+                {
+                    cart = new Cart() { UserId =  userId };
+                    cart = await cartRepository.StoreCartAsync(cart, cancellationToken);
+                }
+
+                return cart;
             }
 
-            var sessionId = GetSessionId();
-
-            if (string.IsNullOrEmpty(sessionId))
+            if (httpContext != null && httpContext.Request.Cookies.TryGetValue("cartId", out string? cartId)) 
             {
-                CreateSessionId();
-                return new Cart();
+                if (!string.IsNullOrEmpty(cartId))
+                { 
+                    return await cartRepository.GetCartByCartIdAsync(cartId, cancellationToken); 
+                }
             }
 
-            cart =  await cartRepository.GetBySessionIdAsync(sessionId, cancellationToken);
+            if (httpContext != null)
+            {
+                cartId = Guid.NewGuid().ToString();
+                cart = new Cart() { CartId = cartId };
+                AddCartIdToCookie(httpContext, cartId);
+                cart = await cartRepository.StoreCartAsync(cart, cancellationToken);
+            }
+
             return cart;
         }
 
-        public async Task<Cart> StoreCartAsync(Cart cart, CancellationToken cancellationToken)
+        public async Task<Cart> StoreCartAsync(IList<ProductSelection> productSelections, CancellationToken cancellationToken)
         {
-            Guid.TryParse(cart.Selections.FirstOrDefault().ProductId, out var productId);
+            var cart = await GetCartAsync(null, cancellationToken);
 
-            var pro = await catalogService.GetProductByIdAsync(productId);
-
-            cart.SessionId = string.IsNullOrEmpty(cart.UserId) && string.IsNullOrEmpty(cart.SessionId)
-                ? GetSessionId()
-                : cart.SessionId;
-
-            if (string.IsNullOrEmpty(cart.SessionId))
-            {
-                cart.SessionId = CreateSessionId();
-            }
-
-            var productTasks = cart.Selections
+            var productTasks = productSelections
                 .Select(async selection =>
                 {
                     if (Guid.TryParse(selection.ProductId, out var productId))
@@ -67,31 +78,66 @@ namespace ShoppingCart.API.Services
                 }).ToList();
 
             await Task.WhenAll(productTasks);
-
-            return await cartRepository.StoreAsync(cart, cancellationToken);
+            cart.Selections = productSelections.ToList();
+            return await cartRepository.StoreCartAsync(cart, cancellationToken);
         }
 
-        public Task<bool> DeleteAllProductsAsync(string shoppingCartId, CancellationToken cancellationToken)
-        {
-            return cartRepository.DeleteAllAsync(shoppingCartId, cancellationToken);
-        }
-
-        public async Task<bool> DeleteProductsAsync(string userId, IList<ProductSelection> products, CancellationToken cancellationToken)
+        public async Task<bool> DeleteAllFromCartAsync(string? userId, CancellationToken cancellationToken)
         {
             var cart = await GetCartAsync(userId, cancellationToken);
+            return await cartRepository.DeleteAllFromCartAsync(cart.Id, cancellationToken);
+        }
+
+        public async Task<bool> DeleteProductsAsync(string? userId, IList<ProductSelection> products, CancellationToken cancellationToken)
+        {
+            var cart = await GetCartAsync(userId, cancellationToken);
+            return await cartRepository.DeleteProductsFromCartAsync(cart, products, cancellationToken);
+        }
+
+        private async Task<Cart> GetCartAsync(string? userId, CancellationToken cancellationToken)
+        {
+            Cart? cart = null;
+            string? cartId = null;
+
+            if (!string.IsNullOrEmpty(userId))
+            {
+                cart = await cartRepository.GetCartByUserIdAsync(userId, cancellationToken);
+            }
+
+            if (httpContext != null && httpContext.Request.Cookies.TryGetValue("cartId", out cartId))
+            {
+                if (!string.IsNullOrEmpty(cartId))
+                {
+                    cart = await cartRepository.GetCartByCartIdAsync(cartId, cancellationToken);
+                }
+            }
 
             if (cart == null)
             {
-                throw new ShoppingCartNotFoundException(userId);
+                throw new ShoppingCartNotFoundException(userId ?? cartId ?? "");
             }
 
-            return await cartRepository.DeleteProductsAsync(cart, products, cancellationToken);
+            return cart;
         }
 
+        public void AddCartIdToCookie(HttpContext httpContext, string cartId)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.Now.AddMonths(6),
+            //HttpOnly = true,
+            //Secure = false,
+            SameSite = SameSiteMode.Lax
+            };
+
+            httpContext.Response.Cookies.Append("cartId", cartId, cookieOptions);
+        }
+
+        /*
         public async Task MergeGuestCartWithUserCartAsync(string guestSessionId, string userId, CancellationToken cancellationToken)
         {
-            var guestCart = await cartRepository.GetBySessionIdAsync(guestSessionId, cancellationToken);
-            var userCart = await cartRepository.GetByUserIdAsync(userId, cancellationToken);
+            var guestCart = await cartRepository.GetCartByCartIdAsync(guestSessionId, cancellationToken);
+            var userCart = await cartRepository.GetCartByUserIdAsync(userId, cancellationToken);
 
             if (guestCart != null)
             {
@@ -110,54 +156,18 @@ namespace ShoppingCart.API.Services
                         }
                     }
 
-                    await cartRepository.StoreAsync(userCart, cancellationToken);
+                    await cartRepository.StoreCartAsync(userCart, cancellationToken);
 
-                    await cartRepository.DeleteAllAsync(guestCart.Id.ToString(), cancellationToken);
+                    await cartRepository.DeleteAllFromCartAsync(guestCart.Id.ToString(), cancellationToken);
                 }
                 else
                 {
                     guestCart.UserId = userId;
                     guestCart.SessionId = null;
-                    await cartRepository.StoreAsync(guestCart, cancellationToken);
+                    await cartRepository.StoreCartAsync(guestCart, cancellationToken);
                 }
             }
         }
-
-        public string? GetSessionId()
-        {
-            if (httpContext == null)
-            {
-                throw new InvalidOperationException("HttpContext is null. This method must be called in an HTTP request context.");
-            }
-
-            if (httpContext.Request.Cookies.TryGetValue("SessionId", out var sessionId))
-            {
-                return sessionId;
-            }
-
-            return string.Empty;
-        }
-
-        public string CreateSessionId()
-        {
-            var sessionId = Guid.NewGuid().ToString();
-
-            if (httpContext == null)
-            {
-                throw new InvalidOperationException("HttpContext is null. This method must be called in an HTTP request context.");
-            }
-
-            if (httpContext != null)
-            {
-                httpContext.Response.Cookies.Append("SessionId", sessionId, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = false,
-                    SameSite = SameSiteMode.Strict
-                });
-            }
-
-            return sessionId;
-        }
+        */
     }
 }

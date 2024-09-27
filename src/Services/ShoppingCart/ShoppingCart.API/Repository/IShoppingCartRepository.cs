@@ -4,10 +4,10 @@ namespace ShoppingCart.API.Repository
 {
     public interface IShoppingCartRepository
     {
-        Task<Cart> GetByUserIdAsync(string userId, CancellationToken cancellationToken);
-        Task<Cart> GetBySessionIdAsync(string sessionId, CancellationToken cancellationToken);
-        Task<Cart> StoreAsync(Cart cart, CancellationToken cancellationToken);
-        Task<bool> DeleteAllAsync(string shoppingCartId, CancellationToken cancellationToken);
-        Task<bool> DeleteProductsAsync(Cart cart, IList<ProductSelection> products, CancellationToken cancellationToken);
+        Task<Cart> GetCartByUserIdAsync(string userId, CancellationToken cancellationToken);
+        Task<Cart> GetCartByCartIdAsync(string cartId, CancellationToken cancellationToken);
+        Task<Cart> StoreCartAsync(Cart cart, CancellationToken cancellationToken);
+        Task<bool> DeleteAllFromCartAsync(Guid shoppingCartId, CancellationToken cancellationToken);
+        Task<bool> DeleteProductsFromCartAsync(Cart cart, IList<ProductSelection> products, CancellationToken cancellationToken);
     }
 }

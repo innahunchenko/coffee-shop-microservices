@@ -5,16 +5,18 @@ builder.Services.AddReverseProxy()
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAllOrigins",
+    options.AddPolicy("AllowSpecificOrigins",
         builder =>
         {
-            builder.AllowAnyOrigin()
+            builder.WithOrigins("https://localhost:4200")
                    .AllowAnyMethod()
-                   .AllowAnyHeader();
+                   .AllowAnyHeader()
+                   .AllowCredentials();
         });
 });
 
 var app = builder.Build();
 app.MapReverseProxy();
-app.UseCors("AllowAllOrigins");
+//app.UseHttpsRedirection();
+app.UseCors("AllowSpecificOrigins");
 app.Run();

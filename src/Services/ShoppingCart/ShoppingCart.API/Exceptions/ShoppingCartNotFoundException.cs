@@ -4,7 +4,7 @@ namespace ShoppingCart.API.Exceptions
 {
     public class ShoppingCartNotFoundException : NotFoundException
     {
-        public ShoppingCartNotFoundException(string shoppingCartId) 
-            : base("ShoppingCart", shoppingCartId) { }
+        public ShoppingCartNotFoundException(string id) 
+            : base("ShoppingCart", id) { }
     }
 }

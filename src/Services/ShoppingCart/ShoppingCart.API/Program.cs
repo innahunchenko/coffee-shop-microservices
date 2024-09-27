@@ -36,9 +36,9 @@ builder.Services.AddMarten(opts =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowSpecificOrigin",
+    options.AddPolicy("AllowSpecificOrigins",
         builder => builder
-            .WithOrigins("http://localhost:4200")
+            .WithOrigins("https://localhost:4200")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials());
@@ -52,7 +52,7 @@ app.MapControllers();
 app.UseStaticFiles();
 //app.UseHttpsRedirection();
 app.UseAuthorization();
-app.UseCors("AllowSpecificOrigin");
+app.UseCors("AllowSpecificOrigins");
 app.UseExceptionHandler(options => { });
 
 app.Run();
