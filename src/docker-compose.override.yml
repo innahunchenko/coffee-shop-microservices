@@ -22,9 +22,14 @@ services:
     container_name: catalog-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__Database=Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123;TrustServerCertificate=True
+      # - ASPNETCORE_HTTP_PORTS=8080
+      # - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_URLS=https://+:8081;http://+:8080
+      # - SSL_CERT_FILE=/etc/ssl/certs/catalog.api+6.pem
+      # - SSL_KEY_FILE=/etc/ssl/private/catalog.api+6-key.pem
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=111
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      - ConnectionStrings__Database=Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123
     depends_on:
       - catalogdb
       - distributedcache
@@ -32,8 +37,13 @@ services:
       - "7000:8080"
       - "7070:8081"
     volumes:
-      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      #- ./certs:/app/certs:ro
+       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+       - ${USERPROFILE}/.aspnet/https:/https:ro
+       #- ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+       # - ../certs/catalog.api+6.pem:/etc/ssl/certs/catalog.api+6.pem
+       # - ../certs/catalog.api+6-key.pem:/etc/ssl/private/my-service-key.pem
+       # - ../certs/catalog.api+6.crt:/usr/local/share/ca-certificates/catalog.api+6.crt
 
   shoppingCartdb:
     container_name: shopping-cart-db
@@ -43,17 +53,22 @@ services:
       - POSTGRES_DB=ShoppingCartDb
     restart: always
     ports:
-        - "5433:5432"
+      - "5433:5432"
     volumes:
-      - postgres_shoppingcart:/var/lib/postgresql/data/ 
+      - postgres_shoppingcart:/var/lib/postgresql/data/
 
   shoppingCart.api:
     container_name: shopping-cart-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
-      - ConnectionStrings__Database=Server=shoppingcartdb;Port=5432;Database=ShoppingCartDb;User Id=postgres;Password=postgres;Include Error Detail=true
+      # - ASPNETCORE_HTTP_PORTS=8080
+      # - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_URLS=https://+:8081;http://+:8080
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=111
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      # - SSL_CERT_FILE=/etc/ssl/certs/catalog.api+6.pem
+      # - SSL_KEY_FILE=/etc/ssl/private/catalog.api+6-key.pem
+      - ConnectionStrings__Database=Server=shoppingcartdb;Port=5432;Database=ShoppingCartDb;User Id=postgres;Password=postgres
       - ConnectionStrings__Redis=distributedcache:6379
     depends_on:
       - shoppingCartdb
@@ -62,15 +77,25 @@ services:
       - "7001:8080"
       - "7071:8081"
     volumes:
+      #- ./certs:/app/certs:ro
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${USERPROFILE}/.aspnet/https:/https:ro
+      #- ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      # - ../certs/catalog.api+6.pem:/etc/ssl/certs/catalog.api+6.pem
+      # - ../certs/catalog.api+6-key.pem:/etc/ssl/private/my-service-key.pem
+      # - ../certs/catalog.api+6.crt:/usr/local/share/ca-certificates/catalog.api+6.crt
 
   apigateway:
     container_name: api-gateway
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=8080
-      - ASPNETCORE_HTTPS_PORTS=8081
+      # - ASPNETCORE_HTTP_PORTS=8080
+      # - ASPNETCORE_HTTPS_PORTS=8081
+      - ASPNETCORE_URLS=https://+:8081;http://+:8080
+      # - SSL_CERT_FILE=/etc/ssl/certs/catalog.api+6.pem
+      # - SSL_KEY_FILE=/etc/ssl/private/catalog.api+6-key.pem
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=111
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
     depends_on:
       - catalog.api
       - shoppingCart.api
@@ -78,5 +103,9 @@ services:
       - "7005:8080"
       - "7075:8081"
     volumes:
+     # - /certs:/app/certs:ro
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+      - ${USERPROFILE}/.aspnet/https:/https:ro
+      # - ./certs/catalog.api+6.pem:/etc/ssl/certs/catalog.api+6.pem
+      # - ./certs/catalog.api+6-key.pem:/etc/ssl/private/catalog.api+6-key.pem
+     # - ./certs/catalog.api+6.crt:/usr/local/share/ca-certificates/catalog.api+6.crt

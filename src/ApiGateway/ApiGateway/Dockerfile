@@ -6,6 +6,11 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
+#COPY ./certs/localhost.pfx /app/certs/localhost.pfx
+#RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
+#RUN apt-get clean && apt-get update --fix-missing && apt-get install -y ca-certificates && update-ca-certificates
+
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src

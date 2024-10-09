@@ -12,6 +12,7 @@ namespace Catalog.Domain.Repositories.Products
         Task<IEnumerable<ProductDto>> GetProductsByNameAsync(string productName, PaginationParameters paginationParameters);
         Task<IEnumerable<ProductDto>> GetAllProductsAsync(PaginationParameters paginationParameters);
         Task<ProductDto?> GetProductByIdAsync(Guid productId);
+        Task<IEnumerable<ProductDto>?> GetProductsByIdsAsync(IEnumerable<Guid> productIds);
         Task<int> GetAllProductsTotalCountAsync();
         Task<int> GetProductsTotalCountByCategoryAsync(string category);
         Task<int> GetProductsTotalCountBySubcategoryAsync(string subcategory);

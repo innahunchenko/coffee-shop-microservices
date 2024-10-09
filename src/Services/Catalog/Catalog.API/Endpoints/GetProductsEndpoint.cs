@@ -41,6 +41,11 @@ namespace Catalog.API.Endpoints
                 return Results.Ok(result);
             }).CacheOutput(policyBuilder => policyBuilder.Expire(TimeSpan.FromMinutes(10)));
 
+            app.MapPost("/ids", async (List<Guid> ids, CancellationToken ct, ISender sender) =>
+            {
+                var result = await sender.Send(new GetProductsByIdsRequest(ids), ct);
+                return Results.Ok(result);
+            }).CacheOutput(policyBuilder => policyBuilder.Expire(TimeSpan.FromMinutes(10)));
         }
     }
 }

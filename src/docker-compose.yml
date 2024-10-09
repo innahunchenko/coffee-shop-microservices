@@ -3,31 +3,47 @@ version: '3.4'
 services:
   catalogdb:
     image: mcr.microsoft.com/mssql/server:2019-latest
+    networks:
+      - app-network
 
   distributedcache:
     image: redis
+    networks:
+      - app-network
 
   catalog.api:
     image: ${DOCKER_REGISTRY-}catalogapi
     build:
       context: .
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
+    networks:
+      - app-network
 
   shoppingCartdb:
     image: postgres
+    networks:
+      - app-network
 
   shoppingCart.api:
     image: ${DOCKER_REGISTRY-}shoppingcartapi
     build:
       context: .
       dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
+    networks:
+      - app-network
 
   apigateway:
     image: ${DOCKER_REGISTRY-}apigateway
     build:
       context: .
       dockerfile: ApiGateway/ApiGateway/Dockerfile
+    networks:
+      - app-network
       
 volumes:
   mssql_catalog:
   postgres_shoppingcart:
+ 
+networks:
+  app-network:
+    driver: bridge

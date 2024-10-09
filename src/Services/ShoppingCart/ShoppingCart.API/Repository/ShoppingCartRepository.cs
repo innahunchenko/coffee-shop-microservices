@@ -4,10 +4,18 @@ using ShoppingCart.API.Models;
 
 namespace ShoppingCart.API.Repository
 {
-    public class ShoppingCartRepository(IDocumentSession session) : IShoppingCartRepository
+    public class ShoppingCartRepository : IShoppingCartRepository
     {
+        private readonly IDocumentStore documentStore;
+
+        public ShoppingCartRepository(IDocumentStore documentStore)
+        {
+            this.documentStore = documentStore;
+        }
+
         public async Task<Cart> GetCartByUserIdAsync(string userId, CancellationToken cancellationToken)
         {
+            using var session = await documentStore.LightweightSerializableSessionAsync();
             var cart = await session
                 .Query<Cart>()
                 .Where(c => c.UserId == userId)
@@ -18,6 +26,7 @@ namespace ShoppingCart.API.Repository
 
         public async Task<Cart> GetCartByCartIdAsync(string cartId, CancellationToken cancellationToken)
         {
+            using var session = await documentStore.LightweightSerializableSessionAsync();
             var cart = await session
                 .Query<Cart>()
                 .Where(c => c.CartId == cartId)
@@ -28,13 +37,22 @@ namespace ShoppingCart.API.Repository
 
         public async Task<Cart> StoreCartAsync(Cart cart, CancellationToken cancellationToken)
         {
-            session.Store(cart);
-            await session.SaveChangesAsync(cancellationToken);
+            try
+            {
+                using var session = await documentStore.LightweightSerializableSessionAsync();
+                session.Store(cart);
+                await session.SaveChangesAsync(cancellationToken);
+            }
+            catch(Exception ex) 
+            { 
+                Console.WriteLine(ex.ToString());
+            }
             return cart;
         }
 
         public async Task<bool> DeleteAllFromCartAsync(Guid shoppingCartId, CancellationToken cancellationToken)
         {
+            using var session = await documentStore.LightweightSerializableSessionAsync();
             session.Delete<Cart>(shoppingCartId);
             await session.SaveChangesAsync(cancellationToken);
             return true;
@@ -51,6 +69,7 @@ namespace ShoppingCart.API.Repository
                 }
             }
 
+            using var session = await documentStore.LightweightSerializableSessionAsync();
             session.Store(cart);
             await session.SaveChangesAsync(cancellationToken);
 

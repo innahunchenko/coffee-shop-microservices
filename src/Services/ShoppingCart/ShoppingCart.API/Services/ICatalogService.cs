@@ -5,7 +5,7 @@ namespace ShoppingCart.API.Services
 {
     public interface ICatalogService
     {
-        [Get("/catalog/products/{id}")]
-        Task<ProductDto> GetProductByIdAsync(Guid id);
+        [Post("/catalog/products/ids")]
+        Task<IEnumerable<ProductDto>> GetProductsByIdsAsync(IEnumerable<Guid> ids);
     }
 }

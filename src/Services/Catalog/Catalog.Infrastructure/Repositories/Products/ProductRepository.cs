@@ -19,6 +19,12 @@ public class ProductRepository : IProductRepository
         return product.SingleOrDefault();
     }
 
+    public async Task<IEnumerable<ProductDto>?> GetProductsByIdsAsync(IEnumerable<Guid> productIds)
+    {
+        var products = await GetProductsAsync("WHERE Id IN @Ids", new Dictionary<string, object> { { "Ids", productIds } }, new PaginationParameters(1, 1));
+        return products;
+    }
+
     public async Task<IEnumerable<ProductDto>> GetAllProductsAsync(PaginationParameters paginationParameters)
     {
         return await GetProductsAsync(string.Empty, new Dictionary<string, object>(), paginationParameters);

@@ -75,7 +75,7 @@ namespace Catalog.Infrastructure.Services.Products
 
         public async Task<ProductDto> GetProductByIdAsync(Guid productId)
         {
-            var cachedProduct = await cacheService.GetProductByIdAsync(productId);
+            var cachedProduct = await cacheService.GetCahcedProductByIdAsync(productId);
             
             if (cachedProduct != null && !string.IsNullOrEmpty(cachedProduct.Id)) 
             {
@@ -86,6 +86,21 @@ namespace Catalog.Infrastructure.Services.Products
             await cacheService.AddProductsToCacheAsync(new List<ProductDto> { dbProduct });
 
             return dbProduct;
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsByIdsAsync(IEnumerable<Guid> productIds)
+        {
+            var cachedProducts = await cacheService.GetCachedProductsByIdsAsync(productIds);
+
+            if (cachedProducts != null)
+            {
+                return cachedProducts;
+            }
+
+            var dbProducts = await productService.GetProductsByIdsAsync(productIds);
+            await cacheService.AddProductsToCacheAsync(dbProducts);
+
+            return dbProducts;
         }
     }
 

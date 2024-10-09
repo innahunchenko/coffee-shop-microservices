@@ -4,6 +4,7 @@ using Catalog.Domain.Models.Dtos;
 using Catalog.Domain.Models.Pagination;
 using Catalog.Domain.Repositories.Products;
 using Catalog.Domain.Services.Products;
+using Foundation.Exceptions;
 
 namespace Catalog.Infrastructure.Services.Products
 {
@@ -73,6 +74,17 @@ namespace Catalog.Infrastructure.Services.Products
             }
 
             return product;
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsByIdsAsync(IEnumerable<Guid> productIds)
+        {
+            var products = await productRepository.GetProductsByIdsAsync(productIds);
+            if (products == null)
+            {
+                throw new NotFoundException($"Not found any products from {products}");
+            }
+
+            return products;
         }
     }
 }

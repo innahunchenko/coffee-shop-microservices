@@ -9,6 +9,7 @@ namespace Catalog.Domain.Services.Products
         Task AddProductsToCacheAsync(IEnumerable<ProductDto> products);
         Task AddProductsToIndexAsync(string index, IEnumerable<ProductDto> products);
         Task AddTotalProductsCountToCacheAsync(string totalKey, int totalCount);
-        Task<ProductDto> GetProductByIdAsync(Guid productId);
+        Task<ProductDto> GetCahcedProductByIdAsync(Guid productId);
+        Task<IEnumerable<ProductDto>> GetCachedProductsByIdsAsync(IEnumerable<Guid> productIds);
     }
 }

@@ -11,5 +11,6 @@ namespace Catalog.Domain.Services.Products
         Task<PaginatedList<ProductDto>> GetProductsByNameAsync(string productName, PaginationParameters paginationParameters);
         Task<PaginatedList<ProductDto>> GetAllProductsAsync(PaginationParameters paginationParameters);
         Task<ProductDto> GetProductByIdAsync(Guid id);
+        Task<IEnumerable<ProductDto>> GetProductsByIdsAsync(IEnumerable<Guid> productIds);
     }
 }

@@ -17,13 +17,26 @@ namespace Catalog.Infrastructure.Services.Products
             this.logger = logger;
         }
 
-        public async Task<ProductDto> GetProductByIdAsync(Guid productId)
+        public async Task<ProductDto> GetCahcedProductByIdAsync(Guid productId)
         {
             var key = GetCacheKey(productId.ToString());
             var cachedProduct = await cacheRepository.GetEntityFromHashAsync(key);
             var products = cachedProduct.ToProductDto();
 
             return products;
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetCachedProductsByIdsAsync(IEnumerable<Guid> productIds)
+        {
+            var productsDto = new List<ProductDto>();
+
+            foreach (var productId in productIds)
+            {
+                var product = await GetCahcedProductByIdAsync(productId);
+                productsDto.Add(product);
+            }
+
+            return productsDto;
         }
 
         public async Task<IList<ProductDto>> GetProductsFromCacheAsync(string index)
