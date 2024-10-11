@@ -90,17 +90,5 @@ namespace ShoppingCart.API.Services
             await cartRepository.StoreCartAsync(cart, cancellationToken);
             return cart;
         }
-
-        public async Task DeleteAllProductsFromCartAsync(string? userId, CancellationToken cancellationToken)
-        {
-            var cart = await GetCartAsync(userId, cancellationToken);
-            await cartRepository.DeleteAllFromCartAsync(cart!.Id, cancellationToken);
-        }
-
-        public async Task DeleteProductsFromCartAsync(string? userId, IList<ProductSelection> products, CancellationToken cancellationToken)
-        {
-            var cart = await GetCartAsync(userId, cancellationToken);
-            await cartRepository.DeleteProductsFromCartAsync(cart!, products, cancellationToken);
-        }
     }
 }
