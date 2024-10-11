@@ -12,6 +12,7 @@ namespace Catalog.Infrastructure.Services.Categories
         private readonly ILogger<CategoryCacheService> logger;
 
         private static readonly string CATEGORIES_KEY = "KEY:CATEGORIES";
+        private static readonly string FirstCategory = "Coffee";
 
         public CategoryCacheService(IRedisCacheRepository cacheRepository, ILogger<CategoryCacheService> logger)
         {
@@ -34,6 +35,12 @@ namespace Catalog.Infrastructure.Services.Categories
                 var categoryDto = JsonConvert.DeserializeObject<CategoryDto>(item.Value);
                 categories.Add(categoryDto!);
             }
+
+            categories = categories
+                .OrderBy(c => c.Name == FirstCategory ? 0 : 1)
+                .ThenBy(c => c.Name)
+                .ThenBy(c => c.Subcategories != null ? c.Subcategories.FirstOrDefault() : string.Empty)
+                .ToList();
 
             logger.LogInformation("All cached categories retrieved from cache");
 

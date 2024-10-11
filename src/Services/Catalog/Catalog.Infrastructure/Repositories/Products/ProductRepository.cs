@@ -15,13 +15,17 @@ public class ProductRepository : IProductRepository
 
     public async Task<ProductDto?> GetProductByIdAsync(Guid productId)
     {
-        var product = await GetProductsAsync("WHERE p.Id = @ProductId", new Dictionary<string, object> { { "ProductId", productId } }, new PaginationParameters(1, 1));
+        var product = await GetProductsAsync("WHERE p.Id = @ProductId", 
+            new Dictionary<string, object> { { "ProductId", productId } }, 
+            new PaginationParameters(1, 1));
         return product.SingleOrDefault();
     }
 
     public async Task<IEnumerable<ProductDto>?> GetProductsByIdsAsync(IEnumerable<Guid> productIds)
     {
-        var products = await GetProductsAsync("WHERE Id IN @Ids", new Dictionary<string, object> { { "Ids", productIds } }, new PaginationParameters(1, 1));
+        var products = await GetProductsAsync("WHERE p.Id IN @Ids", 
+            new Dictionary<string, object> { { "Ids", productIds } },
+            new PaginationParameters(1, productIds.Count()));
         return products;
     }
 

@@ -1,5 +1,4 @@
-﻿using ShoppingCart.API.Exceptions;
-using ShoppingCart.API.Models;
+﻿using ShoppingCart.API.Models;
 using ShoppingCart.API.Repository;
 
 namespace ShoppingCart.API.Services
@@ -10,7 +9,7 @@ namespace ShoppingCart.API.Services
         private readonly ICatalogService catalogService;
         private readonly ICookieService cookieService;
         private readonly HttpContext? httpContext;
-        public ShoppingCartService(IShoppingCartRepository cartRepository, 
+        public ShoppingCartService(IShoppingCartRepository cartRepository,
             IHttpContextAccessor httpContextAccessor,
             ICatalogService catalogService,
             ICookieService cookieService)
@@ -25,22 +24,17 @@ namespace ShoppingCart.API.Services
 
         public async Task<Cart> GetOrCreateCartAsync(string? userId, CancellationToken cancellationToken)
         {
-            var cart = await TryGetCartByUserIdOrCartIdAsync(userId, cancellationToken);
-            if (cart != null)
-            {
-                return cart;
-            }
-
-            return await CreateNewCartAsync(userId, cancellationToken);
+            return await GetCartAsync(userId, cancellationToken)
+                ?? await CreateNewCartAsync(userId, cancellationToken);
         }
 
-        private async Task<Cart> TryGetCartByUserIdOrCartIdAsync(string? userId, CancellationToken cancellationToken)
+        private async Task<Cart?> GetCartAsync(string? userId, CancellationToken cancellationToken)
         {
-            Cart cart = new Cart();
+            Cart? cart = null;
 
             if (!string.IsNullOrEmpty(userId))
             {
-                return await cartRepository.GetCartByUserIdAsync(userId, cancellationToken);
+                cart = await cartRepository.GetCartByUserIdAsync(userId, cancellationToken);
             }
 
             if (httpContext != null)
@@ -49,7 +43,7 @@ namespace ShoppingCart.API.Services
 
                 if (!string.IsNullOrEmpty(cartId))
                 {
-                    return await cartRepository.GetCartByCartIdAsync(cartId, cancellationToken);
+                    cart = await cartRepository.GetCartByCartIdAsync(cartId, cancellationToken);
                 }
             }
 
@@ -60,58 +54,53 @@ namespace ShoppingCart.API.Services
         {
             var cartId = GenerateUniqueId();
             var cart = new Cart { UserId = userId, CartId = cartId };
-            
+
             if (httpContext == null)
             {
                 throw new InvalidOperationException("HTTP context is not available. Unable to access cookies.");
             }
 
             cookieService.SetCartIdInCookies(httpContext, cartId);
-            return await cartRepository.StoreCartAsync(cart, cancellationToken);
-        }
-
-        private async Task<Cart> GetCartAsync(string? userId, CancellationToken cancellationToken)
-        {
-            var cart = await TryGetCartByUserIdOrCartIdAsync(userId, cancellationToken);
-
-            return cart ?? throw new ShoppingCartNotFoundException(userId ?? "Unknown cart");
+            await cartRepository.StoreCartAsync(cart, cancellationToken);
+            return cart;
         }
 
         public async Task<Cart> StoreCartAsync(IList<ProductSelection> productSelections, CancellationToken cancellationToken)
         {
             var cart = await GetCartAsync(null, cancellationToken);
-
+            if(cart == null)
+            {
+                return new Cart();
+            }
+            
             var productIds = productSelections
-                .Where(p => Guid.TryParse(p.ProductId, out _))
                 .Select(p => Guid.Parse(p.ProductId))
-                .ToList();
+                .ToList(); 
 
             var products = await catalogService.GetProductsByIdsAsync(productIds);
 
             foreach (var selection in productSelections)
             {
-                var product = products.FirstOrDefault(p => p.Id == selection.ProductId);
-                if (product != null)
-                {
-                    selection.Price = product.Price;
-                    selection.ProductName = product.Name ?? string.Empty;
-                }
+                var product = products.First(p => p.Id == selection.ProductId);
+                selection.Price = product.Price;
+                selection.ProductName = product.Name ?? string.Empty;
             }
 
             cart.Selections = productSelections.ToList();
-            return await cartRepository.StoreCartAsync(cart, cancellationToken);
+            await cartRepository.StoreCartAsync(cart, cancellationToken);
+            return cart;
         }
 
-        public async Task<bool> DeleteAllFromCartAsync(string? userId, CancellationToken cancellationToken)
+        public async Task DeleteAllProductsFromCartAsync(string? userId, CancellationToken cancellationToken)
         {
             var cart = await GetCartAsync(userId, cancellationToken);
-            return await cartRepository.DeleteAllFromCartAsync(cart.Id, cancellationToken);
+            await cartRepository.DeleteAllFromCartAsync(cart!.Id, cancellationToken);
         }
 
-        public async Task<bool> DeleteProductsAsync(string? userId, IList<ProductSelection> products, CancellationToken cancellationToken)
+        public async Task DeleteProductsFromCartAsync(string? userId, IList<ProductSelection> products, CancellationToken cancellationToken)
         {
             var cart = await GetCartAsync(userId, cancellationToken);
-            return await cartRepository.DeleteProductsFromCartAsync(cart, products, cancellationToken);
+            await cartRepository.DeleteProductsFromCartAsync(cart!, products, cancellationToken);
         }
     }
 }

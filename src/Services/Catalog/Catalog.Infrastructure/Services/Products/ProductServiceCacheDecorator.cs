@@ -92,7 +92,7 @@ namespace Catalog.Infrastructure.Services.Products
         {
             var cachedProducts = await cacheService.GetCachedProductsByIdsAsync(productIds);
 
-            if (cachedProducts != null)
+            if (cachedProducts != null && cachedProducts.All(product => !string.IsNullOrEmpty(product.Id)))
             {
                 return cachedProducts;
             }
