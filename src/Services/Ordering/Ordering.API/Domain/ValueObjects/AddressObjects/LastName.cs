@@ -8,7 +8,7 @@ namespace Ordering.API.Domain.ValueObjects.AddressObjects
     public class LastName : ValueOf<string, LastName>
     {
         private static readonly Regex LastNameRegex =
-            new("^[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,38}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            new("^[a-z\\d](?:[a-z\\d]|-(?=[a-z\\d])){0,48}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         protected override void Validate()
         {

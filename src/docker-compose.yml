@@ -30,7 +30,16 @@ services:
     build:
       context: .
       dockerfile: ApiGateway/ApiGateway/Dockerfile
-      
+
+  orderdb:
+    image: mcr.microsoft.com/mssql/server
+
+  ordering.api:
+    image: ${DOCKER_REGISTRY-}orderingapi
+    build:
+      context: .
+      dockerfile: Services/Ordering/Ordering.API/Dockerfile
+
 volumes:
   mssql_catalog:
   postgres_shoppingcart:

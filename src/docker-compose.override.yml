@@ -2,13 +2,13 @@ version: '3.4'
 
 services:
   catalogdb:
-    container_name: catalog-db
+    container_name: catalogdb
     restart: always
     environment:
       ACCEPT_EULA: "Y"
       SA_PASSWORD: "MyPass123"
     ports:
-      - "1433:1433"
+      - "1434:1433"
     volumes:
       - mssql_catalog:/var/opt/mssql
 
@@ -16,7 +16,7 @@ services:
     container_name: distributed-cache
     restart: always
     ports:
-      - "6379:6379"
+      - "6379:6379" 
 
   catalog.api:
     container_name: catalog-api
@@ -25,7 +25,7 @@ services:
       ASPNETCORE_URLS: "https://+:8081;http://+:8080"
       ASPNETCORE_Kestrel__Certificates__Default__Password: "111"
       ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
-      ConnectionStrings__Database: "Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123"
+      ConnectionStrings__Database: "Server=catalogdb;Database=CoffeeShop_Catalog;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - catalogdb
       - distributedcache
@@ -77,6 +77,37 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+
+  ordering.api:
+    container_name: ordering-api
+    environment:
+        ASPNETCORE_ENVIRONMENT: Development
+        ASPNETCORE_URLS: "https://+:8081;http://+:8080"
+        ASPNETCORE_Kestrel__Certificates__Default__Password: "111"
+        ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+        ConnectionStrings__Database: Server=orderdb;Database=CoffeeShop_Order;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True
+        MessageBroker__Host: amqp://ecommerce-mq:5672
+        MessageBroker__UserName: guest
+        MessageBroker__Password: guest
+        FeatureManagement__OrderFullfilment: false
+    depends_on:
+      - orderdb
+      - messagebroker
+    ports:
+      - "7002:8080"
+      - "7072:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${USERPROFILE}/.aspnet/https:/https:ro
+
+  orderdb:
+    container_name: orderdb
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=MyPass123
+    restart: always
+    ports:
+      - "1435:1433"
 
   apigateway:
     container_name: api-gateway

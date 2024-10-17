@@ -2,13 +2,13 @@
 {
     public class Payment
     {
-        public CardName? CardName { get; private set; } = default!;
-        public CardNumber CardNumber { get; private set; } = default!;
-        public Expiration Expiration { get; private set; } = default!;
-        public CVV CVV { get; private set; } = default!;
+        public string? CardName { get; private set; } = default!;
+        public string CardNumber { get; private set; } = default!;
+        public string Expiration { get; private set; } = default!;
+        public string CVV { get; private set; } = default!;
 
         public static Payment From(
-            CardName? cardName, CardNumber cardNumber, Expiration expiration, CVV cvv)
+            string? cardName, string cardNumber, string expiration, string cvv)
         {
             return new Payment
             {

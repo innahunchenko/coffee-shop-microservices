@@ -13,8 +13,12 @@ namespace Ordering.API.Domain.Models
         public OrderName OrderName { get; private set; } = default!;
         public Address ShippingAddress { get; private set; } = default!;
         public Payment Payment { get; private set; } = default!;
-        public OrderStatus Status { get; private set; } = OrderStatus.Pending;
-        public decimal TotalPrice => orderItems.Sum(x => x.Price * x.Quantity);
+        public OrderStatus Status { get; private set; } = OrderStatus.Draft;
+        public decimal TotalPrice
+        {
+            get => OrderItems.Sum(x => x.Price * x.Quantity);
+            private set { }
+        }
 
         public static Order Create(OrderName orderName, Address shippingAddress, Payment payment)
         {
