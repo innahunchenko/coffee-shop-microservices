@@ -21,7 +21,10 @@ services:
     build:
       context: .
       dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
- 
+  
+  messagebroker:
+    image: rabbitmq:management
+
   apigateway:
     image: ${DOCKER_REGISTRY-}apigateway
     build:

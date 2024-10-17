@@ -1,6 +1,7 @@
 using Carter;
 using Foundation.Exceptions;
 using Marten;
+using Messaging.MassTransit;
 using Refit;
 using ShoppingCart.API;
 using ShoppingCart.API.Repository;
@@ -42,6 +43,8 @@ builder.Services.AddMediatR(config =>
     {
         config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
     });
+
+builder.Services.AddMessageBroker(builder.Configuration);
 
 builder.Services.AddCors(options =>
 {

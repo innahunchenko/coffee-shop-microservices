@@ -2,7 +2,7 @@
 using ShoppingCart.API.Models;
 using ShoppingCart.API.Services;
 
-namespace ShoppingCart.API.ShoppingCart.Get
+namespace ShoppingCart.API.ShoppingCart
 {
     public record GetCartRequest(string? userId) : IRequest<Cart>;
 

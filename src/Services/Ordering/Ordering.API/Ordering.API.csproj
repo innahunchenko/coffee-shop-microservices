@@ -4,26 +4,26 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>74092f5c-f976-4c12-b996-8c7a78c50688</UserSecretsId>
+    <UserSecretsId>8ba5496f-ff60-4260-a0ed-20a9f5e0ceaf</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerfileContext>..\..\..</DockerfileContext>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Carter" Version="8.2.1" />
-    <PackageReference Include="Marten" Version="7.28.0" />
-    <PackageReference Include="MassTransit" Version="8.2.5" />
-    <PackageReference Include="MediatR" Version="12.4.1" />
-    <PackageReference Include="Microsoft.AspNetCore.OutputCaching.StackExchangeRedis" Version="8.0.8" />
+    <PackageReference Include="FluentValidation" Version="11.8.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
-    <PackageReference Include="Refit" Version="7.2.1" />
-    <PackageReference Include="Refit.HttpClientFactory" Version="7.2.1" />
+    <PackageReference Include="ValueOf" Version="2.0.31" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\Foundation\Foundation.csproj" />
     <ProjectReference Include="..\..\..\Common\Messaging\Messaging.csproj" />
-    <ProjectReference Include="..\..\Catalog\Catalog.Domain\Catalog.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Orders\Commands\" />
+    <Folder Include="Orders\EventHandlers\" />
+    <Folder Include="Orders\Queries\" />
   </ItemGroup>
 
 </Project>

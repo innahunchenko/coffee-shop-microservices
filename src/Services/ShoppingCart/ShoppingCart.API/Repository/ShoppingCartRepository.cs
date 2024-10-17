@@ -32,4 +32,10 @@ public class ShoppingCartRepository : IShoppingCartRepository
         session.Store(cart);
         await session.SaveChangesAsync(cancellationToken);
     }
+
+    public async Task DeleteCartAsync(Guid shoppingCartId, CancellationToken cancellationToken)
+    {
+        session.Delete<Cart>(shoppingCartId);
+        await session.SaveChangesAsync(cancellationToken);
+    }
 }

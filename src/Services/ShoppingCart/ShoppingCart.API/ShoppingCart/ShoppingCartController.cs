@@ -1,11 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 using ShoppingCart.API.Models;
-using ShoppingCart.API.ShoppingCart.Get;
-using ShoppingCart.API.ShoppingCart.Store;
 
-namespace YourNamespace.Controllers
+namespace ShoppingCart.API.ShoppingCart
 {
     [Route("shopping-cart")]
     [ApiController]
@@ -19,7 +16,6 @@ namespace YourNamespace.Controllers
         }
 
         [HttpGet]
-       // [OutputCache(PolicyName = "Cache10Minutes")]
         public async Task<IActionResult> GetCart([FromQuery] string? userId, CancellationToken ct)
         {
             var result = await _sender.Send(new GetCartRequest(userId), ct);
@@ -30,6 +26,13 @@ namespace YourNamespace.Controllers
         public async Task<IActionResult> AddToCart([FromBody] List<ProductSelection> selections, CancellationToken ct)
         {
             var result = await _sender.Send(new StoreCartRequest(selections), ct);
+            return Ok(result);
+        }
+
+        [HttpPost("checkout")]
+        public async Task<IActionResult> CheckoutCart([FromBody] CheckoutCartRequest request, CancellationToken ct)
+        {
+            var result = await _sender.Send(request, ct);
             return Ok(result);
         }
     }

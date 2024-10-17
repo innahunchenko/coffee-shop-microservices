@@ -21,11 +21,11 @@ services:
   catalog.api:
     container_name: catalog-api
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:8081;http://+:8080
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=111
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-      - ConnectionStrings__Database=Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "https://+:8081;http://+:8080"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "111"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+      ConnectionStrings__Database: "Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123"
     depends_on:
       - catalogdb
       - distributedcache
@@ -33,15 +33,15 @@ services:
       - "7000:8080"
       - "7070:8081"
     volumes:
-       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-       - ${USERPROFILE}/.aspnet/https:/https:ro
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${USERPROFILE}/.aspnet/https:/https:ro
 
   shoppingCartdb:
     container_name: shopping-cart-db
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=ShoppingCartDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ShoppingCartDb
     restart: always
     ports:
       - "5433:5432"
@@ -51,12 +51,12 @@ services:
   shoppingCart.api:
     container_name: shopping-cart-api
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:8081;http://+:8080
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=111
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-      - ConnectionStrings__Database=Server=shoppingcartdb;Port=5432;Database=ShoppingCartDb;User Id=postgres;Password=postgres
-      - ConnectionStrings__Redis=distributedcache:6379
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "https://+:8081;http://+:8080"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "111"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+      ConnectionStrings__Database: "Host=shoppingcartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
+      ConnectionStrings__Redis: "distributedcache:6379"
     depends_on:
       - shoppingCartdb
       - distributedcache
@@ -67,13 +67,24 @@ services:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
 
+  messagebroker:
+    container_name: messagebroker
+    hostname: ecommerce-mq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   apigateway:
     container_name: api-gateway
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=https://+:8081;http://+:8080
-      - ASPNETCORE_Kestrel__Certificates__Default__Password=111
-      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "https://+:8081;http://+:8080"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "111"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
     depends_on:
       - catalog.api
       - shoppingCart.api
@@ -83,3 +94,7 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
+
+volumes:
+  mssql_catalog:
+  postgres_shoppingcart:
