@@ -19,7 +19,7 @@ namespace ShoppingCart.API.ShoppingCart
                 return new CheckoutBasketResult(false);
             }
 
-            var eventMessage = new ShoppingCartCheckoutEvent()
+            var eventMessage = new CartCheckoutEvent()
             {
                 AddressLine = request.CartCheckoutDto.AddressLine,
                 CardName = request.CartCheckoutDto.CardName,
@@ -31,8 +31,7 @@ namespace ShoppingCart.API.ShoppingCart
                 FirstName = request.CartCheckoutDto.FirstName,
                 LastName = request.CartCheckoutDto.LastName,
                 State = request.CartCheckoutDto.State,
-                ZipCode = request.CartCheckoutDto.ZipCode,
-                TotalPrice = cart.TotalPrice,
+                ZipCode = request.CartCheckoutDto.ZipCode
             };
 
             eventMessage.ProductSelections = cart.Selections.Zip(eventMessage.ProductSelections, (selection, productSelection) =>

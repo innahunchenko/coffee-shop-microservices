@@ -1,10 +1,9 @@
 ﻿namespace Messaging.Events
 {
-    public class ShoppingCartCheckoutEvent : IntegrationEvent
+    public class CartCheckoutEvent : IntegrationEvent
     {
         public List<ProductSelectionDto> ProductSelections { get; set; } = new();
         public string? UserId { get; set; }
-        public decimal TotalPrice { get; set; } = default!;
         public string FirstName { get; set; } = default!;
         public string LastName { get; set; } = default!;
         public string EmailAddress { get; set; } = default!;

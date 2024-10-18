@@ -26,8 +26,8 @@ builder.Services.AddScoped<IRedisCacheRepository, RedisCacheRepository>(provider
 
 var connectionString = builder.Configuration.GetConnectionString("OrdersConnection");
 builder.Services.AddHttpContextAccessor();
-//builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-//builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 //builder.Services.AddScoped<IOrderCacheService, OrderCacheService>();
 //builder.Services.Decorate<IOrderService, OrderServiceCacheDecorator>();
 

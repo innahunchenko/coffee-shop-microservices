@@ -1,8 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using ShoppingCart.API.Models;
+using ShoppingCart.API.ShoppingCart;
 
-namespace ShoppingCart.API.ShoppingCart
+namespace ShoppingCart.API.Controllers
 {
     [Route("shopping-cart")]
     [ApiController]

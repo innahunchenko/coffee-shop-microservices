@@ -1,16 +1,19 @@
 ﻿using MediatR;
 using Ordering.API.Domain.Dtos;
+using Ordering.API.Mapping;
+using Ordering.API.Services;
 
 namespace Ordering.API.Orders.Commands.CreateOrder
 {
     public record CreateOrderRequest(OrderDto OrderDto) : IRequest<OrderDto>;
 
-    public class CreateOrderHandler : IRequestHandler<CreateOrderRequest, OrderDto>
+    public class CreateOrderHandler(IOrderService orderService) : IRequestHandler<CreateOrderRequest, OrderDto>
     {
-        public Task<OrderDto> Handle(CreateOrderRequest request, CancellationToken cancellationToken)
+        public async Task<OrderDto> Handle(CreateOrderRequest request, CancellationToken cancellationToken)
         {
-            //var order = CreateOrder(request.OrderDto);
-            throw new NotImplementedException();
+            var order = await orderService.Create(request.OrderDto, cancellationToken);
+            var orderDto = order.ToOrderDto();
+            return orderDto;
         }
     }
 }
