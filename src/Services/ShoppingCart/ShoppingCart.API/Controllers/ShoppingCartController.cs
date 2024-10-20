@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using ShoppingCart.API.Dtos;
 using ShoppingCart.API.Models;
 using ShoppingCart.API.ShoppingCart;
 
@@ -31,9 +32,9 @@ namespace ShoppingCart.API.Controllers
         }
 
         [HttpPost("checkout")]
-        public async Task<IActionResult> CheckoutCart([FromBody] CheckoutCartRequest request, CancellationToken ct)
+        public async Task<IActionResult> CheckoutCart([FromBody] CartCheckoutDto request, CancellationToken ct)
         {
-            var result = await _sender.Send(request, ct);
+            var result = await _sender.Send(new CheckoutCartRequest(request), ct);
             return Ok(result);
         }
     }

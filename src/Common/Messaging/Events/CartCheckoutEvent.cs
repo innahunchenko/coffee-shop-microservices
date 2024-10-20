@@ -2,7 +2,7 @@
 {
     public class CartCheckoutEvent : IntegrationEvent
     {
-        public List<ProductSelectionDto> ProductSelections { get; set; } = new();
+        public List<ProductSelectionDto> ProductSelections { get; set; } = new List<ProductSelectionDto>();
         public string? UserId { get; set; }
         public string FirstName { get; set; } = default!;
         public string LastName { get; set; } = default!;

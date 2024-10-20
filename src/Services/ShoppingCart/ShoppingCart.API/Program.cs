@@ -44,7 +44,7 @@ builder.Services.AddMediatR(config =>
         config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
     });
 
-builder.Services.AddMessageBroker(builder.Configuration);
+builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
 
 builder.Services.AddCors(options =>
 {

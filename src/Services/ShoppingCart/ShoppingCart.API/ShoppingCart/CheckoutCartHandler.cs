@@ -34,16 +34,25 @@ namespace ShoppingCart.API.ShoppingCart
                 ZipCode = request.CartCheckoutDto.ZipCode
             };
 
-            eventMessage.ProductSelections = cart.Selections.Zip(eventMessage.ProductSelections, (selection, productSelection) =>
+            for (int i = 0; i < cart.Selections.Count; i++)
             {
-                productSelection.ProductId = selection.ProductId;
-                productSelection.Price = selection.Price;
-                productSelection.Quantity = selection.Quantity;
-                productSelection.ProductName = selection.ProductName;
-                return productSelection;
-            }).ToList();
+                eventMessage.ProductSelections.Add(new ProductSelectionDto()
+                {
+                    ProductId = cart.Selections[i].ProductId,
+                    ProductName = cart.Selections[i].ProductName,
+                    Price = cart.Selections[i].Price,
+                    Quantity = cart.Selections[i].Quantity
+                });
+            }
+            try
+            {
+                await publishEndpoint.Publish(eventMessage, cancellationToken);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
 
-            await publishEndpoint.Publish(eventMessage, cancellationToken);
             await service.DeleteCartAsync(cart.Id, cancellationToken);
             return new CheckoutBasketResult(true);
         }

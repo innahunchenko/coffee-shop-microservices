@@ -57,9 +57,13 @@ services:
       ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
       ConnectionStrings__Database: "Host=shoppingcartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
       ConnectionStrings__Redis: "distributedcache:6379"
+      MessageBroker__Host: rabbitmq://ecommerce-mq:5672
+      MessageBroker__UserName: guest
+      MessageBroker__Password: guest
     depends_on:
       - shoppingCartdb
       - distributedcache
+      - messagebroker
     ports:
       - "7001:8080"
       - "7071:8081"
@@ -86,7 +90,7 @@ services:
         ASPNETCORE_Kestrel__Certificates__Default__Password: "111"
         ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
         ConnectionStrings__Database: Server=orderdb;Database=CoffeeShop_Order;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True
-        MessageBroker__Host: amqp://ecommerce-mq:5672
+        MessageBroker__Host: rabbitmq://ecommerce-mq:5672
         MessageBroker__UserName: guest
         MessageBroker__Password: guest
         FeatureManagement__OrderFullfilment: false
