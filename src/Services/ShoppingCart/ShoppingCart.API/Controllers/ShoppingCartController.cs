@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using ShoppingCart.API.Dtos;
 using ShoppingCart.API.Models;
+using ShoppingCart.API.Services;
 using ShoppingCart.API.ShoppingCart;
 
 namespace ShoppingCart.API.Controllers
@@ -10,32 +12,50 @@ namespace ShoppingCart.API.Controllers
     [ApiController]
     public class ShoppingCartController : ControllerBase
     {
-        private readonly ISender _sender;
+        private readonly ISender sender;
 
         public ShoppingCartController(ISender sender)
         {
-            _sender = sender;
+            this.sender = sender;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetCart([FromQuery] string? userId, CancellationToken ct)
         {
-            var result = await _sender.Send(new GetCartRequest(userId), ct);
+            var result = await sender.Send(new GetCartRequest(userId), ct);
             return Ok(result);
         }
 
         [HttpPost("add")]
         public async Task<IActionResult> AddToCart([FromBody] List<ProductSelection> selections, CancellationToken ct)
         {
-            var result = await _sender.Send(new StoreCartRequest(selections), ct);
+            var result = await sender.Send(new StoreCartRequest(selections), ct);
             return Ok(result);
         }
+
 
         [HttpPost("checkout")]
         public async Task<IActionResult> CheckoutCart([FromBody] CartCheckoutDto request, CancellationToken ct)
         {
-            var result = await _sender.Send(new CheckoutCartRequest(request), ct);
+            var result = await sender.Send(new CheckoutCartRequest(request), ct);
             return Ok(result);
+        }
+
+        [HttpPost("session/checkout")]
+        public async Task<ActionResult> StoreCheckout([FromBody] CartCheckoutDto data)
+        {
+            HttpContext.Session.SetString("checkout", JsonConvert.SerializeObject(data));
+            await HttpContext.Session.CommitAsync();
+
+            return Ok();
+        }
+
+        [HttpGet("session/checkout")]
+        public async Task<IActionResult> GetCheckout()
+        {
+            await HttpContext.Session.LoadAsync();
+            var data = HttpContext.Session.GetString("checkout");
+            return Ok(data);
         }
     }
 }

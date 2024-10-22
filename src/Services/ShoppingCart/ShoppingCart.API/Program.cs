@@ -28,6 +28,20 @@ builder.Services.AddScoped(provider =>
     return documentStore.LightweightSession();
 });
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["CacheSettings:RedisConnectionString"];
+    options.InstanceName = "SessionCache_";
+});
+
+builder.Services.AddSession(options =>
+{
+    options.Cookie.Name = "CoffeeShop.Session";
+    options.IdleTimeout = TimeSpan.FromHours(48);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddScoped<ICookieService, CookieService>();
 builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
 builder.Services.AddScoped<IShoppingCartService, ShoppingCartService>();
@@ -58,6 +72,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 var app = builder.Build();
+app.UseSession();
 app.MapCarter();
 app.MapControllers();
 app.UseStaticFiles();

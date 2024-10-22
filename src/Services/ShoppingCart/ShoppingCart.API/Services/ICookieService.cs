@@ -2,7 +2,7 @@
 {
     public interface ICookieService
     {
-        string? GetCartIdFromCookies(HttpContext httpContext);
-        void SetCartIdInCookies(HttpContext httpContext, string cartId);
+        string? GetDataFromCookies(HttpContext httpContext, string cookieName);
+        void SetDataToCookies(HttpContext httpContext, string cookieName, string cookieValue);
     }
 }

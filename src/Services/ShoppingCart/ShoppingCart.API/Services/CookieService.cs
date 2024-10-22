@@ -2,11 +2,9 @@
 {
     public class CookieService : ICookieService
     {
-        private const string CartIdCookieName = "cartId";
-
-        public string? GetCartIdFromCookies(HttpContext httpContext)
+        public string? GetDataFromCookies(HttpContext httpContext, string cookieName)
         {
-            if (httpContext.Request.Cookies.TryGetValue(CartIdCookieName, out var cartId))
+            if (httpContext.Request.Cookies.TryGetValue(cookieName, out var cartId))
             {
                 return cartId;
             }
@@ -14,7 +12,7 @@
             return null;
         }
 
-        public void SetCartIdInCookies(HttpContext httpContext, string cartId)
+        public void SetDataToCookies(HttpContext httpContext, string cookieName, string cookieValue)
         {
             var cookieOptions = new CookieOptions
             {
@@ -24,7 +22,7 @@
                 SameSite = SameSiteMode.Strict          
             };
 
-            httpContext.Response.Cookies.Append(CartIdCookieName, cartId, cookieOptions);
+            httpContext.Response.Cookies.Append(cookieName, cookieValue, cookieOptions);
         }
     }
 }

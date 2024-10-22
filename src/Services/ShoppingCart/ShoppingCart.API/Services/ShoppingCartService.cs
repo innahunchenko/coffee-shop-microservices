@@ -9,6 +9,8 @@ namespace ShoppingCart.API.Services
         private readonly ICatalogService catalogService;
         private readonly ICookieService cookieService;
         private readonly HttpContext? httpContext;
+        private readonly string cookieName;
+
         public ShoppingCartService(IShoppingCartRepository cartRepository,
             IHttpContextAccessor httpContextAccessor,
             ICatalogService catalogService,
@@ -18,6 +20,7 @@ namespace ShoppingCart.API.Services
             httpContext = httpContextAccessor.HttpContext;
             this.catalogService = catalogService;
             this.cookieService = cookieService;
+            cookieName = "CoffeeShop.Cart";
         }
 
         public string GenerateUniqueId() => Guid.NewGuid().ToString();
@@ -39,7 +42,7 @@ namespace ShoppingCart.API.Services
 
             if (httpContext != null)
             {
-                var cartId = cookieService.GetCartIdFromCookies(httpContext);
+                var cartId = cookieService.GetDataFromCookies(httpContext, cookieName);
 
                 if (!string.IsNullOrEmpty(cartId))
                 {
@@ -60,7 +63,7 @@ namespace ShoppingCart.API.Services
                 throw new InvalidOperationException("HTTP context is not available. Unable to access cookies.");
             }
 
-            cookieService.SetCartIdInCookies(httpContext, cartId);
+            cookieService.SetDataToCookies(httpContext, cookieName, cartId);
             await cartRepository.StoreCartAsync(cart, cancellationToken);
             return cart;
         }
