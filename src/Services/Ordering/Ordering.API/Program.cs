@@ -11,6 +11,7 @@ using RedisCachingService;
 using StackExchange.Redis;
 using System.Data;
 using System.Reflection;
+using Foundation.Behaviors;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
@@ -46,6 +47,7 @@ builder.Services.AddScoped<IDbConnection>(sp => new SqlConnection(connectionStri
 builder.Services.AddMediatR(config =>
 {
     config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+   // config.AddBehavior(typeof(ValidationBehavior<,>));
 });
 
 builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());

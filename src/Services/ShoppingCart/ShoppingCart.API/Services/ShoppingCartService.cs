@@ -1,4 +1,5 @@
-﻿using ShoppingCart.API.Models;
+﻿using Foundation.Exceptions;
+using ShoppingCart.API.Models;
 using ShoppingCart.API.Repository;
 
 namespace ShoppingCart.API.Services
@@ -27,8 +28,13 @@ namespace ShoppingCart.API.Services
 
         public async Task<Cart> GetOrCreateCartAsync(string? userId, CancellationToken cancellationToken)
         {
-            return await GetCartAsync(userId, cancellationToken)
+            var cart = await GetCartAsync(userId, cancellationToken)
                 ?? await CreateNewCartAsync(userId, cancellationToken);
+
+            if(cart == null)
+                throw new NotFoundException("Cannot find the shopping cart");
+
+            return cart;
         }
 
         private async Task<Cart?> GetCartAsync(string? userId, CancellationToken cancellationToken)

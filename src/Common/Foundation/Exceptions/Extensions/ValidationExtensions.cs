@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Foundation.Exceptions.Extensions
 {
+    using Newtonsoft.Json.Serialization;
+
     public static class ValidationExtensions
     {
         public static ValidationProblemDetails ToProblemDetails(this ValidationException ex)
@@ -13,18 +15,27 @@ namespace Foundation.Exceptions.Extensions
                 Status = 400
             };
 
+            var contractResolver = new CamelCasePropertyNamesContractResolver();
+
             foreach (var validationFailure in ex.Errors)
             {
-                if (error.Errors.ContainsKey(validationFailure.PropertyName))
+                var propertyName = validationFailure.PropertyName;
+                if (propertyName.Contains('.'))
                 {
-                    error.Errors[validationFailure.PropertyName] = error.Errors[validationFailure.PropertyName]
-                        .Concat([validationFailure.ErrorMessage]).ToArray();
-                    continue;
+                    propertyName = propertyName.Substring(propertyName.LastIndexOf('.') + 1);
                 }
 
-                error.Errors.Add(new KeyValuePair<string, string[]>(
-                    validationFailure.PropertyName,
-                    [validationFailure.ErrorMessage]));
+                propertyName = contractResolver.GetResolvedPropertyName(propertyName);
+
+                if (error.Errors.ContainsKey(propertyName))
+                {
+                    error.Errors[propertyName] = error.Errors[propertyName]
+                        .Concat(new[] { validationFailure.ErrorMessage }).ToArray();
+                }
+                else
+                {
+                    error.Errors.Add(propertyName, new[] { validationFailure.ErrorMessage });
+                }
             }
 
             return error;

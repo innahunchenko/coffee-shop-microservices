@@ -7,13 +7,10 @@ namespace Foundation.Abstractions.Controllers
 {
     public static class ControllerExtensions
     {
-        public static IActionResult ToOk<TResult, TContract>(
-            this Result<TResult> result,
-            Func<TResult, TContract> mapper)
+        public static IActionResult ToOk<TResult>(this Result<TResult> result)
         {
-            return result.Match<IActionResult>(obj =>
+            return result.Match<IActionResult>(response =>
             {
-                var response = mapper(obj);
                 return new OkObjectResult(response);
             }, exception =>
             {

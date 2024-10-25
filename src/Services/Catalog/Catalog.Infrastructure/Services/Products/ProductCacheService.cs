@@ -57,6 +57,9 @@ namespace Catalog.Infrastructure.Services.Products
 
             logger.LogInformation($"{cachedProducts.Count()} cached products with {index} retrieved from cache");
 
+            if (cachedProducts.Count != productsKeys.Count)
+                cachedProducts.Clear();
+
             return cachedProducts;
         }
 

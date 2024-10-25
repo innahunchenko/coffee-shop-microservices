@@ -1,16 +1,25 @@
 using Carter;
+using FluentValidation;
 using Foundation.Exceptions;
 using Marten;
 using Messaging.MassTransit;
+using Newtonsoft.Json.Serialization;
 using Refit;
 using ShoppingCart.API;
 using ShoppingCart.API.Repository;
 using ShoppingCart.API.Services;
+using ShoppingCart.API.Validation;
+using StackExchange.Redis;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+    });
+
 builder.Services.AddCarter();
 
 builder.Services.AddSingleton<IDocumentStore>(provider =>
@@ -26,6 +35,12 @@ builder.Services.AddScoped(provider =>
 {
     var documentStore = provider.GetRequiredService<IDocumentStore>();
     return documentStore.LightweightSession();
+});
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = builder.Configuration["CacheSettings:RedisConnectionString"];
+    return ConnectionMultiplexer.Connect(configuration!);
 });
 
 builder.Services.AddStackExchangeRedisCache(options =>
@@ -51,12 +66,16 @@ builder.Services.AddRefitClient<ICatalogService>()
     {
         c.BaseAddress = new Uri(builder.Configuration["ApiSettings:GatewayAddress"]!);
     })
-    .AddHttpMessageHandler(() => new LoggingHandler()); 
+    .AddHttpMessageHandler(() => new LoggingHandler());
 
 builder.Services.AddMediatR(config =>
     {
         config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+       // config.AddBehavior(typeof(ValidationBehavior<,>));
     });
+
+builder.Services.AddValidatorsFromAssemblyContaining<CheckoutCartRequestValidator>();
+//builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
 

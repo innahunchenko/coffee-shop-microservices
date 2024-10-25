@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace Foundation.Exceptions
 {
-    public class CustomExceptionHandler (ILogger<CustomExceptionHandler> logger) : IExceptionHandler
+    public class CustomExceptionHandler(ILogger<CustomExceptionHandler> logger) : IExceptionHandler
     {
         public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
         {
@@ -21,6 +22,12 @@ namespace Foundation.Exceptions
                     exception.GetType().Name,
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError
                 ),
+                //ValidationException =>
+                //(
+                //    exception.Message,
+                //    exception.GetType().Name,
+                //    context.Response.StatusCode = StatusCodes.Status400BadRequest
+                //),
                 BadRequestException =>
                 (
                     exception.Message,
@@ -33,7 +40,7 @@ namespace Foundation.Exceptions
                     exception.GetType().Name,
                     context.Response.StatusCode = StatusCodes.Status404NotFound
                 ),
-                CustomRedisException => 
+                CustomRedisException =>
                 (
                     exception.Message,
                     exception.GetType().Name,
