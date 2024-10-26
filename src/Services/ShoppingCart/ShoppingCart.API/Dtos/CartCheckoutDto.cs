@@ -8,6 +8,8 @@ namespace ShoppingCart.API.Dtos
         public string FirstName { get; set; } = default!;
         [JsonProperty("lastName")]
         public string LastName { get; set; } = default!;
+        [JsonProperty("phoneNumber")]
+        public string PhoneNumber { get; set; } = default!;
         [JsonProperty("emailAddress")]
         public string EmailAddress { get; set; } = default!;
         [JsonProperty("addressLine")]

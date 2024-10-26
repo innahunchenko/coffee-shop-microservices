@@ -3,6 +3,7 @@ using Ordering.API.Domain.Dtos;
 using Ordering.API.Domain.Models;
 using Ordering.API.Domain.ValueObjects.AddressObjects;
 using Ordering.API.Domain.ValueObjects.OrderItemObjects;
+using Ordering.API.Domain.ValueObjects.OrderObjects;
 using Ordering.API.Domain.ValueObjects.PaymentObjects;
 
 namespace Ordering.API.Mapping
@@ -20,7 +21,7 @@ namespace Ordering.API.Mapping
                 orderDto.ShippingAddress.ZipCode);
 
             var payment = Payment.From(orderDto.Payment.CardName, orderDto.Payment.CardNumber, orderDto.Payment.Expiration, orderDto.Payment.CVV);
-            var order = Order.Create(shippingAddress, payment, orderDto.OrderStatus);
+            var order = Order.Create(shippingAddress, payment, orderDto.OrderStatus, orderDto.PhoneNumber);
 
             foreach (var orderItemDto in orderDto.OrderItems)
             {
@@ -36,6 +37,8 @@ namespace Ordering.API.Mapping
         public static OrderDto ToOrderDto(this CartCheckoutEvent src)
         {
             var orderDto = new OrderDto();
+            orderDto.PhoneNumber = PhoneNumber.From(src.PhoneNumber);
+
             foreach (var selection in src.ProductSelections)
             {
                 var orderItemDto = new OrderItemDto()
@@ -77,6 +80,7 @@ namespace Ordering.API.Mapping
             orderDto.OrderStatus = order.Status;
             orderDto.OrderName = order.OrderName.Value;
             orderDto.TotalPrice = order.TotalPrice;
+            orderDto.PhoneNumber = order.PhoneNumber;
 
             foreach (var item in orderDto.OrderItems)
             {

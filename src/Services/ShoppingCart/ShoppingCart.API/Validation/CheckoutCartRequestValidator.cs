@@ -18,9 +18,14 @@ namespace ShoppingCart.API.Validation
                 .Matches(FirstLastNameRegex())
                 .WithMessage(validationMessage);
 
+            RuleFor(x => x.CartCheckoutDto.PhoneNumber)
+                .Matches(PhoneNumberRegex())
+                .WithMessage(validationMessage);
+
             RuleFor(x => x.CartCheckoutDto.EmailAddress)
                 .EmailAddress()
-                .WithMessage(validationMessage);
+                .WithMessage(validationMessage)
+                .When(x => !string.IsNullOrEmpty(x.CartCheckoutDto.EmailAddress));
 
             RuleFor(x => x.CartCheckoutDto.AddressLine)
                 .Matches(AddressLineRegex())
@@ -57,6 +62,9 @@ namespace ShoppingCart.API.Validation
 
         private static Regex FirstLastNameRegex() =>
              new Regex("^[A-Za-z]+(?:[ '-][A-Za-z]+)*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static Regex PhoneNumberRegex() =>
+             new Regex("^\\+?[1-9]\\d{1,14}$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static Regex AddressLineRegex() =>
             new Regex("^[a-zA-Z0-9\\s,.'#-]{1,100}$", RegexOptions.IgnoreCase | RegexOptions.Compiled);

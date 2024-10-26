@@ -6,6 +6,7 @@
         public string? UserId { get; set; }
         public string FirstName { get; set; } = default!;
         public string LastName { get; set; } = default!;
+        public string PhoneNumber { get; set; } = default!;
         public string EmailAddress { get; set; } = default!;
         public string AddressLine { get; set; } = default!;
         public string Country { get; set; } = default!;

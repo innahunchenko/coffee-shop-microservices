@@ -1,5 +1,4 @@
 ﻿using Foundation.Abstractions.Models;
-using Ordering.API.Domain.Dtos;
 using Ordering.API.Domain.Events;
 using Ordering.API.Domain.ValueObjects.AddressObjects;
 using Ordering.API.Domain.ValueObjects.OrderItemObjects;
@@ -12,7 +11,8 @@ namespace Ordering.API.Domain.Models
     {
         private readonly List<OrderItem> orderItems = [];
         public IReadOnlyList<OrderItem> OrderItems => orderItems.AsReadOnly();
-        public OrderName OrderName { get => OrderName.From($"Order_{Id}"); set { } }
+        public OrderName OrderName { get => OrderName.From($"Order_{Id}"); private set { } }
+        public PhoneNumber PhoneNumber { get; private set; } = default!;
         public Address ShippingAddress { get; private set; } = default!;
         public Payment Payment { get; private set; } = default!;
         public OrderStatus Status { get; private set; } = OrderStatus.Draft;
@@ -22,12 +22,13 @@ namespace Ordering.API.Domain.Models
             private set { }
         }
 
-        public static Order Create(Address shippingAddress, Payment payment, OrderStatus orderStatus)
+        public static Order Create(Address shippingAddress, Payment payment, OrderStatus orderStatus ,PhoneNumber phoneNumber)
         {
             var order = new Order()
             {
                 Id = OrderId.From(Guid.NewGuid()),
                 ShippingAddress = shippingAddress,
+                PhoneNumber = phoneNumber,
                 Payment = payment,
                 Status = orderStatus
             };

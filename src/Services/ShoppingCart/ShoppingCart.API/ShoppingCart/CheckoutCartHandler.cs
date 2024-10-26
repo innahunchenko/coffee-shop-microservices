@@ -35,6 +35,7 @@ namespace ShoppingCart.API.ShoppingCart
                 Country = checkoutCartRequest.CartCheckoutDto.Country,
                 CVV = checkoutCartRequest.CartCheckoutDto.CVV,
                 EmailAddress = checkoutCartRequest.CartCheckoutDto.EmailAddress,
+                PhoneNumber = checkoutCartRequest.CartCheckoutDto.PhoneNumber,
                 Expiration = checkoutCartRequest.CartCheckoutDto.Expiration,
                 FirstName = checkoutCartRequest.CartCheckoutDto.FirstName,
                 LastName = checkoutCartRequest.CartCheckoutDto.LastName,
