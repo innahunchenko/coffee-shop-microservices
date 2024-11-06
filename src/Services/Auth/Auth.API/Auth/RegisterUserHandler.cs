@@ -12,22 +12,19 @@ namespace Auth.API.Auth
         {
             var (result, userId) = await authService.RegisterUserAsync(request.UserDto);
 
-            if (result.Errors.Count() != 0) 
+            if (!result.Succeeded || string.IsNullOrEmpty(userId))
             {
                 return Results.BadRequest(result.Errors);
             }
 
-            if (result.Succeeded && !string.IsNullOrEmpty(userId)) 
-            {
-                result = await authService.AddUserToUserRoleAsync(userId);
+            result = await authService.AddUserToUserRoleAsync(userId);
 
-                if (result.Succeeded)
-                {
-                    return Results.Ok(result);
-                }
+            if (!result.Succeeded)
+            {
+                return Results.BadRequest(result.Errors); 
             }
 
-            return Results.BadRequest(result.Errors);
+            return Results.Ok(result);
         }
     }
 }
