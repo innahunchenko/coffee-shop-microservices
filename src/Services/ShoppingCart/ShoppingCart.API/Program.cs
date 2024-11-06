@@ -71,11 +71,10 @@ builder.Services.AddRefitClient<ICatalogService>()
 builder.Services.AddMediatR(config =>
     {
         config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-       // config.AddBehavior(typeof(ValidationBehavior<,>));
+        config.AddOpenBehavior(typeof(ValidationBehavior<,>));
     });
 
 builder.Services.AddValidatorsFromAssemblyContaining<CheckoutCartRequestValidator>();
-//builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
 builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
 

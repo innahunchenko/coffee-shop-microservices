@@ -123,9 +123,37 @@ services:
     depends_on:
       - catalog.api
       - shoppingCart.api
+      - auth.api
     ports:
       - "7005:8080"
       - "7075:8081"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${USERPROFILE}/.aspnet/https:/https:ro
+
+  identitydb:
+     container_name: identitydb
+     environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=MyPass123
+     restart: always
+     ports:
+      - "1436:1433"
+  
+  auth.api:
+    container_name: auth-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "https://+:8081;http://+:8080"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "111"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+      ConnectionStrings__Database: "Server=identitydb;Database=CoffeeShop_Identity;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
+    depends_on:
+      - identitydb
+      - distributedcache
+    ports:
+      - "7007:8080"
+      - "7077:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro

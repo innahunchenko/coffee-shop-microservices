@@ -1,9 +1,7 @@
 ﻿using Foundation.Abstractions.Models;
 using Ordering.API.Domain.Events;
-using Ordering.API.Domain.ValueObjects.AddressObjects;
 using Ordering.API.Domain.ValueObjects.OrderItemObjects;
 using Ordering.API.Domain.ValueObjects.OrderObjects;
-using Ordering.API.Domain.ValueObjects.PaymentObjects;
 
 namespace Ordering.API.Domain.Models
 {
@@ -16,13 +14,14 @@ namespace Ordering.API.Domain.Models
         public Address ShippingAddress { get; private set; } = default!;
         public Payment Payment { get; private set; } = default!;
         public OrderStatus Status { get; private set; } = OrderStatus.Draft;
+        public string? UserId { get; private set; }
         public decimal TotalPrice
         {
             get => OrderItems.Sum(x => x.Price * x.Quantity);
             private set { }
         }
 
-        public static Order Create(Address shippingAddress, Payment payment, OrderStatus orderStatus ,PhoneNumber phoneNumber)
+        public static Order Create(Address shippingAddress, Payment payment, OrderStatus orderStatus ,PhoneNumber phoneNumber, string? userId = null)
         {
             var order = new Order()
             {
@@ -30,7 +29,8 @@ namespace Ordering.API.Domain.Models
                 ShippingAddress = shippingAddress,
                 PhoneNumber = phoneNumber,
                 Payment = payment,
-                Status = orderStatus
+                Status = orderStatus,
+                UserId = userId
             };
 
             order.AddDomainEvent(new OrderCreatedEvent(order));

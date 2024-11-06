@@ -5,7 +5,7 @@ namespace Ordering.API.Services
 {
     public class OrderServiceCacheDecorator : IOrderService
     {
-        public Task<Order> Create(OrderDto order, CancellationToken cancellationToken)
+        public Task<Order> CreateAsync(OrderDto order, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

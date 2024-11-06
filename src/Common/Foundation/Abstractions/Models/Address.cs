@@ -1,4 +1,4 @@
-﻿namespace Ordering.API.Domain.ValueObjects.AddressObjects
+﻿namespace Foundation.Abstractions.Models
 {
     public class Address
     {

@@ -5,6 +5,6 @@ namespace Ordering.API.Services
 {
     public interface IOrderService
     {
-        Task<Order> Create(OrderDto order, CancellationToken cancellationToken);
+        Task<Order> CreateAsync(OrderDto order, CancellationToken cancellationToken);
     }
 }

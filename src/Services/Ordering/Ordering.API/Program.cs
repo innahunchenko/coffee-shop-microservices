@@ -11,7 +11,7 @@ using RedisCachingService;
 using StackExchange.Redis;
 using System.Data;
 using System.Reflection;
-using Foundation.Behaviors;
+using Foundation.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
@@ -40,7 +40,7 @@ builder.Services.AddDbContext<AppDbContext>((sp, options) =>
     options.UseSqlServer(connectionString);
 });
 
-builder.Services.AddScoped<IAppDbContext, AppDbContext>();
+builder.Services.AddScoped<IDbContext, AppDbContext>();
 builder.Services.AddScoped<IDbConnection>(sp => new SqlConnection(connectionString));
 
 
@@ -71,5 +71,5 @@ app.UseStaticFiles();
 app.UseAuthorization();
 app.UseCors("AllowSpecificOrigins");
 app.UseExceptionHandler(options => { });
-app.InitialiseDatabaseAsync();
+app.InitialiseDatabaseAsync<AppDbContext>();
 app.Run();

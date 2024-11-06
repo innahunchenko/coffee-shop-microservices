@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-using LanguageExt.Common;
-using MassTransit;
+﻿using MassTransit;
 using MediatR;
 using Messaging.Events;
 using ShoppingCart.API.Dtos;
@@ -8,24 +6,15 @@ using ShoppingCart.API.Services;
 
 namespace ShoppingCart.API.ShoppingCart
 {
-    public record CheckoutCartRequest(CartCheckoutDto CartCheckoutDto) : IRequest<Result<CheckoutBasketResult>>;
+    public record CheckoutCartRequest(CartCheckoutDto CartCheckoutDto) : IRequest<IResult>;
     public record CheckoutBasketResult(CartCheckoutDto CartCheckoutDto); 
 
-    public sealed class CheckoutCartHandler(IShoppingCartService service, 
-        IPublishEndpoint publishEndpoint, 
-        IValidator<CheckoutCartRequest> validator) : IRequestHandler<CheckoutCartRequest, Result<CheckoutBasketResult>>
+    public sealed class CheckoutCartHandler(IShoppingCartService service, IPublishEndpoint publishEndpoint) 
+        : IRequestHandler<CheckoutCartRequest, IResult>
     {
-        public async Task<Result<CheckoutBasketResult>> Handle(CheckoutCartRequest checkoutCartRequest, CancellationToken cancellationToken)
+        public async Task<IResult> Handle(CheckoutCartRequest checkoutCartRequest, CancellationToken cancellationToken)
         {
             var cart = await service.GetOrCreateCartAsync(null, cancellationToken);
-
-            var validationResult = await validator.ValidateAsync(checkoutCartRequest);
-
-            if (!validationResult.IsValid)
-            {
-                var validationException = new ValidationException(validationResult.Errors);
-                return new Result<CheckoutBasketResult>(validationException);
-            }
 
             var eventMessage = new CartCheckoutEvent()
             {
@@ -56,7 +45,7 @@ namespace ShoppingCart.API.ShoppingCart
 
             await publishEndpoint.Publish(eventMessage, cancellationToken);
             await service.DeleteCartAsync(cart.Id, cancellationToken);
-            return new CheckoutBasketResult(checkoutCartRequest.CartCheckoutDto);
+            return Results.Ok();
         }
     }
 }

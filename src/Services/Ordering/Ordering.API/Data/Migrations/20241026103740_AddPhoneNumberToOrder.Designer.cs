@@ -12,7 +12,7 @@ using Ordering.API.Data;
 
 namespace Ordering.API.Data.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+    [DbContext(typeof(DbContext))]
     [Migration("20241026103740_AddPhoneNumberToOrder")]
     partial class AddPhoneNumberToOrder
     {

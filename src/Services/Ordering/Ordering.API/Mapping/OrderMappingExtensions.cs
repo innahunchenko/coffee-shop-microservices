@@ -1,10 +1,10 @@
-﻿using Messaging.Events;
+﻿using Foundation.Abstractions.Models;
+using Messaging.Events;
+using Microsoft.AspNetCore.Http;
 using Ordering.API.Domain.Dtos;
 using Ordering.API.Domain.Models;
-using Ordering.API.Domain.ValueObjects.AddressObjects;
 using Ordering.API.Domain.ValueObjects.OrderItemObjects;
 using Ordering.API.Domain.ValueObjects.OrderObjects;
-using Ordering.API.Domain.ValueObjects.PaymentObjects;
 
 namespace Ordering.API.Mapping
 {

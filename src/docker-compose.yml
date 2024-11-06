@@ -39,6 +39,15 @@ services:
     build:
       context: .
       dockerfile: Services/Ordering/Ordering.API/Dockerfile
+  
+  identitydb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  auth.api:
+    image: ${DOCKER_REGISTRY-}authapi
+    build:
+      context: .
+      dockerfile: Services/Auth/Auth.API/Dockerfile
 
 volumes:
   mssql_catalog:

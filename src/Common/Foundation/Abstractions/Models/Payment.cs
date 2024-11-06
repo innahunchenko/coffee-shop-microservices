@@ -1,4 +1,4 @@
-﻿namespace Ordering.API.Domain.ValueObjects.PaymentObjects
+﻿namespace Foundation.Abstractions.Models
 {
     public class Payment
     {

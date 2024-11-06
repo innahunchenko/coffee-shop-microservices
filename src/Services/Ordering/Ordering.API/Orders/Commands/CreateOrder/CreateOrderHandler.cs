@@ -11,7 +11,7 @@ namespace Ordering.API.Orders.Commands.CreateOrder
     {
         public async Task<OrderDto> Handle(CreateOrderRequest request, CancellationToken cancellationToken)
         {
-            var order = await orderService.Create(request.OrderDto, cancellationToken);
+            var order = await orderService.CreateAsync(request.OrderDto, cancellationToken);
             var orderDto = order.ToOrderDto();
             return orderDto;
         }

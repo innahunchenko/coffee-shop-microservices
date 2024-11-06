@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Foundation.Exceptions.Extensions;
 using LanguageExt.Common;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,9 +13,9 @@ namespace Foundation.Abstractions.Controllers
                 return new OkObjectResult(response);
             }, exception =>
             {
-                if (exception is ValidationException validationException)
+                if (exception is Exception appException)
                 {
-                    return new BadRequestObjectResult(validationException.ToProblemDetails());
+                    return new BadRequestObjectResult(appException.Message);
                 }
 
                 return new StatusCodeResult(500);

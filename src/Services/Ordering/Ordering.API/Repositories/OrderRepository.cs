@@ -4,9 +4,9 @@ using Ordering.API.Domain.Models;
 
 namespace Ordering.API.Repositories
 {
-    public class OrderRepository(IAppDbContext context) : IOrderRepository
+    public class OrderRepository(IDbContext context) : IOrderRepository
     {
-        public async Task<Order> Create(Order order, CancellationToken cancellationToken)
+        public async Task<Order> CreateAsync(Order order, CancellationToken cancellationToken)
         {
             context.Orders.Add(order);
             await context.SaveChangesAsync(cancellationToken);

@@ -1,5 +1,4 @@
-﻿using Foundation.Abstractions.Controllers;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using ShoppingCart.API.Dtos;
@@ -35,10 +34,10 @@ namespace ShoppingCart.API.Controllers
 
 
         [HttpPost("checkout")]
-        public async Task<IActionResult> CheckoutCart([FromBody] CartCheckoutDto request, CancellationToken ct)
+        public async Task<IResult> CheckoutCart([FromBody] CartCheckoutDto request, CancellationToken ct)
         {
             var result = await sender.Send(new CheckoutCartRequest(request), ct);
-            return result.ToOk();
+            return result;
         }
 
         [HttpPost("session/checkout")]
@@ -46,19 +45,6 @@ namespace ShoppingCart.API.Controllers
         {
             HttpContext.Session.SetString("checkout", JsonConvert.SerializeObject(data));
             await HttpContext.Session.CommitAsync();
-            /*
-            var db = redis.GetDatabase();
-            var server = redis.GetServer(redis.GetEndPoints().First());
-
-            var keys = new List<RedisKey>();
-
-            await foreach (var key in server.KeysAsync(pattern: "SessionCache_*"))
-            {
-                keys.Add(key);
-            }
-
-            Console.WriteLine($"End coontroller method for seeion: {keys}");
-            */
             return Ok();
         }
 

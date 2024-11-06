@@ -7,10 +7,10 @@ namespace Ordering.API.Services
 {
     public class OrderService(IOrderRepository repository) : IOrderService
     {
-        public async Task<Order> Create(OrderDto orderDto, CancellationToken cancellationToken)
+        public async Task<Order> CreateAsync(OrderDto orderDto, CancellationToken cancellationToken)
         {
             var order = orderDto.ToOrder();
-            order = await repository.Create(order, cancellationToken);
+            order = await repository.CreateAsync(order, cancellationToken);
             return order;
         }
     }

@@ -6,58 +6,56 @@ namespace ShoppingCart.API.Validation
 {
     public class CheckoutCartRequestValidator : AbstractValidator<CheckoutCartRequest>
     {
-        private readonly string validationMessage = "This field is not invalid.";
-
-        public CheckoutCartRequestValidator() 
+        public CheckoutCartRequestValidator()
         {
             RuleFor(x => x.CartCheckoutDto.FirstName)
                 .Matches(FirstLastNameRegex())
-                .WithMessage(validationMessage);
+                .WithMessage("Only letters and may include spaces, apostrophes, or hyphens.");
 
             RuleFor(x => x.CartCheckoutDto.LastName)
                 .Matches(FirstLastNameRegex())
-                .WithMessage(validationMessage);
+                .WithMessage("Only letters and may include spaces, apostrophes, or hyphens.");
 
             RuleFor(x => x.CartCheckoutDto.PhoneNumber)
                 .Matches(PhoneNumberRegex())
-                .WithMessage(validationMessage);
+                .WithMessage("Must be in a valid format, e.g., +1234567890.");
 
             RuleFor(x => x.CartCheckoutDto.EmailAddress)
                 .EmailAddress()
-                .WithMessage(validationMessage)
+                .WithMessage("Must be in a valid format, e.g., example@domain.com.")
                 .When(x => !string.IsNullOrEmpty(x.CartCheckoutDto.EmailAddress));
 
             RuleFor(x => x.CartCheckoutDto.AddressLine)
                 .Matches(AddressLineRegex())
-                .WithMessage(validationMessage);
+                .WithMessage("Only letters, numbers, spaces, and special characters like ,.'#-.");
 
             RuleFor(x => x.CartCheckoutDto.Country)
                 .Matches(CountryRegex())
-                .WithMessage(validationMessage);
+                .WithMessage("Only letters and may include spaces or hyphens.");
 
             RuleFor(x => x.CartCheckoutDto.State)
                 .Matches(StateRegex())
-                .WithMessage(validationMessage);
+                .WithMessage("Only letters and may include spaces or hyphens.");
 
             RuleFor(x => x.CartCheckoutDto.ZipCode)
                 .Matches(ZipCodeRegex())
-                .WithMessage(validationMessage);
+                .WithMessage("Must be in a valid format (e.g., 12345 or A1B 2C3).");
 
             RuleFor(x => x.CartCheckoutDto.CardName)
                 .Matches(CardNameRegex())
-                .WithMessage(validationMessage);
+                .WithMessage("Only letters and spaces.");
 
             RuleFor(x => x.CartCheckoutDto.CardNumber)
                 .Matches(CardNumberRegex())
-                .WithMessage(validationMessage);
+                .WithMessage("Must be a valid credit/debit card number (e.g., 1234 5678 9012 3456).");
 
             RuleFor(x => x.CartCheckoutDto.Expiration)
                 .Matches(ExpirationRegex())
-                .WithMessage(validationMessage);
+                .WithMessage("Must be in the format MM/YY.");
 
             RuleFor(x => x.CartCheckoutDto.CVV)
                 .Matches(CvvRegex())
-                .WithMessage(validationMessage);
+                .WithMessage("Must be a 3 or 4 digit number.");
         }
 
         private static Regex FirstLastNameRegex() =>
@@ -78,8 +76,8 @@ namespace ShoppingCart.API.Validation
         private static Regex ZipCodeRegex() =>
             new Regex("^([A-Za-z0-9\\s-]{2,10}|(\\d{5}(-\\d{4})?)|([A-Za-z]\\d[A-Za-z]\\s\\d[A-Za-z]\\d)|([A-Za-z]{1,2}\\d[A-Za-z]?\\s?\\d[A-Za-z]{2})|\\d{4})$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private static Regex CardNameRegex()
-            => new Regex("^[a-zA-Z\\s]{2,50}$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static Regex CardNameRegex() =>
+            new Regex("^[a-zA-Z\\s]{2,50}$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static Regex CardNumberRegex() =>
             new Regex("^(\\d{4}[- ]?){3}\\d{4}$|^\\d{13,19}$", RegexOptions.IgnoreCase | RegexOptions.Compiled);

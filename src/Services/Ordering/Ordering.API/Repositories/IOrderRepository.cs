@@ -3,6 +3,6 @@ namespace Ordering.API.Repositories
 {
     public interface IOrderRepository
     {
-        Task<Order> Create(Order order, CancellationToken cancellationToken);
+        Task<Order> CreateAsync(Order order, CancellationToken cancellationToken);
     }
 }
