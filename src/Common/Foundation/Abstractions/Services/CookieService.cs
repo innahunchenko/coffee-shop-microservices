@@ -16,7 +16,17 @@ namespace Foundation.Abstractions.Services
             return contextAccessor.HttpContext?.Request.Cookies.TryGetValue(key, out var value) ?? false ? value : null;
         }
 
-        public void SetData(string key, string value, DateTimeOffset? dateTimeOffset = default(DateTimeOffset?))
+        public void SetData(string key, string value)
+        {
+            SetCookieData(key, value, null);
+        }
+
+        public void SetData(string key, string value, DateTimeOffset dateTimeOffset)
+        {
+            SetCookieData(key, value, dateTimeOffset);
+        }
+
+        private void SetCookieData(string key, string value, DateTimeOffset? dateTimeOffset)
         {
             var cookieOptions = new CookieOptions
             {

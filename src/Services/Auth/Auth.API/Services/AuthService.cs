@@ -13,7 +13,6 @@ namespace Auth.API.Services
         private readonly IJwtTokenGenerator jwtTokenGenerator;
         private readonly ICookieService cookieService;
         private readonly string cookieKey = "CoffeeShop.JWTToken";
-        private readonly DateTimeOffset? dateTimeOffset = null;
 
         public AuthService(
             IUserRepository userRepository,
@@ -69,7 +68,7 @@ namespace Auth.API.Services
 
             var roles = await userRepository.GetRolesAsync(user);
             var token = jwtTokenGenerator.GenerateToken(user, roles);
-            cookieService.SetData(cookieKey, token, dateTimeOffset);
+            cookieService.SetData(cookieKey, token);
             return IdentityResult.Success;
         }
 
