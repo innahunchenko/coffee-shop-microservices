@@ -14,6 +14,7 @@ using System.Reflection;
 using Foundation.Abstractions;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddUserSecrets<Program>();
 builder.Services.AddControllers();
 var redisConnectionString = builder.Configuration.GetValue<string>("CacheSettings:RedisConnectionString");
 var expiryTime = TimeSpan.FromMinutes(builder.Configuration.GetValue<double>("CacheSettings:DefaultCacheDurationMinutes"));

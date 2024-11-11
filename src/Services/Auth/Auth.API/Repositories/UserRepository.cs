@@ -1,7 +1,7 @@
 ﻿using Auth.API.Domain.Models;
-using LanguageExt.Pipes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Auth.API.Repositories
 {
@@ -16,30 +16,25 @@ namespace Auth.API.Repositories
             this.roleManager = roleManager;
         }
 
+        public async Task<CoffeeShopUser?> FindUserByConditionAsync(Expression<Func<CoffeeShopUser, bool>> predicate)
+        {
+            return await userManager.Users.FirstOrDefaultAsync(predicate);
+        }
+
         public async Task<(IdentityResult, CoffeeShopUser?)> GetUserByIdAsync(string userId)
         {
             var user = await userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return (IdentityResult.Failed(new IdentityError() { Description = $"There is no user with Id {userId}" }), null);
-            }
-
-            return (IdentityResult.Success, user);
+            return user == null
+                ? (IdentityResult.Failed(new IdentityError { Description = $"User with Id {userId} not found." }), null)
+                : (IdentityResult.Success, user);
         }
 
         public async Task<(IdentityResult, string?)> CreateUserAsync(CoffeeShopUser user, string password)
         {
-            IdentityResult result;
-
-            var checkResult = await CheckIfUserExistsAsync(user);
-            if (checkResult != null)
-            {
-                return (checkResult, null);
-            }
-
             try
             {
-                result = await userManager.CreateAsync(user, password);
+                var result = await userManager.CreateAsync(user, password);
+                return (result, result.Succeeded ? user.Id : null);
             }
             catch
             {
@@ -49,61 +44,6 @@ namespace Auth.API.Repositories
                     Description = "An unexpected error occurred while creating the user."
                 }), null);
             }
-
-            if (!result.Succeeded)
-            {
-                return (result, null);
-            }
-
-            return (result, user.Id);
-        }
-
-        private async Task<IdentityResult?> CheckIfUserExistsAsync(CoffeeShopUser user)
-        {
-            var errorMessages = new List<string>();
-            CoffeeShopUser? existingUser;
-
-            if (!string.IsNullOrEmpty(user.UserName))
-            {
-                existingUser = await userManager.Users
-                    .FirstOrDefaultAsync(u => u.UserName!.ToLower().Equals(user.UserName.ToLower()));
-
-                if (existingUser != null)
-                {
-                    errorMessages.Add("Username is already taken.");
-                }
-            }
-
-            if (!string.IsNullOrEmpty(user.Email))
-            {
-                existingUser = await userManager.Users
-                    .FirstOrDefaultAsync(u => u.Email!.ToLower().Equals(user.Email.ToLower()));
-
-                if (existingUser != null)
-                {
-                    errorMessages.Add("Email is already registered.");
-                }
-            }
-
-            existingUser = await userManager.Users
-                .FirstOrDefaultAsync(u => u.PhoneNumber == user.PhoneNumber);
-
-            if (existingUser != null)
-            {
-                errorMessages.Add("Phone number is already registered.");
-            }
-
-            if (errorMessages.Any())
-            {
-                var combinedErrorMessage = string.Join(" ", errorMessages);
-                return IdentityResult.Failed(new IdentityError
-                {
-                    Code = "DuplicateFields",
-                    Description = combinedErrorMessage
-                });
-            }
-
-            return null;
         }
 
         public async Task<IdentityResult> AddUserToRoleAsync(string userId, Roles role)
@@ -111,13 +51,12 @@ namespace Auth.API.Repositories
             var roleName = role.ToString().ToUpper();
 
             var (result, existingUser) = await GetUserByIdAsync(userId);
-
             if (!result.Succeeded || existingUser == null)
                 return result;
 
-            if (!roleManager.RoleExistsAsync(roleName).GetAwaiter().GetResult())
+            if (!await roleManager.RoleExistsAsync(roleName))
             {
-                roleManager.CreateAsync(new IdentityRole(roleName)).GetAwaiter().GetResult();
+                await roleManager.CreateAsync(new IdentityRole(roleName));
             }
 
             return await userManager.AddToRoleAsync(existingUser, roleName);
@@ -152,11 +91,19 @@ namespace Auth.API.Repositories
         public async Task<IdentityResult> DeleteUserAsync(string userId)
         {
             var (result, existingUser) = await GetUserByIdAsync(userId);
+            return !result.Succeeded || existingUser == null
+                ? result
+                : await userManager.DeleteAsync(existingUser);
+        }
 
-            if (!result.Succeeded || existingUser == null)
-                return result;
+        public async Task<bool> CheckPasswordAsync(CoffeeShopUser user, string password)
+        {
+            return await userManager.CheckPasswordAsync(user, password);
+        }
 
-            return await userManager.DeleteAsync(existingUser);
+        public async Task<IList<string>> GetRolesAsync(CoffeeShopUser user)
+        {
+            return await userManager.GetRolesAsync(user);
         }
     }
 }

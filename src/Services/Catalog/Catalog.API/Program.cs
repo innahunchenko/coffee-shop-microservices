@@ -5,7 +5,9 @@ using Foundation.Exceptions;
 using Carter;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Configuration.AddUserSecrets<Program>();
+//var kestrelPassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
+//Console.WriteLine($"Kestrel Password: {kestrelPassword}");
 builder.Services
     .AddInfrastructureServices(builder.Configuration)
     .AddApplicationServices();

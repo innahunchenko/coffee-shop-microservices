@@ -13,6 +13,7 @@ using StackExchange.Redis;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddUserSecrets<Program>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options =>

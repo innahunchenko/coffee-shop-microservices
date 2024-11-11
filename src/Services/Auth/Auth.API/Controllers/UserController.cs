@@ -26,9 +26,8 @@ namespace Auth.API.Controllers
         [HttpPost("login")]
         public async Task<IResult> LoginUser([FromBody] CoffeeShopUserDto request, CancellationToken ct)
         {
-            return Results.Ok();
-            //var result = await sender.Send(new LoginUserRequest(request), ct);
-            //return result;
+            var result = await sender.Send(new LoginUserRequest(request), ct);
+            return result;
         }
     }
 }
