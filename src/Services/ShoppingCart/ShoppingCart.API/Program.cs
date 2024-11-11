@@ -1,5 +1,6 @@
 using Carter;
 using FluentValidation;
+using Foundation.Abstractions.Services;
 using Foundation.Exceptions;
 using Marten;
 using Messaging.MassTransit;

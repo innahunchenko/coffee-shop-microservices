@@ -6,6 +6,6 @@ namespace Auth.API.Services
     {
         Task<(IdentityResult, string?)> RegisterUserAsync(CoffeeShopUserDto registerUserDto);
         Task<IdentityResult> AddUserToUserRoleAsync(string userId);
-        Task<IdentityResult> LoginUserAsync(CoffeeShopUserDto dto);
+        Task<IdentityResult> LoginUserAsync(string userName, string login);
     }
 }

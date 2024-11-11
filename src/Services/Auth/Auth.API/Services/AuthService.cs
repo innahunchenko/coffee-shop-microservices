@@ -2,16 +2,32 @@
 using Auth.API.Domain.Models;
 using Auth.API.Mapping;
 using Auth.API.Repositories;
+using Foundation.Abstractions.Services;
 using Microsoft.AspNetCore.Identity;
-using System.Linq.Expressions;
 
 namespace Auth.API.Services
 {
-    public class AuthService(IUserRepository userRepository, IJwtTokenGenerator jwtTokenGenerator, ITokenProvider tokenProvider) : IAuthService
+    public class AuthService : IAuthService
     {
+        private readonly IUserRepository userRepository;
+        private readonly IJwtTokenGenerator jwtTokenGenerator;
+        private readonly ICookieService cookieService;
+        private readonly string cookieKey = "CoffeeShop.JWTToken";
+        private readonly DateTimeOffset? dateTimeOffset = null;
+
+        public AuthService(
+            IUserRepository userRepository,
+            IJwtTokenGenerator jwtTokenGenerator,
+            ICookieService cookieService)
+        {
+            this.cookieService = cookieService;
+            this.userRepository = userRepository;
+            this.jwtTokenGenerator = jwtTokenGenerator;
+        }
+
         public async Task<(IdentityResult, string?)> RegisterUserAsync(CoffeeShopUserDto dto)
         {
-            var (checkResult, _) = await CheckIfUserExistsAsync(dto);
+            var checkResult = await CheckUserDuplicatesAsync(dto);
             if (!checkResult.Succeeded)
             {
                 return (checkResult, null);
@@ -28,88 +44,72 @@ namespace Auth.API.Services
             return result;
         }
 
-        public async Task<IdentityResult> LoginUserAsync(CoffeeShopUserDto dto)
+        public async Task<IdentityResult> LoginUserAsync(string userName, string password)
         {
-            var (checkResult, user) = await CheckIfUserExistsAsync(dto);
-            if (checkResult.Succeeded)
+            var failedResult = IdentityResult.Failed(new IdentityError
             {
-                return checkResult;
+                Code = "InvalidCredentials",
+                Description = "The username or password is incorrect."
+            });
+
+            var user = await userRepository.FindUserByConditionAsync(
+                u => u.UserName != null && u.UserName.ToLower() == userName.ToLower());
+
+            if (user == null)
+            {
+                return failedResult;
             }
 
-            //var user = dto.ToUser();
-
-            bool isValid = await userRepository.CheckPasswordAsync(user, dto.Password!);
+            bool isValid = await userRepository.CheckPasswordAsync(user, password);
 
             if (!isValid)
             {
-                return IdentityResult.Failed(new IdentityError
-                {
-                    Code = "InvalidPassword",
-                    Description = "The password provided is incorrect. Please try again."
-                });
+                return failedResult;
             }
 
             var roles = await userRepository.GetRolesAsync(user);
             var token = jwtTokenGenerator.GenerateToken(user, roles);
-            tokenProvider.SetToken(token);
+            cookieService.SetData(cookieKey, token, dateTimeOffset);
             return IdentityResult.Success;
         }
 
-        private async Task<(IdentityResult, CoffeeShopUser?)> CheckIfUserExistsAsync(CoffeeShopUserDto userDto)
+        private async Task<IdentityResult> CheckUserDuplicatesAsync(CoffeeShopUserDto userDto)
         {
             var errorMessages = new List<string>();
-            CoffeeShopUser? existingUser = null;
+            var user = await userRepository
+                .FindUserByConditionAsync(u => u.UserName != null && u.UserName.ToLower() == userDto.UserName.ToLower());
 
-            // The `??=` operator assigns `existingUser` only if it has not already been set.
-            // This ensures that `existingUser` retains the first matching user found,
-            // even if subsequent checks also find matches. All error messages, however,
-            // will still be collected in `errorMessages` regardless of whether `existingUser`
-            // has been assigned.
-
-            existingUser ??= await CheckAndAddErrorAsync(userDto.UserName,
-                                                         u => u.UserName != null && u.UserName.ToLower() == userDto.UserName.ToLower(),
-                                                         "Username is already taken.",
-                                                         errorMessages);
-
-            existingUser ??= await CheckAndAddErrorAsync(userDto.Email,
-                                                         u => u.Email != null && u.Email.ToLower() == userDto.Email.ToLower(),
-                                                         "Email is already registered.",
-                                                         errorMessages);
-
-            existingUser ??= await CheckAndAddErrorAsync(userDto.PhoneNumber,
-                                                         u => u.PhoneNumber != null && u.PhoneNumber.ToLower() == userDto.PhoneNumber.ToLower(),
-                                                         "Phone number is already registered.",
-                                                         errorMessages);
-
-            if (errorMessages.Any() && existingUser != null)
+            if (user != null)
             {
-                var combinedErrorMessage = string.Join(" ", errorMessages);
-                return (IdentityResult.Failed(new IdentityError
-                {
-                    Code = "DuplicateFields",
-                    Description = combinedErrorMessage
-                }), existingUser);
+                errorMessages.Add("Username is already taken.");
             }
 
-            return (IdentityResult.Success, existingUser);
-        }
+            user = await userRepository
+                .FindUserByConditionAsync(u => u.Email != null && u.Email.ToLower() == userDto.Email.ToLower());
 
-        private async Task<CoffeeShopUser?> CheckAndAddErrorAsync(
-            string? fieldValue,
-            Expression<Func<CoffeeShopUser, bool>> predicate,
-            string errorMessage,
-            List<string> errorMessages)
-        {
-            if (!string.IsNullOrEmpty(fieldValue))
+            if (user != null)
             {
-                var user = await userRepository.FindUserByConditionAsync(predicate);
-                if (user != null)
-                {
-                    errorMessages.Add(errorMessage);
-                    return user;
-                }
+                errorMessages.Add("Email is already registered.");
             }
-            return null;
+
+            user = await userRepository
+                .FindUserByConditionAsync(u => u.PhoneNumber != null && u.PhoneNumber.ToLower() == userDto.PhoneNumber.ToLower());
+
+            if (user != null)
+            {
+                errorMessages.Add("Phone number is already registered.");
+            }
+
+            if (errorMessages.Any())
+            {
+                return IdentityResult.Failed(errorMessages.Select(msg => new IdentityError
+                {
+                    Code = "DuplicateField",
+                    Description = msg
+                }).ToArray());
+            }
+
+            return IdentityResult.Success;
         }
     }
 }

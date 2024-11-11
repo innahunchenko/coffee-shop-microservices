@@ -10,7 +10,7 @@ namespace Auth.API.Auth
     {
         public async Task<IResult> Handle(LoginUserRequest request, CancellationToken cancellationToken)
         {
-            var result = await authService.LoginUserAsync(request.UserDto);
+            var result = await authService.LoginUserAsync(request.UserDto.UserName!, request.UserDto.Password!);
             return !result.Succeeded ? Results.BadRequest(result.Errors) : Results.Ok(result);
         }
     }

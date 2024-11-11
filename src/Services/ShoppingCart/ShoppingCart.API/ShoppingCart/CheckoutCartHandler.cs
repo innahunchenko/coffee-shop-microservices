@@ -14,7 +14,7 @@ namespace ShoppingCart.API.ShoppingCart
     {
         public async Task<IResult> Handle(CheckoutCartRequest checkoutCartRequest, CancellationToken cancellationToken)
         {
-            var cart = await service.GetOrCreateCartAsync(null, cancellationToken);
+            var cart = await service.GetOrCreateCartAsync(cancellationToken);
 
             var eventMessage = new CartCheckoutEvent()
             {

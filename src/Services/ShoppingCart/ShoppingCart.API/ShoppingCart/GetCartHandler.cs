@@ -10,7 +10,7 @@ namespace ShoppingCart.API.ShoppingCart
     {
         public async Task<Cart> Handle(GetCartRequest request, CancellationToken cancellationToken)
         {
-            return await service.GetOrCreateCartAsync(request.userId, cancellationToken);
+            return await service.GetOrCreateCartAsync(cancellationToken);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Foundation.Exceptions;
+﻿using Foundation.Abstractions.Services;
+using Foundation.Exceptions;
 using ShoppingCart.API.Models;
 using ShoppingCart.API.Repository;
 
@@ -9,82 +10,66 @@ namespace ShoppingCart.API.Services
         private readonly IShoppingCartRepository cartRepository;
         private readonly ICatalogService catalogService;
         private readonly ICookieService cookieService;
-        private readonly HttpContext? httpContext;
-        private readonly string cookieName;
+        private readonly string cookieKey = "CoffeeShop.Cart";
+        private readonly DateTimeOffset dateTimeOffset = DateTimeOffset.Now.AddDays(7);
 
-        public ShoppingCartService(IShoppingCartRepository cartRepository,
-            IHttpContextAccessor httpContextAccessor,
+        public ShoppingCartService(
+            IShoppingCartRepository cartRepository,
             ICatalogService catalogService,
             ICookieService cookieService)
         {
             this.cartRepository = cartRepository;
-            httpContext = httpContextAccessor.HttpContext;
             this.catalogService = catalogService;
             this.cookieService = cookieService;
-            cookieName = "CoffeeShop.Cart";
         }
 
         public string GenerateUniqueId() => Guid.NewGuid().ToString();
 
-        public async Task<Cart> GetOrCreateCartAsync(string? userId, CancellationToken cancellationToken)
+        public async Task<Cart> GetOrCreateCartAsync(CancellationToken cancellationToken)
         {
-            var cart = await GetCartAsync(userId, cancellationToken)
-                ?? await CreateNewCartAsync(userId, cancellationToken);
+            var cart = await GetCartAsync(cancellationToken)
+                ?? await CreateNewCartAsync(cancellationToken);
 
-            if(cart == null)
+            if (cart == null)
                 throw new NotFoundException("Cannot find the shopping cart");
 
             return cart;
         }
 
-        private async Task<Cart?> GetCartAsync(string? userId, CancellationToken cancellationToken)
+        private async Task<Cart?> GetCartAsync(CancellationToken cancellationToken)
         {
             Cart? cart = null;
 
-            if (!string.IsNullOrEmpty(userId))
-            {
-                cart = await cartRepository.GetCartByUserIdAsync(userId, cancellationToken);
-            }
+            var cartId = cookieService.GetData(cookieKey);
 
-            if (httpContext != null)
+            if (!string.IsNullOrEmpty(cartId))
             {
-                var cartId = cookieService.GetDataFromCookies(httpContext, cookieName);
-
-                if (!string.IsNullOrEmpty(cartId))
-                {
-                    cart = await cartRepository.GetCartByCartIdAsync(cartId, cancellationToken);
-                }
+                cart = await cartRepository.GetCartByCartIdAsync(cartId, cancellationToken);
             }
 
             return cart;
         }
 
-        private async Task<Cart> CreateNewCartAsync(string? userId, CancellationToken cancellationToken)
+        private async Task<Cart> CreateNewCartAsync(CancellationToken cancellationToken)
         {
             var cartId = GenerateUniqueId();
-            var cart = new Cart { UserId = userId, CartId = cartId };
-
-            if (httpContext == null)
-            {
-                throw new InvalidOperationException("HTTP context is not available. Unable to access cookies.");
-            }
-
-            cookieService.SetDataToCookies(httpContext, cookieName, cartId);
+            var cart = new Cart { CartId = cartId };
+            cookieService.SetData(cookieKey, cartId, dateTimeOffset);
             await cartRepository.StoreCartAsync(cart, cancellationToken);
             return cart;
         }
 
         public async Task<Cart> StoreCartAsync(IList<ProductSelection> productSelections, CancellationToken cancellationToken)
         {
-            var cart = await GetCartAsync(null, cancellationToken);
-            if(cart == null)
+            var cart = await GetCartAsync(cancellationToken);
+            if (cart == null)
             {
                 return new Cart();
             }
-            
+
             var productIds = productSelections
                 .Select(p => Guid.Parse(p.ProductId))
-                .ToList(); 
+                .ToList();
 
             var products = await catalogService.GetProductsByIdsAsync(productIds);
 

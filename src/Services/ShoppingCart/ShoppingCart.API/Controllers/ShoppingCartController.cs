@@ -41,7 +41,7 @@ namespace ShoppingCart.API.Controllers
         }
 
         [HttpPost("session/checkout")]
-        public async Task<IActionResult> StoreCheckout([FromBody] CartCheckoutDto data/*, [FromServices] IConnectionMultiplexer redis*/)
+        public async Task<IActionResult> StoreCheckout([FromBody] CartCheckoutDto data)
         {
             HttpContext.Session.SetString("checkout", JsonConvert.SerializeObject(data));
             await HttpContext.Session.CommitAsync();
