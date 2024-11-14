@@ -10,13 +10,13 @@ namespace Auth.API.Services
     public class AuthService : IAuthService
     {
         private readonly IUserRepository userRepository;
-        private readonly IJwtTokenGenerator jwtTokenGenerator;
+        private readonly IJwtTokenService jwtTokenGenerator;
         private readonly ICookieService cookieService;
         private readonly string cookieKey = "CoffeeShop.JWTToken";
 
         public AuthService(
             IUserRepository userRepository,
-            IJwtTokenGenerator jwtTokenGenerator,
+            IJwtTokenService jwtTokenGenerator,
             ICookieService cookieService)
         {
             this.cookieService = cookieService;

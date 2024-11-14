@@ -2,6 +2,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Auth.API.Auth;
+using System.Security.Claims;
+using System.IdentityModel.Tokens.Jwt;
+using Auth.API.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Auth.API.Controllers
 {
@@ -10,10 +14,12 @@ namespace Auth.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly ISender sender;
+        private readonly IJwtTokenService jwtTokenService;
 
-        public UserController(ISender sender)
+        public UserController(ISender sender, IJwtTokenService jwtTokenService)
         {
             this.sender = sender;
+            this.jwtTokenService = jwtTokenService;
         }
 
         [HttpPost("register")]
@@ -28,6 +34,51 @@ namespace Auth.API.Controllers
         {
             var result = await sender.Send(new LoginUserRequest(request), ct);
             return result;
+        }
+
+        [HttpGet("check-auth-status")]
+        public async Task<bool> CheckAuthenticationStatus(CancellationToken ct)
+        {
+            var isAuthenticated = await sender.Send(new CheckAuthStatusRequest(), ct);
+            return isAuthenticated;
+        }
+
+        [Authorize]
+        [HttpGet("username")]
+        public IActionResult GetUserName(CancellationToken ct)
+        {
+            //var username = User.FindFirstValue(JwtRegisteredClaimNames.Name);
+            //var username = jwtTokenService.GetUsernameFromToken();
+
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+
+            var username = jwtToken?.Claims?.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Name)?.Value;
+            return Ok(new { Username = username });
+        }
+
+        [HttpGet("user-menu")]
+        public IActionResult GetUserMenu()
+        {
+            var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            var menuItems = role switch
+            {
+                "admin" => new List<string> {
+                "Admin panel",
+                "Profile",
+                "Sing out"
+            },
+                "user" => new List<string> {
+                "Orders",
+                "Profile",
+                "Sing out"
+            },
+                _ => new List<string>()
+            };
+
+            return Ok(menuItems);
         }
     }
 }

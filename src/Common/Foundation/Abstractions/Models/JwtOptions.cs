@@ -1,4 +1,4 @@
-﻿namespace Auth.API.Domain.Models
+﻿namespace Foundation.Abstractions.Models
 {
     public class JwtOptions
     {

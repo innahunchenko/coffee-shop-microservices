@@ -11,6 +11,7 @@ using FluentValidation;
 using MediatR;
 using Auth.API.Validation;
 using Foundation.Abstractions.Services;
+using Foundation.Abstractions.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
@@ -24,7 +25,7 @@ builder.Services.AddDbContext<IDbContext, AppDbContext>(options =>
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 builder.Services.AddScoped<ICookieService, CookieService>();
 builder.Services.AddIdentity<CoffeeShopUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDbContext>()

@@ -26,6 +26,11 @@ namespace Foundation.Abstractions.Services
             SetCookieData(key, value, dateTimeOffset);
         }
 
+        public void ClearData(string key)
+        {
+            contextAccessor.HttpContext?.Response.Cookies.Delete(key);
+        }
+
         private void SetCookieData(string key, string value, DateTimeOffset? dateTimeOffset)
         {
             var cookieOptions = new CookieOptions
@@ -37,11 +42,6 @@ namespace Foundation.Abstractions.Services
             };
 
             contextAccessor.HttpContext?.Response.Cookies.Append(key, value, cookieOptions);
-        }
-
-        public void ClearData(string key)
-        {
-            contextAccessor.HttpContext?.Response.Cookies.Delete(key);
         }
     }
 }
