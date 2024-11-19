@@ -6,11 +6,6 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-#COPY ./certs/localhost.pfx /app/certs/localhost.pfx
-#RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
-#RUN apt-get clean && apt-get update --fix-missing && apt-get install -y ca-certificates && update-ca-certificates
-
-
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
@@ -27,4 +22,9 @@ RUN dotnet publish "./ApiGateway.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY ./ApiGateway/ApiGateway/Security/Certificates/catalog-api.crt /usr/local/share/ca-certificates/ 
+COPY ./ApiGateway/ApiGateway/Security/Certificates/auth-api.crt /usr/local/share/ca-certificates/ 
+COPY ./ApiGateway/ApiGateway/Security/Certificates/localhost.crt /usr/local/share/ca-certificates/ 
+USER root
+RUN update-ca-certificates
 ENTRYPOINT ["dotnet", "ApiGateway.dll"]

@@ -3,9 +3,9 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Auth.API.Auth;
 using System.Security.Claims;
-using System.IdentityModel.Tokens.Jwt;
 using Auth.API.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Auth.API.Controllers
 {
@@ -43,18 +43,18 @@ namespace Auth.API.Controllers
             return isAuthenticated;
         }
 
+        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [Authorize]
         [HttpGet("username")]
         public IActionResult GetUserName(CancellationToken ct)
         {
-            //var username = User.FindFirstValue(JwtRegisteredClaimNames.Name);
-            //var username = jwtTokenService.GetUsernameFromToken();
+            var headers = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString());
+            var username = jwtTokenService.GetUsernameFromToken();
 
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-
-            var username = jwtToken?.Claims?.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Name)?.Value;
+            //var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
+            //var handler = new JwtSecurityTokenHandler();
+            //var jwtToken = handler.ReadJwtToken(token);
+            //var username = jwtToken?.Claims?.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Name)?.Value;
             return Ok(new { Username = username });
         }
 

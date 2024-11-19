@@ -6,9 +6,6 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-#COPY ./certs/catalog.api+6.crt /usr/local/share/ca-certificates/catalog.api+6.crt
-#RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
-
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
@@ -25,4 +22,8 @@ RUN dotnet publish "./Catalog.API.csproj" -c $BUILD_CONFIGURATION -o /app/publis
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY ./Services/Catalog/Catalog.API/Security/Certificates/catalog-api.crt /usr/local/share/ca-certificates/
+COPY ./Services/Catalog/Catalog.API/Security/Certificates/localhost.crt /usr/local/share/ca-certificates/ 
+USER root
+RUN update-ca-certificates
 ENTRYPOINT ["dotnet", "Catalog.API.dll"]

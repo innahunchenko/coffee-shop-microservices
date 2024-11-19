@@ -11,11 +11,15 @@ using FluentValidation;
 using MediatR;
 using Auth.API.Validation;
 using Foundation.Abstractions.Services;
-using Foundation.Abstractions.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Auth.API.OptionsSetup;
+using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
-builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("JwtOptions"));
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICookieService, CookieService>();
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -53,23 +57,70 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+// Must be specified after AddIdentity
+builder.Services.ConfigureOptions<JwtOptionsSetup>();
+builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(8081, listenOptions =>
+    {
+        listenOptions.UseHttps(httpsOptions =>
+        {
+            httpsOptions.ServerCertificateSelector = (context, name) =>
+            {
+                if (name == "auth-api")
+                {
+                    return X509Certificate2.CreateFromPemFile(
+                        "/https/auth-api.crt",
+                        "/https/auth-api.key");
+                }
+                else
+                {
+                    return new X509Certificate2("/https/localhost.pfx", "111");
+                }
+            };
+        });
+    });
+});
 
 var app = builder.Build();
-app.UseRouting();
+
+//app.Use(async (context, next) =>
+//{
+//    if (context.Request.Headers.ContainsKey("Authorization"))
+//    {
+//        var authHeader = context.Request.Headers["Authorization"].ToString();
+//        Console.WriteLine($"Authorization header found: {authHeader}");
+//    }
+//    else
+//    {
+//        Console.WriteLine("No Authorization header found.");
+//    }
+
+//    await next();
+//});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseCors("AllowSpecificOrigins");
 app.UseExceptionHandler(options => { });
 app.InitialiseDatabaseAsync<AppDbContext>();
+app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
 app.MapFallbackToFile("index.html");
 app.Run();

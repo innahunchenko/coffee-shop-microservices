@@ -66,11 +66,11 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
-app.MapControllers();
+app.UseCors("AllowSpecificOrigins");
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthorization();
-app.UseCors("AllowSpecificOrigins");
+app.MapControllers();
 app.UseExceptionHandler(options => { });
 app.InitialiseDatabaseAsync<AppDbContext>();
 app.Run();

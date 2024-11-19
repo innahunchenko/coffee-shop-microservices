@@ -49,7 +49,7 @@ namespace Auth.API.Services
 
         public bool ValidateCurrentJwtToken()
         {
-            var token = cookieService.GetData("CoffeeShop.JWTToken");
+            var token = cookieService.GetData("jwt-token");
 
             if (string.IsNullOrEmpty(token))
                 return false;
@@ -79,7 +79,7 @@ namespace Auth.API.Services
 
         public string? GetUsernameFromToken()
         {
-            var token = cookieService.GetData("CoffeeShop.JWTToken");
+            var token = cookieService.GetData("jwt-token");
 
             if (string.IsNullOrEmpty(token))
                 return null;

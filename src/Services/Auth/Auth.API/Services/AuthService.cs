@@ -12,7 +12,7 @@ namespace Auth.API.Services
         private readonly IUserRepository userRepository;
         private readonly IJwtTokenService jwtTokenGenerator;
         private readonly ICookieService cookieService;
-        private readonly string cookieKey = "CoffeeShop.JWTToken";
+        private readonly string cookieKey = "jwt-token";
 
         public AuthService(
             IUserRepository userRepository,

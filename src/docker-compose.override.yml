@@ -23,9 +23,12 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "https://+:8081;http://+:8080"
-      DOTNET_USER_SECRETS: "/home/app/.microsoft/usersecrets"
-      UserSecretsId: "27e3b3e6-2d07-42ed-8543-c6970f21b2cd"
-      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+      # DOTNET_USER_SECRETS: "/home/app/.microsoft/usersecrets"
+      # ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "111"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/localhost.pfx"
+      # ASPNETCORE_Kestrel__Certificates__Additional__0__Path: "/https/catalog-api.pfx" 
+      # ASPNETCORE_Kestrel__Certificates__Additional__0__Password: "111"
       ConnectionStrings__Database: "Server=catalogdb;Database=CoffeeShop_Catalog;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - catalogdb
@@ -36,6 +39,7 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
+      - ./Services/Catalog/Catalog.API/Security/Certificates:/usr/local/share/ca-certificates/
 
   shoppingCartdb:
     container_name: shopping-cart-db
@@ -55,8 +59,7 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "https://+:8081;http://+:8080"
       DOTNET_USER_SECRETS: "/home/app/.microsoft/usersecrets"
-      UserSecretsId: "27e3b3e6-2d07-42ed-8543-c6970f21b2cd"
-      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/localhost.pfx"
       ConnectionStrings__Database: "Host=shoppingcartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
       ConnectionStrings__Redis: "distributedcache:6379"
       MessageBroker__Host: rabbitmq://ecommerce-mq:5672
@@ -90,8 +93,7 @@ services:
         ASPNETCORE_ENVIRONMENT: Development
         ASPNETCORE_URLS: "https://+:8081;http://+:8080"
         DOTNET_USER_SECRETS: "/home/app/.microsoft/usersecrets"
-        UserSecretsId: "27e3b3e6-2d07-42ed-8543-c6970f21b2cd"
-        ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+        ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/localhost.pfx"
         ConnectionStrings__Database: Server=orderdb;Database=CoffeeShop_Order;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True
         MessageBroker__Host: rabbitmq://ecommerce-mq:5672
         MessageBroker__UserName: guest
@@ -121,9 +123,11 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "https://+:8081;http://+:8080"
-      DOTNET_USER_SECRETS: "/home/app/.microsoft/usersecrets"
-      UserSecretsId: "27e3b3e6-2d07-42ed-8543-c6970f21b2cd"
-      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+      #DOTNET_USER_SECRETS: "/home/app/.microsoft/usersecrets"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "111"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/localhost.pfx"
+      # ASPNETCORE_Kestrel__Certificates__Additional__0__Path: "/https/catalog-api.pfx" 
+      # ASPNETCORE_Kestrel__Certificates__Additional__0__Password: "111"
     depends_on:
       - catalog.api
       - shoppingCart.api
@@ -134,6 +138,8 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
+      - ./ApiGateway/ApiGateway/Security/Certificates:/usr/local/share/ca-certificates
+    
 
   identitydb:
      container_name: identitydb
@@ -149,9 +155,9 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "https://+:8081;http://+:8080"
-      DOTNET_USER_SECRETS: "/home/app/.microsoft/usersecrets"
-      UserSecretsId: "27e3b3e6-2d07-42ed-8543-c6970f21b2cd"
-      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/aspnetapp.pfx"
+      #DOTNET_USER_SECRETS: "/home/app/.microsoft/usersecrets"
+      ASPNETCORE_Kestrel__Certificates__Default__Password: "111"
+      ASPNETCORE_Kestrel__Certificates__Default__Path: "/https/localhost.pfx"
       ConnectionStrings__Database: "Server=identitydb;Database=CoffeeShop_Identity;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - identitydb
@@ -161,7 +167,8 @@ services:
       - "7077:8081"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${USERPROFILE}/.aspnet/https:/https:ro
+      - ${USERPROFILE}/.aspnet/https:/https:ro 
+      - ./Services/Auth/Auth.API/Security/Certificates:/usr/local/share/ca-certificates/
 
 volumes:
   mssql_catalog:

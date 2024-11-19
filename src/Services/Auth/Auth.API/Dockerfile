@@ -22,4 +22,8 @@ RUN dotnet publish "./Auth.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY ./Services/Auth/Auth.API/Security/Certificates/auth-api.crt /usr/local/share/ca-certificates/
+COPY ./Services/Auth/Auth.API/Security/Certificates/localhost.crt /usr/local/share/ca-certificates/ 
+USER root
+RUN update-ca-certificates
 ENTRYPOINT ["dotnet", "Auth.API.dll"]
