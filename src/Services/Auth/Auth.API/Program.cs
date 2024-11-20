@@ -69,6 +69,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.WebHost.ConfigureKestrel(options =>
 {
+    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
+    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
+    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
     options.ListenAnyIP(8081, listenOptions =>
     {
         listenOptions.UseHttps(httpsOptions =>
@@ -83,7 +86,7 @@ builder.WebHost.ConfigureKestrel(options =>
                 }
                 else
                 {
-                    return new X509Certificate2("/https/localhost.pfx", "111");
+                    return defaultCertificate;
                 }
             };
         });

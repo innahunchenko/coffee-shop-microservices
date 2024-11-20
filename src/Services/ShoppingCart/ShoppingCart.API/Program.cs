@@ -12,6 +12,7 @@ using ShoppingCart.API.Services;
 using ShoppingCart.API.Validation;
 using StackExchange.Redis;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
@@ -91,12 +92,39 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
+    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
+    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
+    options.ListenAnyIP(8081, listenOptions =>
+    {
+        listenOptions.UseHttps(httpsOptions =>
+        {
+            httpsOptions.ServerCertificateSelector = (context, name) =>
+            {
+                if (name == "shopping-cart-api")
+                {
+                    return X509Certificate2.CreateFromPemFile(
+                        "/https/shopping-cart-api.crt",
+                        "/https/shopping-cart-api.key");
+                }
+                else
+                {
+                    return defaultCertificate;
+                }
+            };
+        });
+    });
+});
+
 var app = builder.Build();
 app.UseSession();
 app.MapCarter();
 app.MapControllers();
 app.UseStaticFiles();
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseAuthorization();
 app.UseCors("AllowSpecificOrigins");
 app.UseExceptionHandler(options => { });

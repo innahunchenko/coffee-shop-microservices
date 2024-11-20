@@ -6,6 +6,7 @@ using System.Security.Claims;
 using Auth.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Auth.API.Controllers
 {
@@ -37,24 +38,20 @@ namespace Auth.API.Controllers
         }
 
         [HttpGet("check-auth-status")]
-        public async Task<bool> CheckAuthenticationStatus(CancellationToken ct)
+        [Authorize]
+        public IActionResult CheckAuthenticationStatus(CancellationToken ct)
         {
-            var isAuthenticated = await sender.Send(new CheckAuthStatusRequest(), ct);
-            return isAuthenticated;
+            return Ok(true);
         }
 
-        //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [Authorize]
         [HttpGet("username")]
         public IActionResult GetUserName(CancellationToken ct)
         {
-            var headers = Request.Headers.ToDictionary(h => h.Key, h => h.Value.ToString());
-            var username = jwtTokenService.GetUsernameFromToken();
-
-            //var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
-            //var handler = new JwtSecurityTokenHandler();
-            //var jwtToken = handler.ReadJwtToken(token);
-            //var username = jwtToken?.Claims?.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Name)?.Value;
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var username = jwtToken?.Claims?.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Name)?.Value;
             return Ok(new { Username = username });
         }
 

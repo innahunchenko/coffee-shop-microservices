@@ -1,6 +1,5 @@
 ﻿using Auth.API.Domain.Models;
 using Foundation.Abstractions.Models;
-using Foundation.Abstractions.Services;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -12,12 +11,10 @@ namespace Auth.API.Services
     public class JwtTokenService : IJwtTokenService
     {
         private readonly JwtOptions jwtOptions;
-        private readonly ICookieService cookieService;
 
-        public JwtTokenService(IOptions<JwtOptions> jwtOptions, ICookieService cookieService)
+        public JwtTokenService(IOptions<JwtOptions> jwtOptions)
         {
             this.jwtOptions = jwtOptions.Value;
-            this.cookieService = cookieService;
         }
 
         public string GenerateToken(CoffeeShopUser user, IEnumerable<string> roles)
@@ -45,60 +42,6 @@ namespace Auth.API.Services
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
-        }
-
-        public bool ValidateCurrentJwtToken()
-        {
-            var token = cookieService.GetData("jwt-token");
-
-            if (string.IsNullOrEmpty(token))
-                return false;
-
-            try
-            {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(jwtOptions.Secret);
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = false,
-                    ValidIssuer = jwtOptions.Issuer,
-                    ValidAudience = jwtOptions.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(key)
-                };
-
-                tokenHandler.ValidateToken(token, validationParameters, out _);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public string? GetUsernameFromToken()
-        {
-            var token = cookieService.GetData("jwt-token");
-
-            if (string.IsNullOrEmpty(token))
-                return null;
-
-            try
-            {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
-
-                if (jwtToken == null)
-                    return null;
-
-                var usernameClaim = jwtToken.Claims.FirstOrDefault(claim => claim.Type == JwtRegisteredClaimNames.Name);
-                return usernameClaim?.Value;
-            }
-            catch
-            {
-                return null;
-            }
         }
     }
 }

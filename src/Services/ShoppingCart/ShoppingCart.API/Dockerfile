@@ -6,9 +6,6 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
-#COPY ./certs/catalog.api+6.crt /usr/local/share/ca-certificates/catalog.api+6.crt
-#RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
-
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
@@ -25,4 +22,9 @@ RUN dotnet publish "./ShoppingCart.API.csproj" -c $BUILD_CONFIGURATION -o /app/p
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+COPY ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates/shopping-cart-api.crt /usr/local/share/ca-certificates/ 
+COPY ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates/api-gateway.crt /usr/local/share/ca-certificates/ 
+COPY ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates/localhost.crt /usr/local/share/ca-certificates/ 
+USER root
+RUN update-ca-certificates
 ENTRYPOINT ["dotnet", "ShoppingCart.API.dll"]
