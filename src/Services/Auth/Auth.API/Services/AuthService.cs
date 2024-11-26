@@ -12,7 +12,7 @@ namespace Auth.API.Services
         private readonly IUserRepository userRepository;
         private readonly IJwtTokenService jwtTokenGenerator;
         private readonly ICookieService cookieService;
-        private readonly string cookieKey = "jwt-token";
+        private readonly string tokenCookieKey = "jwt-token";
 
         public AuthService(
             IUserRepository userRepository,
@@ -39,7 +39,7 @@ namespace Auth.API.Services
 
         public async Task<IdentityResult> AddUserToUserRoleAsync(string userId)
         {
-            var result = await userRepository.AddUserToRoleAsync(userId, Roles.User);
+            var result = await userRepository.AddUserToRoleAsync(userId, Roles.USER);
             return result;
         }
 
@@ -68,7 +68,7 @@ namespace Auth.API.Services
 
             var roles = await userRepository.GetRolesAsync(user);
             var token = jwtTokenGenerator.GenerateToken(user, roles);
-            cookieService.SetData(cookieKey, token);
+            cookieService.SetData(tokenCookieKey, token);
             return IdentityResult.Success;
         }
 

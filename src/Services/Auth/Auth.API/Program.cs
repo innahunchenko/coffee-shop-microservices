@@ -47,6 +47,10 @@ builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBeh
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
+builder.Services.AddScoped<IUserContext, UserContext>();
+builder.Services.AddScoped<MenuService>();
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowSpecificOrigins",

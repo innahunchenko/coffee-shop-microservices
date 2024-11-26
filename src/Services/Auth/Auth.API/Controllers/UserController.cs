@@ -2,11 +2,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Auth.API.Auth;
-using System.Security.Claims;
-using Auth.API.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication;
+using Foundation.Abstractions.Services;
+using Auth.API.Services;
 
 namespace Auth.API.Controllers
 {
@@ -15,12 +14,20 @@ namespace Auth.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly ISender sender;
-        private readonly IJwtTokenService jwtTokenService;
+        private readonly ICookieService cookieService;
+        private readonly MenuService menuService;
+        private readonly IUserContext userContext;
+        private readonly string tokenCookieKey = "jwt-token";
 
-        public UserController(ISender sender, IJwtTokenService jwtTokenService)
+        public UserController(ISender sender, 
+            ICookieService cookieService, 
+            MenuService menuService, 
+            IUserContext userContext)
         {
             this.sender = sender;
-            this.jwtTokenService = jwtTokenService;
+            this.cookieService = cookieService;
+            this.menuService = menuService;
+            this.userContext = userContext;
         }
 
         [HttpPost("register")]
@@ -37,6 +44,15 @@ namespace Auth.API.Controllers
             return result;
         }
 
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            cookieService.ClearData(tokenCookieKey);
+            return Ok(true);
+        }
+
         [HttpGet("check-auth-status")]
         [Authorize]
         public IActionResult CheckAuthenticationStatus(CancellationToken ct)
@@ -48,34 +64,16 @@ namespace Auth.API.Controllers
         [HttpGet("username")]
         public IActionResult GetUserName(CancellationToken ct)
         {
-            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", string.Empty);
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-            var username = jwtToken?.Claims?.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Name)?.Value;
+            var username = userContext.GetUserName();
             return Ok(new { Username = username });
         }
 
-        [HttpGet("user-menu")]
+        [Authorize]
+        [HttpGet("menu")]
         public IActionResult GetUserMenu()
         {
-            var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-            var menuItems = role switch
-            {
-                "admin" => new List<string> {
-                "Admin panel",
-                "Profile",
-                "Sing out"
-            },
-                "user" => new List<string> {
-                "Orders",
-                "Profile",
-                "Sing out"
-            },
-                _ => new List<string>()
-            };
-
-            return Ok(menuItems);
+            var menu = menuService.GetUserMenu();
+            return Ok(menu);
         }
     }
 }
