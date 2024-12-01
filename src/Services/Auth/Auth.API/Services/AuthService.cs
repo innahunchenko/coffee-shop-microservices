@@ -1,9 +1,9 @@
 ﻿using Auth.API.Domain.Dtos;
-using Auth.API.Domain.Models;
 using Auth.API.Mapping;
 using Auth.API.Repositories;
 using Foundation.Abstractions.Services;
 using Microsoft.AspNetCore.Identity;
+using Security.Models;
 
 namespace Auth.API.Services
 {
@@ -37,9 +37,9 @@ namespace Auth.API.Services
             return (result, userId);
         }
 
-        public async Task<IdentityResult> AddUserToUserRoleAsync(string userId)
+        public async Task<IdentityResult> AddUserToUserRoleAsync(string userId, Roles role)
         {
-            var result = await userRepository.AddUserToRoleAsync(userId, Roles.USER);
+            var result = await userRepository.AddUserToRoleAsync(userId, role);
             return result;
         }
 

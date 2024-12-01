@@ -1,6 +1,5 @@
 ﻿using Foundation.Abstractions.Models;
 using Messaging.Events;
-using Microsoft.AspNetCore.Http;
 using Ordering.API.Domain.Dtos;
 using Ordering.API.Domain.Models;
 using Ordering.API.Domain.ValueObjects.OrderItemObjects;
@@ -12,16 +11,14 @@ namespace Ordering.API.Mapping
     {
         public static Order ToOrder(this OrderDto orderDto) 
         {
-            var shippingAddress = Address.From(orderDto.ShippingAddress.FirstName,
-                orderDto.ShippingAddress.LastName,
-                orderDto.ShippingAddress.EmailAddress,
+            var shippingAddress = Address.From(
                 orderDto.ShippingAddress.AddressLine,
                 orderDto.ShippingAddress.Country,
                 orderDto.ShippingAddress.State,
                 orderDto.ShippingAddress.ZipCode);
 
             var payment = Payment.From(orderDto.Payment.CardName, orderDto.Payment.CardNumber, orderDto.Payment.Expiration, orderDto.Payment.CVV);
-            var order = Order.Create(shippingAddress, payment, orderDto.OrderStatus, orderDto.PhoneNumber);
+            var order = Order.Create(shippingAddress, payment, Enum.Parse<OrderStatus>(orderDto.OrderStatus), orderDto.PhoneNumber, orderDto.Email, orderDto.UserId);
 
             foreach (var orderItemDto in orderDto.OrderItems)
             {
@@ -38,6 +35,8 @@ namespace Ordering.API.Mapping
         {
             var orderDto = new OrderDto();
             orderDto.PhoneNumber = PhoneNumber.From(src.PhoneNumber);
+            orderDto.Email = Email.From(src.EmailAddress);
+            orderDto.UserId = src.UserId;
 
             foreach (var selection in src.ProductSelections)
             {
@@ -55,10 +54,7 @@ namespace Ordering.API.Mapping
             orderDto.ShippingAddress = new AddressDto()
             {
                 AddressLine = src.AddressLine,
-                EmailAddress = src.EmailAddress,
                 Country = src.Country,
-                FirstName = src.FirstName,
-                LastName = src.LastName,
                 State = src.State,
                 ZipCode = src.ZipCode
             };
@@ -77,19 +73,22 @@ namespace Ordering.API.Mapping
         public static OrderDto ToOrderDto(this Order order)
         {
             var orderDto = new OrderDto();
-            orderDto.OrderStatus = order.Status;
+            orderDto.OrderStatus = order.Status.ToString();
             orderDto.OrderName = order.OrderName.Value;
             orderDto.TotalPrice = order.TotalPrice;
             orderDto.PhoneNumber = order.PhoneNumber;
+            orderDto.Email = order.Email;
+            orderDto.UserId = order.UserId;
+            orderDto.CreatedAt = order.CreatedAt;
 
-            foreach (var item in orderDto.OrderItems)
+            foreach (var item in order.OrderItems)
             {
                 var orderItemDto = new OrderItemDto()
                 {
-                    OrderId = item.OrderId,
+                    OrderId = item.OrderId.Value.ToString(),
                     Price = item.Price,
-                    ProductId = item.ProductId,
-                    ProductName = item.ProductName,
+                    ProductId = item.ProductId.Value.ToString(),
+                    ProductName = item.ProductName.Value.ToString(),
                     Quantity = item.Quantity
                 };
 
@@ -100,9 +99,6 @@ namespace Ordering.API.Mapping
             {
                 AddressLine = order.ShippingAddress.AddressLine,
                 Country = order.ShippingAddress.Country,
-                EmailAddress = order.ShippingAddress.EmailAddress,
-                FirstName = order.ShippingAddress.FirstName,
-                LastName = order.ShippingAddress.LastName,
                 State = order.ShippingAddress.State,
                 ZipCode = order.ShippingAddress.ZipCode
             };

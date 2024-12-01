@@ -7,8 +7,7 @@
         public string Expiration { get; private set; } = default!;
         public string CVV { get; private set; } = default!;
 
-        public static Payment From(
-            string? cardName, string cardNumber, string expiration, string cvv)
+        public static Payment From(string? cardName, string cardNumber, string expiration, string cvv)
         {
             return new Payment
             {

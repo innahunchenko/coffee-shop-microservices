@@ -9,5 +9,20 @@ namespace Ordering.API.Services
         {
             throw new NotImplementedException();
         }
+
+        public Task<List<OrderDto>> GetAllOrdersAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<OrderDto>> GetOrdersByLoggedInUserAsync(string userId, string email)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<OrderDto> IOrderService.CreateAsync(OrderDto order, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

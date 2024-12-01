@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Ordering.API.Data;
 using Ordering.API.Domain.Models;
+using Ordering.API.Domain.ValueObjects.OrderObjects;
 
 namespace Ordering.API.Repositories
 {
@@ -12,7 +13,7 @@ namespace Ordering.API.Repositories
             await context.SaveChangesAsync(cancellationToken);
 
             var savedOrder = await context.Orders
-                .Include(o => o.OrderItems) 
+                .Include(o => o.OrderItems)
                 .FirstOrDefaultAsync(o => o.Id == order.Id, cancellationToken);
 
             if (savedOrder == null)
@@ -21,6 +22,32 @@ namespace Ordering.API.Repositories
             }
 
             return savedOrder;
+        }
+
+        public async Task<List<Order>> GetOrdersByEmailAsync(string email)
+        {
+            var orders = await context.Orders
+                .Include(o => o.OrderItems)
+                .Where(o => o.Email == Email.From(email))
+                .ToListAsync();
+            return orders;
+        }
+
+        public async Task<List<Order>> GetOrdersByUserIdAsync(string userId)
+        {
+            var orders = await context.Orders
+                .Include(o => o.OrderItems)
+                .Where(o => o.UserId == userId)
+                .ToListAsync();
+            return orders;
+        }
+
+        public async Task<List<Order>> GetAllOrdersAsync()
+        {
+            var orders = await context.Orders
+                .Include(o => o.OrderItems)
+                .ToListAsync();
+            return orders;
         }
     }
 }

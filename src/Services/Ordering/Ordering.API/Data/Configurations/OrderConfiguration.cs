@@ -16,14 +16,13 @@ namespace Ordering.API.Data.Configurations
             builder.Property(o => o.TotalPrice).IsRequired();
             builder.Property(o => o.PhoneNumber)
                 .HasConversion(phoneNumber => phoneNumber.Value, dbPhoneNumber => PhoneNumber.From(dbPhoneNumber));
-            builder.Property(o => o.Status).HasDefaultValue(OrderStatus.Draft)
+            builder.Property(o => o.Email)
+                .HasConversion(email => email.Value, dbEmail => Email.From(dbEmail));
+            builder.Property(o => o.Status).HasDefaultValue(OrderStatus.Pending)
                 .HasConversion(s => s.ToString(), dbStatus => (OrderStatus)Enum.Parse(typeof(OrderStatus), dbStatus));
 
             builder.ComplexProperty(o => o.ShippingAddress, addressBuilder =>
             {
-                addressBuilder.Property(a => a.FirstName).HasMaxLength(50).IsRequired();
-                addressBuilder.Property(a => a.LastName).HasMaxLength(50).IsRequired();
-                addressBuilder.Property(a => a.EmailAddress).HasMaxLength(50);
                 addressBuilder.Property(a => a.AddressLine).HasMaxLength(180).IsRequired();
                 addressBuilder.Property(a => a.Country).HasMaxLength(50).IsRequired();
                 addressBuilder.Property(a => a.State).HasMaxLength(50).IsRequired();

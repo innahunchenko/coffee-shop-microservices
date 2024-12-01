@@ -1,10 +1,10 @@
 ﻿using Ordering.API.Domain.Dtos;
-using Ordering.API.Domain.Models;
-
 namespace Ordering.API.Services
 {
     public interface IOrderService
     {
-        Task<Order> CreateAsync(OrderDto order, CancellationToken cancellationToken);
+        Task<OrderDto> CreateAsync(OrderDto order, CancellationToken cancellationToken);
+        Task<List<OrderDto>> GetAllOrdersAsync();
+        Task<List<OrderDto>> GetOrdersByLoggedInUserAsync(string userId, string email);
     }
 }

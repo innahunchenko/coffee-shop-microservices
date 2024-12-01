@@ -1,7 +1,8 @@
-﻿using Foundation.Abstractions.Models;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Security.Models;
 
-namespace Auth.API.OptionsSetup
+namespace Security.OptionsSetup
 {
     public class JwtOptionsSetup : IConfigureOptions<JwtOptions>
     {

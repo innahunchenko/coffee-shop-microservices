@@ -1,6 +1,7 @@
 ﻿using Auth.API.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Security.Models;
 using System.Linq.Expressions;
 
 namespace Auth.API.Repositories
@@ -36,7 +37,7 @@ namespace Auth.API.Repositories
                 var result = await userManager.CreateAsync(user, password);
                 return (result, result.Succeeded ? user.Id : null);
             }
-            catch
+            catch (Exception ex)
             {
                 return (IdentityResult.Failed(new IdentityError
                 {

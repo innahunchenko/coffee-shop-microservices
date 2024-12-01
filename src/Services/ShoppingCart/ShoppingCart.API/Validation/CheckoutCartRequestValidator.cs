@@ -8,22 +8,13 @@ namespace ShoppingCart.API.Validation
     {
         public CheckoutCartRequestValidator()
         {
-            RuleFor(x => x.CartCheckoutDto.FirstName)
-                .Matches(FirstLastNameRegex())
-                .WithMessage("Only letters and may include spaces, apostrophes, or hyphens.");
-
-            RuleFor(x => x.CartCheckoutDto.LastName)
-                .Matches(FirstLastNameRegex())
-                .WithMessage("Only letters and may include spaces, apostrophes, or hyphens.");
-
             RuleFor(x => x.CartCheckoutDto.PhoneNumber)
                 .Matches(PhoneNumberRegex())
                 .WithMessage("Must be in a valid format, e.g., +1234567890.");
 
             RuleFor(x => x.CartCheckoutDto.EmailAddress)
-                .EmailAddress()
-                .WithMessage("Must be in a valid format, e.g., example@domain.com.")
-                .When(x => !string.IsNullOrEmpty(x.CartCheckoutDto.EmailAddress));
+                .Matches(EmailRegex())
+                .WithMessage("Must be in a valid format, e.g., example@domain.com.");
 
             RuleFor(x => x.CartCheckoutDto.AddressLine)
                 .Matches(AddressLineRegex())
@@ -58,9 +49,6 @@ namespace ShoppingCart.API.Validation
                 .WithMessage("Must be a 3 or 4 digit number.");
         }
 
-        private static Regex FirstLastNameRegex() =>
-             new Regex("^[A-Za-z]+(?:[ '-][A-Za-z]+)*$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
         private static Regex PhoneNumberRegex() =>
              new Regex("^\\+?[1-9]\\d{1,14}$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
@@ -87,5 +75,8 @@ namespace ShoppingCart.API.Validation
 
         private static Regex CvvRegex() =>
             new Regex("^\\d{3,4}$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        private static Regex EmailRegex() =>
+            new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 }

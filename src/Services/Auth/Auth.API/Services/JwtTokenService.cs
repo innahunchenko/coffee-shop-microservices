@@ -1,7 +1,7 @@
 ﻿using Auth.API.Domain.Models;
-using Foundation.Abstractions.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Security.Models;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -26,7 +26,8 @@ namespace Auth.API.Services
         {
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-            new Claim(JwtRegisteredClaimNames.Name, user.UserName)
+            new Claim(JwtRegisteredClaimNames.Name, user.UserName),
+            new Claim("phone_number", user.PhoneNumber)
         };
 
             claimList.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));

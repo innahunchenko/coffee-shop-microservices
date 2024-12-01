@@ -1,10 +1,10 @@
-﻿using Foundation.Abstractions.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Security.Models;
 using System.Text;
 
-namespace Auth.API.OptionsSetup
+namespace Security.OptionsSetup
 {
     public class JwtBearerOptionsSetup : IPostConfigureOptions<JwtBearerOptions>
     {

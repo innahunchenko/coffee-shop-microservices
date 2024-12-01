@@ -8,15 +8,15 @@ namespace Auth.API.Validation
     {
         public RegisterUserRequestValidator()
         {
-            RuleFor(x => x.UserDto.FirstName)
-                .NotEmpty().WithMessage("Required")
-                .Matches(FirstLastNameRegex())
-                .WithMessage("only letters and may include spaces, apostrophes, or hyphens.");
+            //RuleFor(x => x.UserDto.FirstName)
+            //    .NotEmpty().WithMessage("Required")
+            //    .Matches(FirstLastNameRegex())
+            //    .WithMessage("only letters and may include spaces, apostrophes, or hyphens.");
 
-            RuleFor(x => x.UserDto.LastName)
-                .NotEmpty().WithMessage("Required")
-                .Matches(FirstLastNameRegex())
-                .WithMessage("only letters and may include spaces, apostrophes, or hyphens.");
+            //RuleFor(x => x.UserDto.LastName)
+            //    .NotEmpty().WithMessage("Required")
+            //    .Matches(FirstLastNameRegex())
+            //    .WithMessage("only letters and may include spaces, apostrophes, or hyphens.");
 
             RuleFor(x => x.UserDto.PhoneNumber)
                 .NotEmpty().WithMessage("Required")
@@ -25,7 +25,7 @@ namespace Auth.API.Validation
 
             RuleFor(x => x.UserDto.Email)
                 .NotEmpty().WithMessage("Required")
-                .EmailAddress()
+                .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$")
                 .WithMessage("must be in a valid format, e.g., example@domain.com.");
 
             RuleFor(x => x.UserDto.UserName)
@@ -41,10 +41,10 @@ namespace Auth.API.Validation
                 .Matches(@"\d").WithMessage("at least one number")
                 .Matches(@"[@$!%*?&]").WithMessage("at least one special character.");
 
-            RuleFor(x => x.UserDto.DateOfBirth)
-                .Must(BeAValidDate).WithMessage("Must be a valid date")
-                .Must(BePastDate).WithMessage("Date of Birth cannot be in the future.")
-                .When(x => !string.IsNullOrEmpty(x.UserDto.DateOfBirth));
+            //RuleFor(x => x.UserDto.DateOfBirth)
+            //    .Must(BeAValidDate).WithMessage("Must be a valid date")
+            //    .Must(BePastDate).WithMessage("Date of Birth cannot be in the future.")
+            //    .When(x => !string.IsNullOrEmpty(x.UserDto.DateOfBirth));
         }
 
         private bool BeAValidDate(string? dateOfBirth)

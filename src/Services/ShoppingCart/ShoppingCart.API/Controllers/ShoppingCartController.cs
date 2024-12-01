@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Security.Services;
 using ShoppingCart.API.Dtos;
 using ShoppingCart.API.Models;
 using ShoppingCart.API.ShoppingCart;
@@ -12,10 +13,14 @@ namespace ShoppingCart.API.Controllers
     public class ShoppingCartController : ControllerBase
     {
         private readonly ISender sender;
+        private readonly IUserContext userContext;
 
-        public ShoppingCartController(ISender sender)
+        public ShoppingCartController(
+            ISender sender, 
+            IUserContext userContext)
         {
             this.sender = sender;
+            this.userContext = userContext;
         }
 
         [HttpGet]
@@ -32,11 +37,19 @@ namespace ShoppingCart.API.Controllers
             return Ok(result);
         }
 
-
         [HttpPost("checkout")]
-        public async Task<IResult> CheckoutCart([FromBody] CartCheckoutDto request, CancellationToken ct)
+        public async Task<IResult> CheckoutCart([FromBody] CartCheckoutDto dto, CancellationToken ct)
         {
-            var result = await sender.Send(new CheckoutCartRequest(request), ct);
+            var isRegisteredUser = User?.Identity?.IsAuthenticated ?? false;
+            
+            if (isRegisteredUser)
+            {
+                dto.EmailAddress = userContext.GetUserEmail();
+                dto.PhoneNumber = userContext.GetPhoneNumber();
+            }
+
+            var request = new CheckoutCartRequest(dto);
+            var result = await sender.Send(request, ct);
             return result;
         }
 

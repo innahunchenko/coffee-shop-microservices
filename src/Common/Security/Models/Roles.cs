@@ -1,4 +1,4 @@
-﻿namespace Auth.API.Domain.Models
+﻿namespace Security.Models
 {
     public enum Roles
     {

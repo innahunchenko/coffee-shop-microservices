@@ -99,6 +99,7 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
+      - ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates:/usr/local/share/ca-certificates/
 
   orderdb:
     container_name: orderdb

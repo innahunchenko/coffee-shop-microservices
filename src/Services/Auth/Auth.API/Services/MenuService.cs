@@ -1,4 +1,5 @@
-﻿using Auth.API.Domain.Models;
+﻿using Security.Models;
+using Security.Services;
 
 namespace Auth.API.Services
 {
@@ -8,12 +9,10 @@ namespace Auth.API.Services
 
         private static readonly List<MenuItem> _menuTable = new List<MenuItem>
         {
-            new MenuItem { Id = "manageCatalog", Name = "Manage Catalog", Roles = [Roles.ADMIN] },
-            new MenuItem { Id = "manageUsers", Name = "Manage Users", Roles = [Roles.ADMIN] },
-            new MenuItem { Id = "manageUserOrders", Name = "Manage User Orders", Roles = [Roles.ADMIN] },
-            new MenuItem { Id = "orderHistory", Name = "Order History", Roles = [Roles.USER] },
-            new MenuItem { Id = "profile", Name = "Profile", Roles = [Roles.ADMIN, Roles.USER] },
-            new MenuItem { Id = "returnToShop", Name = "Return to Shop", Roles = [Roles.USER] },
+            new MenuItem { Id = "catalog", Name = "Catalog", Roles = [Roles.ADMIN] },
+            new MenuItem { Id = "orders", Name = "Orders", Roles = [Roles.USER, Roles.ADMIN] },
+            new MenuItem { Id = "profile", Name = "Profile", Roles = [Roles.USER] },
+            new MenuItem { Id = "returnToShop", Name = "Continue shopping", Roles = [Roles.USER] },
             new MenuItem { Id = "signOut", Name = "Sign out", Roles = [Roles.ADMIN, Roles.USER] }
         };
 

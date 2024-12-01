@@ -4,8 +4,11 @@ using Foundation.Abstractions.Services;
 using Foundation.Exceptions;
 using Marten;
 using Messaging.MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Newtonsoft.Json.Serialization;
 using Refit;
+using Security.OptionsSetup;
+using Security.Services;
 using ShoppingCart.API;
 using ShoppingCart.API.Repository;
 using ShoppingCart.API.Services;
@@ -63,6 +66,7 @@ builder.Services.AddSession(options =>
 builder.Services.AddScoped<ICookieService, CookieService>();
 builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
 builder.Services.AddScoped<IShoppingCartService, ShoppingCartService>();
+builder.Services.AddScoped<IUserContext, UserContext>();
 
 builder.Services.AddRefitClient<ICatalogService>()
     .ConfigureHttpClient(c =>
@@ -119,12 +123,23 @@ builder.WebHost.ConfigureKestrel(options =>
     });
 });
 
+builder.Services.ConfigureOptions<JwtOptionsSetup>();
+builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer();
+
 var app = builder.Build();
 app.UseSession();
 app.MapCarter();
 app.MapControllers();
 app.UseStaticFiles();
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors("AllowSpecificOrigins");
 app.UseExceptionHandler(options => { });

@@ -12,8 +12,9 @@ using MediatR;
 using Auth.API.Validation;
 using Foundation.Abstractions.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Auth.API.OptionsSetup;
 using System.Security.Cryptography.X509Certificates;
+using Security.OptionsSetup;
+using Security.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
@@ -98,21 +99,6 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 
 var app = builder.Build();
-
-//app.Use(async (context, next) =>
-//{
-//    if (context.Request.Headers.ContainsKey("Authorization"))
-//    {
-//        var authHeader = context.Request.Headers["Authorization"].ToString();
-//        Console.WriteLine($"Authorization header found: {authHeader}");
-//    }
-//    else
-//    {
-//        Console.WriteLine("No Authorization header found.");
-//    }
-
-//    await next();
-//});
 
 if (app.Environment.IsDevelopment())
 {

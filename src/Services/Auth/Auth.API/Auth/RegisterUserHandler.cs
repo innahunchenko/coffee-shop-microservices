@@ -1,6 +1,7 @@
 ﻿using Auth.API.Services;
 using MediatR;
 using Auth.API.Domain.Dtos;
+using Security.Models;
 
 namespace Auth.API.Auth
 {
@@ -17,7 +18,7 @@ namespace Auth.API.Auth
                 return Results.BadRequest(result.Errors);
             }
 
-            result = await authService.AddUserToUserRoleAsync(userId);
+            result = await authService.AddUserToUserRoleAsync(userId, Roles.USER);
 
             if (!result.Succeeded)
             {

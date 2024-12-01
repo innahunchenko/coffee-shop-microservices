@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\Foundation\Foundation.csproj" />
     <ProjectReference Include="..\..\..\Common\Messaging\Messaging.csproj" />
+    <ProjectReference Include="..\..\..\Common\Security\Security.csproj" />
     <ProjectReference Include="..\..\Catalog\Catalog.Domain\Catalog.Domain.csproj" />
   </ItemGroup>
 

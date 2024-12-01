@@ -12,6 +12,12 @@ using StackExchange.Redis;
 using System.Data;
 using System.Reflection;
 using Foundation.Abstractions;
+using Ordering.API.Orders;
+using Security;
+using Security.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Security.OptionsSetup;
+using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
@@ -28,20 +34,23 @@ builder.Services.AddScoped<IRedisCacheRepository, RedisCacheRepository>(provider
 
 var connectionString = builder.Configuration.GetConnectionString("OrdersConnection");
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<ICommandFactory, OrdersCommandFactory>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IUserContext, UserContext>();
+builder.Services.AddScoped<CommandDispatcher>();
 //builder.Services.AddScoped<IOrderCacheService, OrderCacheService>();
 //builder.Services.Decorate<IOrderService, OrderServiceCacheDecorator>();
 
 builder.Services.AddScoped<ISaveChangesInterceptor, SaveEntityInterceptor>();
 builder.Services.AddScoped<ISaveChangesInterceptor, DispatchDomainEventsInterceptor>();
-builder.Services.AddDbContext<AppDbContext>((sp, options) =>
+builder.Services.AddDbContext<IDbContext, AppDbContext>((sp, options) =>
 {
     options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-    options.UseSqlServer(connectionString);
+    options.UseSqlServer(connectionString, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery));
 });
 
-builder.Services.AddScoped<IDbContext, AppDbContext>();
+//builder.Services.AddScoped<IDbContext, AppDbContext>();
 builder.Services.AddScoped<IDbConnection>(sp => new SqlConnection(connectionString));
 
 
@@ -65,10 +74,47 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+builder.Services.ConfigureOptions<JwtOptionsSetup>();
+builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer();
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
+    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
+    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
+    options.ListenAnyIP(8081, listenOptions =>
+    {
+        listenOptions.UseHttps(httpsOptions =>
+        {
+            httpsOptions.ServerCertificateSelector = (context, name) =>
+            {
+                if (name == "ordering-api")
+                {
+                    return X509Certificate2.CreateFromPemFile(
+                        "/https/ordering-api.crt",
+                        "/https/ordering-api.key");
+                }
+                else
+                {
+                    return defaultCertificate;
+                }
+            };
+        });
+    });
+});
+
 var app = builder.Build();
 app.UseCors("AllowSpecificOrigins");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.UseExceptionHandler(options => { });

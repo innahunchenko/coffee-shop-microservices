@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Foundation.Abstractions.Services;
 using Auth.API.Services;
+using Security.Services;
 
 namespace Auth.API.Controllers
 {
@@ -37,6 +38,21 @@ namespace Auth.API.Controllers
             return result;
         }
 
+        [HttpGet("register-admin")]
+        public async Task<IResult> RegisterAdmin(CancellationToken ct)
+        {
+            var request = new CoffeeShopUserDto()
+            {
+                Email = "admin@gmail.com",
+                PhoneNumber = "234234235",
+                UserName = "admin",
+                Password = "AdminPass!23"
+            };
+
+            var result = await sender.Send(new RegisterAdminRequest(request), ct);
+            return result;
+        }
+
         [HttpPost("login")]
         public async Task<IResult> LoginUser([FromBody] CoffeeShopUserDto request, CancellationToken ct)
         {
@@ -57,7 +73,25 @@ namespace Auth.API.Controllers
         [Authorize]
         public IActionResult CheckAuthenticationStatus(CancellationToken ct)
         {
-            return Ok(true);
+            var isLoggedInUser = User?.Identity?.IsAuthenticated ?? false;
+            return Ok(isLoggedInUser);
+        }
+
+        [HttpGet("is-user-admin")]
+        [Authorize]
+        public IActionResult IsUserAdmin(CancellationToken ct)
+        {
+            var userRole = userContext.GetUserRole();
+            var isUserAdmin = userRole == Security.Models.Roles.ADMIN ? true : false;
+            return Ok(isUserAdmin);
+        }
+
+        [HttpGet("role")]
+        [Authorize]
+        public IActionResult GetUserRole(CancellationToken ct)
+        {
+            var userRole = userContext.GetUserRole();
+            return Ok(new { role = userRole.ToString() });
         }
 
         [Authorize]

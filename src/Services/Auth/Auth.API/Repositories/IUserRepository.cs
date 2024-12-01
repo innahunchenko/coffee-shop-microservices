@@ -1,5 +1,6 @@
 ﻿using Auth.API.Domain.Models;
 using Microsoft.AspNetCore.Identity;
+using Security.Models;
 using System.Linq.Expressions;
 
 namespace Auth.API.Repositories
