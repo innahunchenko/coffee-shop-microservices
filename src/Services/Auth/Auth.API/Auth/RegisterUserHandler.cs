@@ -11,16 +11,9 @@ namespace Auth.API.Auth
     {
         public async Task<IResult> Handle(RegisterUserRequest request, CancellationToken cancellationToken)
         {
-            var (result, userId) = await authService.RegisterUserAsync(request.UserDto);
+            var (result, userId) = await authService.RegisterUserAsync(request.UserDto, Roles.USER);
 
             if (!result.Succeeded || string.IsNullOrEmpty(userId))
-            {
-                return Results.BadRequest(result.Errors);
-            }
-
-            result = await authService.AddUserToUserRoleAsync(userId, Roles.USER);
-
-            if (!result.Succeeded)
             {
                 return Results.BadRequest(result.Errors); 
             }

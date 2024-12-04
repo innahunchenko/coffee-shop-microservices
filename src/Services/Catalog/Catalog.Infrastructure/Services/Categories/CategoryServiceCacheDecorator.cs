@@ -5,12 +5,12 @@ namespace Catalog.Infrastructure.Services.Categories
 {
     public class CategoryServiceCacheDecorator : ICategoryService
     {
-        private readonly ICategoryService categoryService;
+        private readonly ICategoryService decorated;
         private readonly ICategoryCacheService cacheService;
 
-        public CategoryServiceCacheDecorator(ICategoryService categoryService, ICategoryCacheService cacheService)
+        public CategoryServiceCacheDecorator(ICategoryService decorated, ICategoryCacheService cacheService)
         {
-            this.categoryService = categoryService;
+            this.decorated = decorated;
             this.cacheService = cacheService;
         }
 
@@ -22,7 +22,7 @@ namespace Catalog.Infrastructure.Services.Categories
                 return cachedCategories;
             }
 
-            var categoriesFromDb = await categoryService.GetAllCategoriesAsync();
+            var categoriesFromDb = await decorated.GetAllCategoriesAsync();
             if (categoriesFromDb.Any())
             {
                 await cacheService.AddToCacheAsync(categoriesFromDb);

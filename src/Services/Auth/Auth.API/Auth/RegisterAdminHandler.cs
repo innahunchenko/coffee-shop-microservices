@@ -11,16 +11,9 @@ namespace Auth.API.Auth
     {
         public async Task<IResult> Handle(RegisterAdminRequest request, CancellationToken cancellationToken)
         {
-            var (result, userId) = await authService.RegisterUserAsync(request.UserDto);
+            var (result, userId) = await authService.RegisterUserAsync(request.UserDto, Roles.ADMIN);
 
             if (!result.Succeeded || string.IsNullOrEmpty(userId))
-            {
-                return Results.BadRequest(result.Errors);
-            }
-
-            result = await authService.AddUserToUserRoleAsync(userId, Roles.ADMIN);
-
-            if (!result.Succeeded)
             {
                 return Results.BadRequest(result.Errors);
             }

@@ -7,7 +7,7 @@ namespace Catalog.Infrastructure.Services.Products
 {
     public class ProductServiceCacheDecorator : IProductService
     {
-        private readonly IProductService productService;
+        private readonly IProductService decorated;
         private readonly IProductCacheService cacheService;
 
         public static readonly string SubcategoryIndexTemplate = "index:product:subcategory:{0}";
@@ -15,9 +15,9 @@ namespace Catalog.Infrastructure.Services.Products
         public static readonly string ProductNameIndexTemplate = "index:product:name:{0}";
         public static readonly string AllProductsIndexTemplate = "index:product:all";
 
-        public ProductServiceCacheDecorator(IProductService productService, IProductCacheService cacheService)
+        public ProductServiceCacheDecorator(IProductService decorated, IProductCacheService cacheService)
         {
-            this.productService = productService;
+            this.decorated = decorated;
             this.cacheService = cacheService;
         }
 
@@ -25,28 +25,28 @@ namespace Catalog.Infrastructure.Services.Products
         {
             var cachedContext = new CachedContext(SubcategoryIndexTemplate, subcategory, paginationParameters);
             return await GetProductsAsync(
-                () => productService.GetProductsBySubcategoryAsync(subcategory, paginationParameters), cachedContext);
+                () => decorated.GetProductsBySubcategoryAsync(subcategory, paginationParameters), cachedContext);
         }
 
         public async Task<PaginatedList<ProductDto>> GetProductsByCategoryAsync(string category, PaginationParameters paginationParameters)
         {
             var cachedContext = new CachedContext(CategoryIndexTemplate, category, paginationParameters);
             return await GetProductsAsync(
-                () => productService.GetProductsByCategoryAsync(category, paginationParameters), cachedContext);
+                () => decorated.GetProductsByCategoryAsync(category, paginationParameters), cachedContext);
         }
 
         public async Task<PaginatedList<ProductDto>> GetProductsByNameAsync(string name, PaginationParameters paginationParameters)
         {
             var cachedContext = new CachedContext(ProductNameIndexTemplate, name, paginationParameters);
             return await GetProductsAsync(
-                () => productService.GetProductsByNameAsync(name, paginationParameters), cachedContext);
+                () => decorated.GetProductsByNameAsync(name, paginationParameters), cachedContext);
         }
 
         public async Task<PaginatedList<ProductDto>> GetAllProductsAsync(PaginationParameters paginationParameters)
         {
             var cachedContext = new CachedContext(AllProductsIndexTemplate, string.Empty, paginationParameters);
             return await GetProductsAsync(
-                () => productService.GetAllProductsAsync(paginationParameters), cachedContext);
+                () => decorated.GetAllProductsAsync(paginationParameters), cachedContext);
         }
 
         private async Task<PaginatedList<ProductDto>> GetProductsAsync(Func<Task<PaginatedList<ProductDto>>> getFromDb, CachedContext cachedContext)
@@ -82,7 +82,7 @@ namespace Catalog.Infrastructure.Services.Products
                 return cachedProduct;
             }
 
-            var dbProduct = await productService.GetProductByIdAsync(productId);
+            var dbProduct = await decorated.GetProductByIdAsync(productId);
             await cacheService.AddProductsToCacheAsync(new List<ProductDto> { dbProduct });
 
             return dbProduct;
@@ -97,24 +97,10 @@ namespace Catalog.Infrastructure.Services.Products
                 return cachedProducts;
             }
 
-            var dbProducts = await productService.GetProductsByIdsAsync(productIds);
+            var dbProducts = await decorated.GetProductsByIdsAsync(productIds);
             await cacheService.AddProductsToCacheAsync(dbProducts);
 
             return dbProducts;
-        }
-    }
-
-    public class CachedContext
-    {
-        public string Index { get; set; }
-        public string TotalKey { get; set; }
-        public PaginationParameters PaginationParameters { get; set; }
-
-        public CachedContext(string indexKeyTemplate, string filterKey, PaginationParameters paginationParameters)
-        {
-            Index = string.Format(indexKeyTemplate + ":page:{1}", filterKey.ToLower(), paginationParameters.PageNumber);
-            TotalKey = $"{Index}:total";
-            PaginationParameters = paginationParameters;
         }
     }
 }

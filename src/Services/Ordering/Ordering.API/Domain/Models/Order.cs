@@ -51,7 +51,7 @@ namespace Ordering.API.Domain.Models
                 UserId = userId
             };
 
-            order.AddDomainEvent(new OrderCreatedEvent(order));
+            order.AddDomainEvent(new OrderCreatedEvent(Guid.NewGuid(), order));
             return order;
         }
 

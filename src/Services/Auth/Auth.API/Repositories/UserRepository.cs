@@ -11,7 +11,9 @@ namespace Auth.API.Repositories
         private readonly UserManager<CoffeeShopUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
 
-        public UserRepository(UserManager<CoffeeShopUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UserRepository(
+            UserManager<CoffeeShopUser> userManager, 
+            RoleManager<IdentityRole> roleManager)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -29,15 +31,29 @@ namespace Auth.API.Repositories
                 ? (IdentityResult.Failed(new IdentityError { Description = $"User with Id {userId} not found." }), null)
                 : (IdentityResult.Success, user);
         }
-
-        public async Task<(IdentityResult, string?)> CreateUserAsync(CoffeeShopUser user, string password)
+        
+        public async Task<(IdentityResult, string?)> CreateUserAsync(CoffeeShopUser user, string password, Roles role)
         {
             try
             {
                 var result = await userManager.CreateAsync(user, password);
+
+                if (!result.Succeeded || string.IsNullOrEmpty(user.Id))
+                {
+                    return (result, null);
+                }
+
+                var roleName = role.ToString().ToUpper();
+
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+
+                await userManager.AddToRoleAsync(user, roleName);
                 return (result, result.Succeeded ? user.Id : null);
             }
-            catch (Exception ex)
+            catch
             {
                 return (IdentityResult.Failed(new IdentityError
                 {
@@ -45,22 +61,6 @@ namespace Auth.API.Repositories
                     Description = "An unexpected error occurred while creating the user."
                 }), null);
             }
-        }
-
-        public async Task<IdentityResult> AddUserToRoleAsync(string userId, Roles role)
-        {
-            var roleName = role.ToString().ToUpper();
-
-            var (result, existingUser) = await GetUserByIdAsync(userId);
-            if (!result.Succeeded || existingUser == null)
-                return result;
-
-            if (!await roleManager.RoleExistsAsync(roleName))
-            {
-                await roleManager.CreateAsync(new IdentityRole(roleName));
-            }
-
-            return await userManager.AddToRoleAsync(existingUser, roleName);
         }
 
         public async Task<IdentityResult> UpdateUserAsync(CoffeeShopUser user)

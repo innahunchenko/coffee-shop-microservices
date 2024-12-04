@@ -1,4 +1,5 @@
 ﻿using Auth.API.Domain.Dtos;
+using Auth.API.Domain.Models;
 using Auth.API.Mapping;
 using Auth.API.Repositories;
 using Foundation.Abstractions.Services;
@@ -12,19 +13,25 @@ namespace Auth.API.Services
         private readonly IUserRepository userRepository;
         private readonly IJwtTokenService jwtTokenGenerator;
         private readonly ICookieService cookieService;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly IOutboxRepository outboxRepository;
         private readonly string tokenCookieKey = "jwt-token";
 
         public AuthService(
             IUserRepository userRepository,
             IJwtTokenService jwtTokenGenerator,
-            ICookieService cookieService)
+            ICookieService cookieService,
+            IOutboxRepository outboxRepository,
+            IUnitOfWork unitOfWork)
         {
             this.cookieService = cookieService;
             this.userRepository = userRepository;
             this.jwtTokenGenerator = jwtTokenGenerator;
+            this.unitOfWork = unitOfWork;
+            this.outboxRepository = outboxRepository;
         }
 
-        public async Task<(IdentityResult, string?)> RegisterUserAsync(CoffeeShopUserDto dto)
+        public async Task<(IdentityResult, string?)> RegisterUserAsync(CoffeeShopUserDto dto, Roles role)
         {
             var checkResult = await CheckUserDuplicatesAsync(dto);
             if (!checkResult.Succeeded)
@@ -33,14 +40,30 @@ namespace Auth.API.Services
             }
 
             var user = dto.ToUser();
-            var (result, userId) = await userRepository.CreateUserAsync(user, dto.Password!);
-            return (result, userId);
-        }
 
-        public async Task<IdentityResult> AddUserToUserRoleAsync(string userId, Roles role)
-        {
-            var result = await userRepository.AddUserToRoleAsync(userId, role);
-            return result;
+            await unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                var (result, userId) = await userRepository.CreateUserAsync(user, dto.Password!, role);
+                if (!result.Succeeded || string.IsNullOrEmpty(userId))
+                {
+                    await unitOfWork.RollbackTransactionAsync();
+                    return (result, null);
+                }
+
+                await outboxRepository.CreateAsync(new UserRegisteredEvent(Guid.NewGuid(), userId));
+
+                await unitOfWork.SaveChangesAsync();
+                await unitOfWork.CommitTransactionAsync();
+
+                return (result, userId);
+            }
+            catch (Exception)
+            {
+                await unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task<IdentityResult> LoginUserAsync(string userName, string password)
