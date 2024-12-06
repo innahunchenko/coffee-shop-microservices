@@ -24,6 +24,18 @@ namespace Auth.API.Repositories
             return await userManager.Users.FirstOrDefaultAsync(predicate);
         }
 
+        public async Task<string> GenerateEmailConfirmationTokenAsync(CoffeeShopUser user)
+        {
+            string token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            return token;
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(CoffeeShopUser user)
+        {
+            string token = await userManager.GeneratePasswordResetTokenAsync(user);
+            return token;
+        }
+
         public async Task<(IdentityResult, CoffeeShopUser?)> GetUserByIdAsync(string userId)
         {
             var user = await userManager.FindByIdAsync(userId);
@@ -31,7 +43,21 @@ namespace Auth.API.Repositories
                 ? (IdentityResult.Failed(new IdentityError { Description = $"User with Id {userId} not found." }), null)
                 : (IdentityResult.Success, user);
         }
-        
+
+        public async Task<(IdentityResult, CoffeeShopUser?)> GetUserByEmailAsync(string email)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+            return user == null
+                ? (IdentityResult.Failed(new IdentityError { Description = $"User with email {email} not found." }), null)
+                : (IdentityResult.Success, user);
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(CoffeeShopUser user, string decodedToken, string newPassword)
+        {
+            var result = await userManager.ResetPasswordAsync(user, decodedToken, newPassword);
+            return result;
+        }
+
         public async Task<(IdentityResult, string?)> CreateUserAsync(CoffeeShopUser user, string password, Roles role)
         {
             try

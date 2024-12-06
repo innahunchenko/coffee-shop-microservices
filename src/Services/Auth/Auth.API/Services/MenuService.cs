@@ -11,7 +11,6 @@ namespace Auth.API.Services
         {
             new MenuItem { Id = "catalog", Name = "Catalog", Roles = [Roles.ADMIN] },
             new MenuItem { Id = "orders", Name = "Orders", Roles = [Roles.USER, Roles.ADMIN] },
-            new MenuItem { Id = "profile", Name = "Profile", Roles = [Roles.USER] },
             new MenuItem { Id = "returnToShop", Name = "Continue shopping", Roles = [Roles.USER] },
             new MenuItem { Id = "signOut", Name = "Sign out", Roles = [Roles.ADMIN, Roles.USER] }
         };

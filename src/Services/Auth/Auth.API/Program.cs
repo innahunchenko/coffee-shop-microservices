@@ -52,6 +52,7 @@ builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddScoped<MenuService>();
+builder.Services.AddScoped<TokenUrlEncoderService>();
 
 
 builder.Services.AddCors(options =>

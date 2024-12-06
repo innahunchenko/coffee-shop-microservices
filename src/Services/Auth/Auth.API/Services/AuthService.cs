@@ -3,6 +3,7 @@ using Auth.API.Domain.Models;
 using Auth.API.Mapping;
 using Auth.API.Repositories;
 using Foundation.Abstractions.Services;
+using LanguageExt.Pipes;
 using Microsoft.AspNetCore.Identity;
 using Security.Models;
 
@@ -15,6 +16,9 @@ namespace Auth.API.Services
         private readonly ICookieService cookieService;
         private readonly IUnitOfWork unitOfWork;
         private readonly IOutboxRepository outboxRepository;
+        public TokenUrlEncoderService TokenEncoder { get; set; }
+        public LinkGenerator LinkGenerator { get; set; }
+        public IHttpContextAccessor ContextAccessor { get; set; }
         private readonly string tokenCookieKey = "jwt-token";
 
         public AuthService(
@@ -22,13 +26,37 @@ namespace Auth.API.Services
             IJwtTokenService jwtTokenGenerator,
             ICookieService cookieService,
             IOutboxRepository outboxRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            TokenUrlEncoderService encoder,
+            LinkGenerator generator,
+            IHttpContextAccessor contextAccessor)
         {
             this.cookieService = cookieService;
             this.userRepository = userRepository;
             this.jwtTokenGenerator = jwtTokenGenerator;
             this.unitOfWork = unitOfWork;
             this.outboxRepository = outboxRepository;
+            TokenEncoder = encoder;
+            LinkGenerator = generator;
+            ContextAccessor = contextAccessor;
+        }
+
+        public async Task<(IdentityResult, CoffeeShopUser?)> GetUserByIdAsync(string userId)
+        {
+            var result = await userRepository.GetUserByIdAsync(userId);
+            return result;
+        }
+
+        public async Task<(IdentityResult, CoffeeShopUser?)> GetUserByEmailAsync(string email)
+        {
+            var result = await userRepository.GetUserByEmailAsync(email);
+            return result;
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(CoffeeShopUser user, string token, string newPassword)
+        {
+            var result = await userRepository.ResetPasswordAsync(user, token, newPassword);
+            return result;
         }
 
         public async Task<(IdentityResult, string?)> RegisterUserAsync(CoffeeShopUserDto dto, Roles role)
@@ -93,6 +121,26 @@ namespace Auth.API.Services
             var token = jwtTokenGenerator.GenerateToken(user, roles);
             cookieService.SetData(tokenCookieKey, token);
             return IdentityResult.Success;
+        }
+
+        public async Task<string> GetEmailConfirmationUrlAsync(CoffeeShopUser user, string route)
+        {
+            string token = await userRepository.GenerateEmailConfirmationTokenAsync(user);
+            return GetUrl(user.Email!, token, route);
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(CoffeeShopUser user)
+        {
+            string token = await userRepository.GeneratePasswordResetTokenAsync(user);
+            return token;
+            //return GetUrl(user.Email!, token, route);
+        }
+
+        private string GetUrl(string emailAddress, string token, string route)
+        {
+            string safeToken = TokenEncoder.EncodeToken(token);
+            var url = $"{ContextAccessor.HttpContext.Request.Scheme}://{ContextAccessor.HttpContext.Request.Host}/{route}?email={emailAddress}&token={safeToken}";
+            return url;
         }
 
         private async Task<IdentityResult> CheckUserDuplicatesAsync(CoffeeShopUserDto userDto)
