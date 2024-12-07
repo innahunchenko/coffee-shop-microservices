@@ -134,60 +134,10 @@ namespace Auth.API.Controllers
         }
 
         [HttpPost("reset-password")]
-        public async Task<IResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        public async Task<IResult> ResetPassword([FromBody] ResetPasswordDto dto, CancellationToken ct)
         {
-            if (!ModelState.IsValid)
-            {
-                var errors = ModelState.Values
-                    .SelectMany(v => v.Errors)
-                    .Select(e => e.ErrorMessage)
-                    .ToList();
-
-                return Results.BadRequest(new { Errors = errors });
-            }
-
-            var (result, user) = await authService.GetUserByEmailAsync(request.Email);
-
-            if (user == null || !result.Succeeded)
-            {
-                return Results.BadRequest(result.Errors);
-            }
-
-            result = await authService.ResetPasswordAsync(user, request.Token, request.Password);
-            
-            if (!result.Succeeded)
-            {
-                return Results.BadRequest(result.Errors);
-            }
-
-            return Results.Ok(result.Succeeded);
+            var result = await sender.Send(new ResetPasswordRequest(dto), ct);
+            return result;
         }
-
-        /*
-        [HttpGet("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail(string email, string token)
-        {
-            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(token))
-            {
-                return BadRequest("Email or token is missing.");
-            }
-
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null)
-            {
-                return NotFound("User not found.");
-            }
-
-            var decodedToken = TokenUrlEncoder.DecodeToken(token); 
-
-            var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
-            if (result.Succeeded)
-            {
-                return RedirectToAction("EmailConfirmed"); 
-            }
-
-            return BadRequest("Invalid token or user not found.");
-        }
-        */
     }
 }
