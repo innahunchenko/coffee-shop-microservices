@@ -9,7 +9,7 @@ namespace Auth.API.Services
 
         private static readonly List<MenuItem> _menuTable = new List<MenuItem>
         {
-            new MenuItem { Id = "catalog", Name = "Catalog", Roles = [Roles.ADMIN] },
+            new MenuItem { Id = "categories", Name = "Categories", Roles = [Roles.ADMIN] },
             new MenuItem { Id = "orders", Name = "Orders", Roles = [Roles.USER, Roles.ADMIN] },
             new MenuItem { Id = "returnToShop", Name = "Continue shopping", Roles = [Roles.USER] },
             new MenuItem { Id = "signOut", Name = "Sign out", Roles = [Roles.ADMIN, Roles.USER] }

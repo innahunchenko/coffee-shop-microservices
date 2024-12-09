@@ -162,7 +162,7 @@ namespace CoffeeShop.UnitTests.Infrastructure
             redisCacheRepositoryMock.Setup(repo => repo.AddEntityToHashAsync(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
                 .Returns(Task.FromResult(true));
 
-            await categoryCacheService.AddToCacheAsync(categories);
+            await categoryCacheService.ReloadCacheAsync(categories);
 
             redisCacheRepositoryMock.Verify(repo => repo.AddEntityToHashAsync(It.Is<string>(key => key == categoryKey),
                 It.IsAny<Dictionary<string, string>>()), Times.Once);

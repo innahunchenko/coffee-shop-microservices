@@ -4,9 +4,9 @@ using MediatR;
 
 namespace Catalog.API.Endpoints
 {
-    public class GetProductsEndpoint : CarterModule
+    public class ProductsEndpoint : CarterModule
     {
-        public GetProductsEndpoint() 
+        public ProductsEndpoint() 
             : base("/products") { }
 
         public override void AddRoutes(IEndpointRouteBuilder app)

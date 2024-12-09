@@ -57,5 +57,90 @@ namespace Catalog.Infrastructure.Repositories.Categories
 
             return categoryDictionary.Values.ToList();
         }
+
+        public async Task<CategoryDto> GetCategoryByName(string name)
+        {
+            var sql = $@"
+                SELECT  c.Name  AS CategoryName, 
+                        sc.Name AS SubcategoryName
+                FROM    Categories AS c
+                LEFT JOIN Categories AS sc 
+                    ON c.Id = sc.ParentCategoryId
+                WHERE   c.Name = @Name";
+
+            var categoryResult = await dbConnection.QueryAsync<CategoryDto, string, CategoryDto>(
+                sql,
+                (category, subcategoryName) =>
+                {
+                    if (!string.IsNullOrEmpty(subcategoryName))
+                    {
+                        category.Subcategories.Add(subcategoryName);
+                    }
+                    return category;
+                },
+                new { Name = name },
+                splitOn: "SubcategoryName" 
+            );
+
+            var category = categoryResult.Single();
+            return category;
+        }
+
+        public async Task<Guid> AddCategoryAsync(string name, string? parentCategoryName)
+        {
+            var id = Guid.NewGuid();
+
+            Guid? parentCategoryId = null;
+            if (!string.IsNullOrEmpty(parentCategoryName))
+            {
+                var findParentSql = @"
+                    SELECT Id 
+                    FROM Categories 
+                    WHERE Name = @Name";
+
+                parentCategoryId = await dbConnection.QueryFirstOrDefaultAsync<Guid?>(findParentSql, new { Name = parentCategoryName });
+
+                if (parentCategoryId == null)
+                {
+                    throw new Exception($"Parent category with name '{parentCategoryName}' not found.");
+                }
+            }
+
+            var sql = @"
+                INSERT INTO Categories (Id, Name, ParentCategoryId)
+                VALUES (@Id, @Name, @ParentCategoryId)";
+
+            await dbConnection.ExecuteAsync(sql, new
+            {
+                Id = id,
+                Name = name,
+                ParentCategoryId = parentCategoryId
+            });
+
+            return id;
+        }
+
+        public async Task UpdateCategoryAsync(string oldName, string newName)
+        {
+            var sql = @"
+                UPDATE Categories
+                SET Name = @NewName
+                WHERE Name = @OldName";
+
+            await dbConnection.ExecuteAsync(sql, new { OldName = oldName, NewName = newName });
+        }
+
+
+        public async Task DeleteCategoryAsync(string categoryName)
+        {
+            var sql = @"
+                DELETE FROM Categories
+                WHERE Name = @Name
+                OR ParentCategoryId = (
+                    SELECT Id FROM Categories WHERE Name = @Name
+                )";
+
+            await dbConnection.ExecuteAsync(sql, new { Name = categoryName });
+        }
     }
 }
