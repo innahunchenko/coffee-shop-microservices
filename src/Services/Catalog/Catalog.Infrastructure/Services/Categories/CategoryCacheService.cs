@@ -47,76 +47,64 @@ namespace Catalog.Infrastructure.Services.Categories
             return categories;
         }
 
-        public async Task AddOrUpdateCategoryInCacheAsync(CategoryDto category)
+        public async Task AddOrUpdateCategoryInCacheAsync(string name, string? parentCategoryName)
         {
             var categories = await GetCategoriesFromCacheAsync();
 
-            var existingCategory = categories.FirstOrDefault(c => c.Name == category.Name);
-            if (existingCategory != null)
+            var index = categories.FindIndex(c => c.Name == parentCategoryName);
+
+            if (index >= 0)
             {
-                existingCategory.Subcategories = category.Subcategories;
+                categories[index].Subcategories.Add(name);
             }
             else
             {
+                var category = new CategoryDto { Name = name, Subcategories = new List<string>() };
                 categories.Add(category);
             }
 
             await ReloadCacheAsync(categories);
-            logger.LogInformation($"Category '{category.Name}' added/updated in cache.");
+            logger.LogInformation($"Category '{name}' added/updated in cache.");
         }
 
         public async Task RemoveCategoryFromCacheAsync(string categoryName)
         {
             var categories = await GetCategoriesFromCacheAsync();
 
+            var parentCategoryForSubcategory = categories.FirstOrDefault(c => c.Subcategories.Contains(categoryName));
+
+            if (parentCategoryForSubcategory != null)
+            {
+                parentCategoryForSubcategory.Subcategories.Remove(categoryName);
+                logger.LogInformation($"Subcategory '{categoryName}' removed from parent category '{parentCategoryForSubcategory.Name}' in cache.");
+
+                var index = categories.FindIndex(c => c.Name == parentCategoryForSubcategory.Name);
+                if (index != -1)
+                {
+                    categories[index] = parentCategoryForSubcategory;
+                }
+
+                await ReloadCacheAsync(categories);
+                return;
+            }
+
             var categoryToRemove = categories.FirstOrDefault(c => c.Name == categoryName);
+
             if (categoryToRemove != null)
             {
                 categories.Remove(categoryToRemove);
-                await ReloadCacheAsync(categories);
                 logger.LogInformation($"Category '{categoryName}' removed from cache.");
+                await ReloadCacheAsync(categories);
+                return;
             }
-            else
-            {
-                logger.LogWarning($"Category '{categoryName}' not found in cache.");
-            }
+
+            logger.LogWarning($"Category '{categoryName}' not found in cache.");
         }
 
         public async Task ReloadCacheAsync(List<CategoryDto> categories)
         {
             var serializedCategories = categories.ToDictionary(c => c.Name, JsonConvert.SerializeObject);
             var result = await cacheRepository.AddEntityToHashAsync(CATEGORIES_KEY, serializedCategories);
-
-           // logger.LogInformation($"All categories {(result ? "added" : "has not been added")} to cache");
-        }
-
-        public async Task<CategoryDto?> GetCategoryByNameFromCacheAsync(string name)
-        {
-            var cachedData = await cacheRepository.GetEntityFromHashAsync(CATEGORIES_KEY);
-            var categories = new List<CategoryDto>();
-
-            if (!cachedData.Any())
-            {
-                return null;
-            }
-
-            foreach (var item in cachedData)
-            {
-                var categoryDto = JsonConvert.DeserializeObject<CategoryDto>(item.Value);
-                categories.Add(categoryDto!);
-            }
-
-            var category = categories.FirstOrDefault(c => c.Name == name);
-
-            if (category == null)
-            {
-                logger.LogWarning($"Category with Name {name} not found in cache.");
-                return null;
-            }
-
-            logger.LogInformation($"Category with Name {name} retrieved from cache.");
-
-            return category;
         }
     }
 }

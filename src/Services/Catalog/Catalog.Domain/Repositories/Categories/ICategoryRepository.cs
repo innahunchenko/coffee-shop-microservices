@@ -6,8 +6,7 @@ namespace Catalog.Domain.Repositories.Categories
     {
         Task<List<CategoryDto>> GetAllCategoriesAsync();
         Task<Guid> AddCategoryAsync(string name, string? parentCategoryName);
-        Task UpdateCategoryAsync(string oldName, string newName);
+        Task UpdateCategoryAsync(string oldName, string newName, string? newParentCategoryName);
         Task DeleteCategoryAsync(string categoryName);
-        Task<CategoryDto> GetCategoryByName(string categoryName);
     }
 }

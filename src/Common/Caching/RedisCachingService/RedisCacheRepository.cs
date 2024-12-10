@@ -22,18 +22,15 @@ namespace RedisCachingService
         {
             var hashEntries = dictionary.Select(kvp => new HashEntry(kvp.Key, kvp.Value)).ToArray();
 
-            return await AcquireLockAsync(key, async () =>
+            var result = await AcquireLockAsync(key, async () =>
             {
-                var existingEntries = await db.HashGetAllAsync(key);
-                if (existingEntries.Any())
-                {
-                    return false;
-                }
-
                 await db.HashSetAsync(key, hashEntries);
                 await db.KeyExpireAsync(key, expiryTime);
+
                 return true;
             });
+
+            return result;
         }
 
         public async Task<IDictionary<string, string>> GetEntityFromHashAsync(string hashKey)

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace Catalog.Application.Categories.Commands
 {
-    public record UpdateCategoryRequest(string OldNameName, string NewName) : IRequest<IResult>;
+    public record UpdateCategoryRequest(string OldNameName, string NewName, string? ParentCategoryName) : IRequest<IResult>;
 
     public sealed class UpdateCategoryHandler : IRequestHandler<UpdateCategoryRequest, IResult>
     {
@@ -16,7 +16,7 @@ namespace Catalog.Application.Categories.Commands
 
         public async Task<IResult> Handle(UpdateCategoryRequest request, CancellationToken cancellationToken)
         {
-            await categoryService.UpdateCategoryAsync(request.OldNameName, request.NewName);
+            await categoryService.UpdateCategoryAsync(request.OldNameName, request.NewName, request.ParentCategoryName);
             return Results.Ok();
         }
     }

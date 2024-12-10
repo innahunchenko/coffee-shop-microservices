@@ -58,34 +58,6 @@ namespace Catalog.Infrastructure.Repositories.Categories
             return categoryDictionary.Values.ToList();
         }
 
-        public async Task<CategoryDto> GetCategoryByName(string name)
-        {
-            var sql = $@"
-                SELECT  c.Name  AS CategoryName, 
-                        sc.Name AS SubcategoryName
-                FROM    Categories AS c
-                LEFT JOIN Categories AS sc 
-                    ON c.Id = sc.ParentCategoryId
-                WHERE   c.Name = @Name";
-
-            var categoryResult = await dbConnection.QueryAsync<CategoryDto, string, CategoryDto>(
-                sql,
-                (category, subcategoryName) =>
-                {
-                    if (!string.IsNullOrEmpty(subcategoryName))
-                    {
-                        category.Subcategories.Add(subcategoryName);
-                    }
-                    return category;
-                },
-                new { Name = name },
-                splitOn: "SubcategoryName" 
-            );
-
-            var category = categoryResult.Single();
-            return category;
-        }
-
         public async Task<Guid> AddCategoryAsync(string name, string? parentCategoryName)
         {
             var id = Guid.NewGuid();
@@ -120,25 +92,43 @@ namespace Catalog.Infrastructure.Repositories.Categories
             return id;
         }
 
-        public async Task UpdateCategoryAsync(string oldName, string newName)
+        public async Task UpdateCategoryAsync(string oldName, string newName, string? newParentCategoryName = null)
         {
-            var sql = @"
+            var updateCategorySql = @"
                 UPDATE Categories
                 SET Name = @NewName
                 WHERE Name = @OldName";
 
-            await dbConnection.ExecuteAsync(sql, new { OldName = oldName, NewName = newName });
-        }
+            await dbConnection.ExecuteAsync(updateCategorySql, new { OldName = oldName, NewName = newName });
 
+            if (!string.IsNullOrEmpty(newParentCategoryName))
+            {
+                var updateParentCategorySql = @"
+                    UPDATE c
+                    SET c.ParentCategoryId = parent.Id
+                    FROM Categories c
+                    JOIN Categories parent 
+                        ON parent.Name = @NewParentCategoryName
+                    WHERE c.Name = @NewName;";
+
+                var rowsAffected = await dbConnection.ExecuteAsync(updateParentCategorySql, new { NewParentCategoryName = newParentCategoryName, NewName = newName });
+
+                if (rowsAffected == 0)
+                {
+                    throw new InvalidOperationException($"Parent category '{newParentCategoryName}' not found or invalid.");
+                }
+            }
+        }
 
         public async Task DeleteCategoryAsync(string categoryName)
         {
             var sql = @"
-                DELETE FROM Categories
-                WHERE Name = @Name
-                OR ParentCategoryId = (
-                    SELECT Id FROM Categories WHERE Name = @Name
-                )";
+                    DELETE c
+                    FROM Categories c
+                    LEFT JOIN Categories parent 
+                        ON c.ParentCategoryId = parent.Id
+                    WHERE c.Name = @Name
+                    OR (parent.Name = @Name AND parent.Id = c.ParentCategoryId)";
 
             await dbConnection.ExecuteAsync(sql, new { Name = categoryName });
         }

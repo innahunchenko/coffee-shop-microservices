@@ -31,15 +31,9 @@ namespace Catalog.Infrastructure.Services.Categories
             return id;
         }
 
-        public async Task UpdateCategoryAsync(string oldName, string newName)
+        public async Task UpdateCategoryAsync(string oldName, string newName, string? parentCategoryName)
         {
-            await categoryRepository.UpdateCategoryAsync(oldName, newName);
-        }
-
-        public async Task<CategoryDto> GetCategoryByNameAsync(string name)
-        {
-            var category = await categoryRepository.GetCategoryByName(name);
-            return category;
+            await categoryRepository.UpdateCategoryAsync(oldName, newName, parentCategoryName);
         }
 
         public async Task DeleteCategoryAsync(string categoryName)

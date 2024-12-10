@@ -36,65 +36,21 @@ namespace Catalog.Infrastructure.Services.Categories
         public async Task<Guid> AddCategoryAsync(string name, string? parentCategoryName)
         {
             var categoryId = await categoryService.AddCategoryAsync(name, parentCategoryName);
-
-            var newCategory = new CategoryDto
-            {
-                Name = name,
-                Subcategories = new List<string>()
-            };
-
-            await categoryCacheService.AddOrUpdateCategoryInCacheAsync(newCategory);
-
+            await categoryCacheService.AddOrUpdateCategoryInCacheAsync(name, parentCategoryName);
             return categoryId;
         }
 
-        public async Task UpdateCategoryAsync(string oldName, string newName)
+        public async Task UpdateCategoryAsync(string oldName, string newName, string? parentCategoryName)
         {
-            await categoryService.UpdateCategoryAsync(oldName, newName);
-
-            var existingCategory = await categoryCacheService.GetCategoryByNameFromCacheAsync(oldName);
-            if (existingCategory != null)
-            {
-                await categoryCacheService.RemoveCategoryFromCacheAsync(existingCategory.Name);
-            }
-
-            var updatedCategory = new CategoryDto
-            {
-                Name = newName,
-                Subcategories = existingCategory?.Subcategories ?? new List<string>()
-            };
-
-            await categoryCacheService.AddOrUpdateCategoryInCacheAsync(updatedCategory);
-        }
-
-        public async Task<CategoryDto> GetCategoryByNameAsync(string name)
-        {
-            var cachedCategory = await categoryCacheService.GetCategoryByNameFromCacheAsync(name);
-            if (cachedCategory != null)
-            {
-                return cachedCategory;
-            }
-
-            var categoryFromDb = await categoryService.GetCategoryByNameAsync(name);
-            if (categoryFromDb != null)
-            {
-                await categoryCacheService.AddOrUpdateCategoryInCacheAsync(categoryFromDb);
-            }
-
-            return categoryFromDb;
+            await categoryService.UpdateCategoryAsync(oldName, newName, parentCategoryName);
+            await categoryCacheService.RemoveCategoryFromCacheAsync(oldName);
+            await categoryCacheService.AddOrUpdateCategoryInCacheAsync(newName, parentCategoryName);
         }
 
         public async Task DeleteCategoryAsync(string categoryName)
         {
             await categoryService.DeleteCategoryAsync(categoryName);
-
-            var categories = await categoryCacheService.GetCategoriesFromCacheAsync();
-
-            var categoryToDelete = categories.FirstOrDefault(c => c.Name == categoryName);
-            if (categoryToDelete != null)
-            {
-                await categoryCacheService.RemoveCategoryFromCacheAsync(categoryToDelete.Name);
-            }
+            await categoryCacheService.RemoveCategoryFromCacheAsync(categoryName);
         }
     }
 }

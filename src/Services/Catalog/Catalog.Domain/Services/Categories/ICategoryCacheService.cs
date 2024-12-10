@@ -6,8 +6,7 @@ namespace Catalog.Domain.Services.Categories
     {
         Task<List<CategoryDto>> GetCategoriesFromCacheAsync();
         Task ReloadCacheAsync(List<CategoryDto> categories);
-        Task AddOrUpdateCategoryInCacheAsync(CategoryDto category);
+        Task AddOrUpdateCategoryInCacheAsync(string name, string? parentCategoryName);
         Task RemoveCategoryFromCacheAsync(string categoryName);
-        Task<CategoryDto?> GetCategoryByNameFromCacheAsync(string name);
     }
 }
