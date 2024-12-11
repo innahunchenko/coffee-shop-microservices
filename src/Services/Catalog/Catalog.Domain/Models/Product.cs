@@ -9,10 +9,12 @@ namespace Catalog.Domain.Models
         public Guid? CategoryId { get; set; }
         public string Description { get; set; } = default!;
         public Category? Category { get; set; }
+        public string? ImagePath { get; set; }
 
         public static Product Create(string name, 
             decimal price, 
             Guid categoryId, 
+            string? imagePath = null,
             string? description = null)
         {
             var product = new Product
@@ -21,7 +23,8 @@ namespace Catalog.Domain.Models
                 Name = name,
                 Price = price,
                 Description = description ?? string.Empty,
-                CategoryId = categoryId
+                CategoryId = categoryId,
+                ImagePath = imagePath
             };
 
             return product;

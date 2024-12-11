@@ -60,6 +60,7 @@ public class ProductRepository : IProductRepository
                 p.Id)           AS  {nameof(ProductDto.Id)},  
                 p.Name          AS  {nameof(ProductDto.Name)},
                 p.Description   AS  {nameof(ProductDto.Description)},
+                p.ImagePath     AS  {nameof(ProductDto.ImagePath)},
                 p.Price         AS  {nameof(ProductDto.Price)},
                 CASE 
                     WHEN parentC.Id IS NOT NULL THEN parentC.Name

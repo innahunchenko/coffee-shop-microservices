@@ -86,6 +86,7 @@ namespace Catalog.Infrastructure.Data
                         productName,
                         (decimal)(random.NextDouble() * 100),
                         subcategory.Id,
+                        "logo.png",
                         productDescription
                     ));
                 }

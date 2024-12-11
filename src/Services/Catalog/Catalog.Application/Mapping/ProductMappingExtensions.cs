@@ -13,6 +13,7 @@ namespace Catalog.Application.Mapping
                 CategoryName = src.TryGetValue(nameof(ProductDto.CategoryName), out var categoryName) ? categoryName : string.Empty,
                 SubcategoryName = src.TryGetValue(nameof(ProductDto.SubcategoryName), out var subcategoryName) ? subcategoryName : string.Empty,
                 Description = src.TryGetValue(nameof(ProductDto.Description), out var description) ? description : string.Empty,
+                ImagePath = src.TryGetValue(nameof(ProductDto.ImagePath), out var imagePath) ? imagePath : string.Empty,
                 Price = src.TryGetValue(nameof(ProductDto.Price), out var price) && decimal.TryParse(price, out var parsedPrice) ? parsedPrice : 0m
             };
         }
@@ -26,6 +27,7 @@ namespace Catalog.Application.Mapping
                 { nameof(ProductDto.CategoryName), src.CategoryName ?? string.Empty },
                 { nameof(ProductDto.SubcategoryName), src.SubcategoryName ?? string.Empty },
                 { nameof(ProductDto.Description), src.Description ?? string.Empty },
+                { nameof(ProductDto.ImagePath), src.ImagePath ?? string.Empty },
                 { nameof(ProductDto.Price), src.Price.ToString() }
             };
 
