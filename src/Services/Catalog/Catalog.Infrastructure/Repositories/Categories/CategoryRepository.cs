@@ -95,28 +95,20 @@ namespace Catalog.Infrastructure.Repositories.Categories
         public async Task UpdateCategoryAsync(string oldName, string newName, string? newParentCategoryName = null)
         {
             var updateCategorySql = @"
-                UPDATE Categories
-                SET Name = @NewName
-                WHERE Name = @OldName";
-
-            await dbConnection.ExecuteAsync(updateCategorySql, new { OldName = oldName, NewName = newName });
-
-            if (!string.IsNullOrEmpty(newParentCategoryName))
-            {
-                var updateParentCategorySql = @"
                     UPDATE c
-                    SET c.ParentCategoryId = parent.Id
+                    SET 
+                        c.Name = @NewName,
+                        c.ParentCategoryId = COALESCE(parent.Id, c.ParentCategoryId)
                     FROM Categories c
-                    JOIN Categories parent 
+                    LEFT JOIN Categories parent 
                         ON parent.Name = @NewParentCategoryName
-                    WHERE c.Name = @NewName;";
+                    WHERE c.Name = @OldName";
 
-                var rowsAffected = await dbConnection.ExecuteAsync(updateParentCategorySql, new { NewParentCategoryName = newParentCategoryName, NewName = newName });
+            var rowsAffected = await dbConnection.ExecuteAsync(updateCategorySql, new { OldName = oldName, NewName = newName, NewParentCategoryName = newParentCategoryName });
 
-                if (rowsAffected == 0)
-                {
-                    throw new InvalidOperationException($"Parent category '{newParentCategoryName}' not found or invalid.");
-                }
+            if (rowsAffected == 0)
+            {
+                throw new InvalidOperationException($"Category '{oldName}' not found or parent category '{newParentCategoryName}' is invalid.");
             }
         }
 

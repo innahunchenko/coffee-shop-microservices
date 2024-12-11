@@ -10,7 +10,7 @@ namespace Catalog.Infrastructure.Configurations
         {
             builder.HasKey(c => c.Id);
 
-            builder.HasIndex(c => c.Name)
+            builder.HasIndex(c => new { c.Name, c.ParentCategoryId })
                 .IsUnique();
 
             builder.Property(c => c.Name)

@@ -71,34 +71,34 @@ namespace Catalog.Infrastructure.Services.Categories
         {
             var categories = await GetCategoriesFromCacheAsync();
 
-            var parentCategoryForSubcategory = categories.FirstOrDefault(c => c.Subcategories.Contains(categoryName));
-
-            if (parentCategoryForSubcategory != null)
+            if (categories == null || !categories.Any())
             {
-                parentCategoryForSubcategory.Subcategories.Remove(categoryName);
-                logger.LogInformation($"Subcategory '{categoryName}' removed from parent category '{parentCategoryForSubcategory.Name}' in cache.");
-
-                var index = categories.FindIndex(c => c.Name == parentCategoryForSubcategory.Name);
-                if (index != -1)
-                {
-                    categories[index] = parentCategoryForSubcategory;
-                }
-
-                await ReloadCacheAsync(categories);
+                logger.LogWarning("Cache is empty. Nothing to remove.");
                 return;
             }
 
-            var categoryToRemove = categories.FirstOrDefault(c => c.Name == categoryName);
+            var parentCategory = categories.FirstOrDefault(c => c.Subcategories.Contains(categoryName));
+            if (parentCategory != null)
+            {
+                parentCategory.Subcategories.Remove(categoryName);
+                logger.LogInformation($"Subcategory '{categoryName}' removed from parent category '{parentCategory.Name}' in cache.");
+            }
 
+            var categoryToRemove = categories.FirstOrDefault(c => c.Name == categoryName);
             if (categoryToRemove != null)
             {
                 categories.Remove(categoryToRemove);
                 logger.LogInformation($"Category '{categoryName}' removed from cache.");
-                await ReloadCacheAsync(categories);
-                return;
             }
 
-            logger.LogWarning($"Category '{categoryName}' not found in cache.");
+            if (parentCategory != null || categoryToRemove != null)
+            {
+                await ReloadCacheAsync(categories);
+            }
+            else
+            {
+                logger.LogWarning($"Category '{categoryName}' not found in cache.");
+            }
         }
 
         public async Task ReloadCacheAsync(List<CategoryDto> categories)

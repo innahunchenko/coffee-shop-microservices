@@ -24,7 +24,10 @@ namespace RedisCachingService
 
             var result = await AcquireLockAsync(key, async () =>
             {
+                await db.KeyDeleteAsync(key);
+
                 await db.HashSetAsync(key, hashEntries);
+
                 await db.KeyExpireAsync(key, expiryTime);
 
                 return true;
