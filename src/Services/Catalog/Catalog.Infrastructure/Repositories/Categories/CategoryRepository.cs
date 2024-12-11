@@ -104,7 +104,13 @@ namespace Catalog.Infrastructure.Repositories.Categories
                         ON parent.Name = @NewParentCategoryName
                     WHERE c.Name = @OldName";
 
-            var rowsAffected = await dbConnection.ExecuteAsync(updateCategorySql, new { OldName = oldName, NewName = newName, NewParentCategoryName = newParentCategoryName });
+            var rowsAffected = await dbConnection.ExecuteAsync(
+                updateCategorySql, 
+                new { 
+                    OldName = oldName, 
+                    NewName = newName, 
+                    NewParentCategoryName = newParentCategoryName 
+                });
 
             if (rowsAffected == 0)
             {
