@@ -67,6 +67,7 @@ builder.Services.AddScoped<ICookieService, CookieService>();
 builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
 builder.Services.AddScoped<IShoppingCartService, ShoppingCartService>();
 builder.Services.AddScoped<IUserContext, UserContext>();
+builder.Services.AddScoped<ISecureTokenService, SecureTokenService>();
 
 builder.Services.AddRefitClient<ICatalogService>()
     .ConfigureHttpClient(c =>
@@ -85,43 +86,45 @@ builder.Services.AddValidatorsFromAssemblyContaining<CheckoutCartRequestValidato
 
 builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigins",
-        builder => builder
-            .WithOrigins("https://localhost:4200")
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
-});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificAndDynamicOrigins", builder =>
+//    {
+//        builder.WithOrigins("https://4e97-188-163-68-200.ngrok-free.app")
+//        .AllowAnyMethod()
+//        .AllowAnyHeader()
+//        .AllowCredentials();
+//    });
+//});
+
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
-    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
-    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
-    options.ListenAnyIP(8081, listenOptions =>
-    {
-        listenOptions.UseHttps(httpsOptions =>
-        {
-            httpsOptions.ServerCertificateSelector = (context, name) =>
-            {
-                if (name == "shopping-cart-api")
-                {
-                    return X509Certificate2.CreateFromPemFile(
-                        "/https/shopping-cart-api.crt",
-                        "/https/shopping-cart-api.key");
-                }
-                else
-                {
-                    return defaultCertificate;
-                }
-            };
-        });
-    });
-});
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
+//    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
+//    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
+//    options.ListenAnyIP(8081, listenOptions =>
+//    {
+//        listenOptions.UseHttps(httpsOptions =>
+//        {
+//            httpsOptions.ServerCertificateSelector = (context, name) =>
+//            {
+//                if (name == "shopping-cart-api")
+//                {
+//                    return X509Certificate2.CreateFromPemFile(
+//                        "/https/shopping-cart-api.crt",
+//                        "/https/shopping-cart-api.key");
+//                }
+//                else
+//                {
+//                    return defaultCertificate;
+//                }
+//            };
+//        });
+//    });
+//});
 
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
 builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
@@ -134,14 +137,14 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer();
 
 var app = builder.Build();
+app.UseCors("AllowSpecificAndDynamicOrigins");
 app.UseSession();
 app.MapCarter();
 app.MapControllers();
 app.UseStaticFiles();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseCors("AllowSpecificOrigins");
 app.UseExceptionHandler(options => { });
 
 app.Run();

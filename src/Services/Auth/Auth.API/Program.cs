@@ -12,7 +12,6 @@ using MediatR;
 using Auth.API.Validation;
 using Foundation.Abstractions.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Security.Cryptography.X509Certificates;
 using Security.OptionsSetup;
 using Security.Services;
 
@@ -54,16 +53,16 @@ builder.Services.AddScoped<IUserContext, UserContext>();
 builder.Services.AddScoped<MenuService>();
 builder.Services.AddScoped<TokenUrlEncoderService>();
 
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigins",
-        builder => builder
-            .WithOrigins("https://localhost:4200")
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
-});
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificAndDynamicOrigins", builder =>
+//    {
+//        builder.WithOrigins("https://4e97-188-163-68-200.ngrok-free.app")
+//        .AllowAnyMethod()
+//        .AllowAnyHeader()
+//        .AllowCredentials();
+//    });
+//});
 
 // Must be specified after AddIdentity
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
@@ -75,31 +74,31 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer();
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
-    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
-    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
-    options.ListenAnyIP(8081, listenOptions =>
-    {
-        listenOptions.UseHttps(httpsOptions =>
-        {
-            httpsOptions.ServerCertificateSelector = (context, name) =>
-            {
-                if (name == "auth-api")
-                {
-                    return X509Certificate2.CreateFromPemFile(
-                        "/https/auth-api.crt",
-                        "/https/auth-api.key");
-                }
-                else
-                {
-                    return defaultCertificate;
-                }
-            };
-        });
-    });
-});
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
+//    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
+//    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
+//    options.ListenAnyIP(8081, listenOptions =>
+//    {
+//        listenOptions.UseHttps(httpsOptions =>
+//        {
+//            httpsOptions.ServerCertificateSelector = (context, name) =>
+//            {
+//                if (name == "auth-api")
+//                {
+//                    return X509Certificate2.CreateFromPemFile(
+//                        "/https/auth-api.crt",
+//                        "/https/auth-api.key");
+//                }
+//                else
+//                {
+//                    return defaultCertificate;
+//                }
+//            };
+//        });
+//    });
+//});
 
 var app = builder.Build();
 
@@ -111,10 +110,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
-app.UseCors("AllowSpecificOrigins");
+app.UseCors("AllowSpecificAndDynamicOrigins");
 app.UseExceptionHandler(options => { });
 app.InitialiseDatabaseAsync<AppDbContext>();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

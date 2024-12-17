@@ -133,7 +133,6 @@ namespace Auth.API.Services
         {
             string token = await userRepository.GeneratePasswordResetTokenAsync(user);
             return token;
-            //return GetUrl(user.Email!, token, route);
         }
 
         private string GetUrl(string emailAddress, string token, string route)

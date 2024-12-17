@@ -28,6 +28,8 @@ COPY ./ApiGateway/ApiGateway/Security/Certificates/shopping-cart-api.crt /usr/lo
 COPY ./ApiGateway/ApiGateway/Security/Certificates/api-gateway.crt /usr/local/share/ca-certificates/ 
 COPY ./ApiGateway/ApiGateway/Security/Certificates/localhost.crt /usr/local/share/ca-certificates/ 
 COPY ./ApiGateway/ApiGateway/Security/Certificates/ordering-api.crt /usr/local/share/ca-certificates/
+COPY ./ApiGateway/ApiGateway/Security/Certificates/ts.net.crt /usr/local/share/ca-certificates/
+
 USER root
 RUN update-ca-certificates
 ENTRYPOINT ["dotnet", "ApiGateway.dll"]

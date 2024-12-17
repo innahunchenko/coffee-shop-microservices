@@ -22,7 +22,7 @@ services:
     container_name: catalog-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: "https://+:8081;http://+:8080"
+      ASPNETCORE_URLS: "http://+:8080"
       ConnectionStrings__Database: "Server=catalogdb;Database=CoffeeShop_Catalog;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - catalogdb
@@ -51,7 +51,7 @@ services:
     container_name: shopping-cart-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: "https://+:8081;http://+:8080"
+      ASPNETCORE_URLS: "http://+:8080"
       ConnectionStrings__Database: "Host=shoppingcartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
       ConnectionStrings__Redis: "distributedcache:6379"
       MessageBroker__Host: rabbitmq://ecommerce-mq:5672
@@ -84,7 +84,7 @@ services:
     container_name: ordering-api
     environment:
         ASPNETCORE_ENVIRONMENT: Development
-        ASPNETCORE_URLS: "https://+:8081;http://+:8080"
+        ASPNETCORE_URLS: "http://+:8080"
         ConnectionStrings__Database: Server=orderdb;Database=CoffeeShop_Order;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True
         MessageBroker__Host: rabbitmq://ecommerce-mq:5672
         MessageBroker__UserName: guest
@@ -114,7 +114,7 @@ services:
     container_name: api-gateway
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: "https://+:8081;http://+:8080"
+      ASPNETCORE_URLS: "http://+:8080"
     depends_on:
       - catalog.api
       - shoppingCart.api
@@ -141,7 +141,7 @@ services:
     container_name: auth-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: "https://+:8081;http://+:8080"
+      ASPNETCORE_URLS: "http://+:8080"
       ConnectionStrings__Database: "Server=identitydb;Database=CoffeeShop_Identity;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - identitydb

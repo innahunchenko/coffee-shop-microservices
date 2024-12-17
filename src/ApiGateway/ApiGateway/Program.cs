@@ -8,50 +8,50 @@ builder.Services.AddReverseProxy()
 builder.Services.AddHttpContextAccessor();
 builder.Configuration.AddUserSecrets<Program>();
 builder.Services.AddSingleton<ICookieService, CookieService>();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigins",
-        builder =>
-        {
-            builder.WithOrigins("https://localhost:4200")
-                   .AllowAnyMethod()
-                   .AllowAnyHeader()
-                   .AllowCredentials();
-        });
-});
+//var allowedOrigins = builder.Configuration["ALLOWED_ORIGINS"]?.Split(',') ?? [];
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificAndDynamicOrigins", builder =>
+//    {
+//        builder.WithOrigins(allowedOrigins)
+//        .AllowAnyMethod()
+//        .AllowAnyHeader()
+//        .AllowCredentials();
+//    });
+//});
 
 builder.WebHost.ConfigureKestrel(options =>
 {
     var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
     var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
     var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
-    options.ListenAnyIP(8081, listenOptions =>
-    {
-        listenOptions.UseHttps(httpsOptions =>
-        {
-            httpsOptions.ServerCertificateSelector = (context, name) =>
-            {
-                if (name == "api-gateway")
-                {
-                    return X509Certificate2.CreateFromPemFile(
-                        "/https/api-gateway.crt",
-                        "/https/api-gateway.key");
-                }
-                else
-                {
-                    return defaultCertificate;
-                }
-            };
-        });
-    });
+    //options.ListenAnyIP(8081, listenOptions =>
+    //{
+    //    listenOptions.UseHttps(httpsOptions =>
+    //    {
+    //        httpsOptions.ServerCertificateSelector = (context, name) =>
+    //        {
+    //            if (name == "api-gateway")
+    //            {
+    //                return X509Certificate2.CreateFromPemFile(
+    //                    "/https/api-gateway.crt",
+    //                    "/https/api-gateway.key");
+    //            }
+    //            else
+    //            {
+    //                return defaultCertificate;
+    //            }
+    //        };
+    //    });
+    //});
 });
 
 var app = builder.Build();
-app.UseCors("AllowSpecificOrigins");
+app.UseCors("AllowSpecificAndDynamicOrigins");
 app.UseMiddleware<TokenMiddleware>();
 app.UseRouting();
 
 app.MapReverseProxy();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.Run();

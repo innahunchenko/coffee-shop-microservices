@@ -10,17 +10,20 @@ namespace ShoppingCart.API.Services
         private readonly IShoppingCartRepository cartRepository;
         private readonly ICatalogService catalogService;
         private readonly ICookieService cookieService;
+        private readonly ISecureTokenService secureTokenService;
         private readonly string cookieKey = "CoffeeShop.Cart";
         private readonly DateTimeOffset dateTimeOffset = DateTimeOffset.Now.AddDays(7);
 
         public ShoppingCartService(
             IShoppingCartRepository cartRepository,
             ICatalogService catalogService,
-            ICookieService cookieService)
+            ICookieService cookieService,             
+            ISecureTokenService secureTokenService)
         {
             this.cartRepository = cartRepository;
             this.catalogService = catalogService;
             this.cookieService = cookieService;
+            this.secureTokenService = secureTokenService;
         }
 
         public string GenerateUniqueId() => Guid.NewGuid().ToString();
@@ -39,14 +42,14 @@ namespace ShoppingCart.API.Services
         private async Task<Cart?> GetCartAsync(CancellationToken cancellationToken)
         {
             Cart? cart = null;
+            string cartId;
+            var cartIdFromCookie = cookieService.GetData(cookieKey);
+            
+            if (cartIdFromCookie == null)
+                return cart;
 
-            var cartId = cookieService.GetData(cookieKey);
-
-            if (!string.IsNullOrEmpty(cartId))
-            {
-                cart = await cartRepository.GetCartByCartIdAsync(cartId, cancellationToken);
-            }
-
+            cartId = secureTokenService.DecodeCartId(cartIdFromCookie!).ToString();
+            cart = await cartRepository.GetCartByCartIdAsync(cartId!, cancellationToken);
             return cart;
         }
 
@@ -54,14 +57,16 @@ namespace ShoppingCart.API.Services
         {
             var cartId = GenerateUniqueId();
             var cart = new Cart { CartId = cartId };
-            cookieService.SetData(cookieKey, cartId, dateTimeOffset);
+            var encodedCartId = secureTokenService.EncodeCartId(Guid.Parse(cartId));
+            cookieService.SetData(cookieKey, encodedCartId, dateTimeOffset);
             await cartRepository.StoreCartAsync(cart, cancellationToken);
             return cart;
         }
 
         public async Task<Cart> StoreCartAsync(IList<ProductSelection> productSelections, CancellationToken cancellationToken)
         {
-            var cart = await GetCartAsync(cancellationToken);
+            var cart = await GetOrCreateCartAsync(cancellationToken);
+            
             if (cart == null)
             {
                 return new Cart();

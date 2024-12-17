@@ -63,16 +63,17 @@ builder.Services.AddMediatR(config =>
 builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowSpecificAndDynamicOrigins", builder =>
+//    {
+//        builder.WithOrigins("https://4e97-188-163-68-200.ngrok-free.app")
+//        .AllowAnyMethod()
+//        .AllowAnyHeader()
+//        .AllowCredentials();
+//    });
+//});
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigins",
-        builder => builder
-            .WithOrigins("https://localhost:4200")
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
-});
 
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
 builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
@@ -84,35 +85,35 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer();
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
-    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
-    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
-    options.ListenAnyIP(8081, listenOptions =>
-    {
-        listenOptions.UseHttps(httpsOptions =>
-        {
-            httpsOptions.ServerCertificateSelector = (context, name) =>
-            {
-                if (name == "ordering-api")
-                {
-                    return X509Certificate2.CreateFromPemFile(
-                        "/https/ordering-api.crt",
-                        "/https/ordering-api.key");
-                }
-                else
-                {
-                    return defaultCertificate;
-                }
-            };
-        });
-    });
-});
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
+//    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
+//    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
+//    options.ListenAnyIP(8081, listenOptions =>
+//    {
+//        listenOptions.UseHttps(httpsOptions =>
+//        {
+//            httpsOptions.ServerCertificateSelector = (context, name) =>
+//            {
+//                if (name == "ordering-api")
+//                {
+//                    return X509Certificate2.CreateFromPemFile(
+//                        "/https/ordering-api.crt",
+//                        "/https/ordering-api.key");
+//                }
+//                else
+//                {
+//                    return defaultCertificate;
+//                }
+//            };
+//        });
+//    });
+//});
 
 var app = builder.Build();
-app.UseCors("AllowSpecificOrigins");
-app.UseHttpsRedirection();
+app.UseCors("AllowSpecificAndDynamicOrigins");
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
