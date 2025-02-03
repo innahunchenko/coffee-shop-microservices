@@ -22,12 +22,12 @@ namespace Ordering.API.Controllers
             this.commandDispatcher = commandDispatcher;
         }
 
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest orderRequest, CancellationToken ct)
-        {
-            var result = await sender.Send(orderRequest, ct);
-            return Ok(result);
-        }
+        //[HttpPost("create")]
+        //public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest orderRequest, CancellationToken ct)
+        //{
+        //    var result = await sender.Send(orderRequest, ct);
+        //    return Ok(result);
+        //}
 
         [HttpGet]
         [Authorize]
