@@ -20,8 +20,4 @@
     <ProjectReference Include="..\..\Common\Foundation\Foundation.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Security\Certificates\" />
-  </ItemGroup>
-
 </Project>
