@@ -74,11 +74,9 @@ jobs:
 
       - name: Deploy containers to Azure Container Apps
         run: |
-          TAG=${{ github.sha }}
-
           az containerapp update --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} \
-            --add-container name=catalogapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/catalogapi:$TAG \
-            --add-container name=shoppingcartapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/shoppingcartapi:$TAG \
-            --add-container name=apigateway image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/apigateway:$TAG \
-            --add-container name=orderingapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/orderingapi:$TAG \
-            --add-container name=authapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/authapi:$TAG
+            --add-container name=catalogapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/catalogapi:${{ github.sha }} \
+            --add-container name=shoppingcartapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/shoppingcartapi:${{ github.sha }} \
+            --add-container name=apigateway image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/apigateway:${{ github.sha }} \
+            --add-container name=orderingapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/orderingapi:${{ github.sha }} \
+            --add-container name=authapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/authapi:${{ github.sha }}
