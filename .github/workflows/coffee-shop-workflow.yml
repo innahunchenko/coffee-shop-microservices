@@ -71,13 +71,18 @@ jobs:
       run: |
         TAG=${{ github.sha }}
 
+        echo "TAG is set to: $TAG"
+        echo "CONTAINER_REGISTRY_LOGIN_SERVER is: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}"
+
         docker-compose -f ./src/docker-compose.yml build --no-cache
 
         SERVICES=$(docker-compose -f ./src/docker-compose.yml config --services)
 
         for SERVICE in $SERVICES; do
-          docker tag $SERVICE ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/$SERVICE:$TAG
-          docker push ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/$SERVICE:$TAG
+          IMAGE_TAG="${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/$SERVICE:$TAG"
+          echo "Tagging $SERVICE as $IMAGE_TAG"
+          docker tag $SERVICE $IMAGE_TAG
+          docker push $IMAGE_TAG
         done
 
     - name: Deploy containers to Azure Container Apps
