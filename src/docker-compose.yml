@@ -2,16 +2,10 @@ version: '3.4'
 
 services:
   catalogdb:
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
-    build:
-      context: .
-      dockerfile: Services/Catalog/Catalog.API/Dockerfile
+    image: mcr.microsoft.com/mssql/server:2019-latest
 
   distributedcache:
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/distributedcache:${TAG}
-    build:
-      context: .
-      dockerfile: Services/DistributedCache/Dockerfile 
+    image: redis
 
   catalog.api:
     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
@@ -20,22 +14,16 @@ services:
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
 
   shoppingCartdb:
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartdb:${TAG}
-    build:
-      context: .
-      dockerfile: Services/ShoppingCart/ShoppingCartDb/Dockerfile 
-
+    image: postgres
+    
   shoppingCart.api:
     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
     build:
       context: .
       dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
-
+  
   messagebroker:
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/messagebroker:${TAG}
-    build:
-      context: .
-      dockerfile: Services/MessageBroker/Dockerfile  
+    image: rabbitmq:management
 
   apigateway:
     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/apigateway:${TAG}
@@ -44,22 +32,16 @@ services:
       dockerfile: ApiGateway/ApiGateway/Dockerfile
 
   orderdb:
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderdb:${TAG}
-    build:
-      context: .
-      dockerfile: Services/Ordering/OrderDb/Dockerfile 
+    image: mcr.microsoft.com/mssql/server
 
   ordering.api:
     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${TAG}
     build:
       context: .
       dockerfile: Services/Ordering/Ordering.API/Dockerfile
-
+  
   identitydb:
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/identitydb:${TAG}
-    build:
-      context: .
-      dockerfile: Services/IdentityDb/Dockerfile  
+    image: mcr.microsoft.com/mssql/server:2019-latest
 
   auth.api:
     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${TAG}
@@ -70,3 +52,4 @@ services:
 volumes:
   mssql_catalog:
   postgres_shoppingcart:
+ 
