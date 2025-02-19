@@ -39,20 +39,6 @@ jobs:
   BuildAndDeployContainerApp:
     runs-on: ubuntu-latest
     needs: SetupAzureResources
-    strategy:
-      fail-fast: true
-      matrix:
-        include:
-        - appsourcepath: src/ApiGateway/ApiGateway
-          containername: apigateway
-        - appsourcepath: src/Services/Auth/Auth.API
-          containername: auth-api
-        - appsourcepath: src/Services/Catalog/Catalog.API
-          containername: catalog-api
-        - appsourcepath: src/Services/Ordering/Ordering.API
-          containername: ordering-api
-        - appsourcepath: src/Services/ShoppingCart/ShoppingCart.API
-          containername: shoppingcart-api
     steps:
     - name: Checkout source code
       uses: actions/checkout@v4
@@ -67,20 +53,19 @@ jobs:
       with:
         creds: ${{ secrets.managedEnv20250219184953_SPN }}
     
-    - name: Debug paths
+    - name: Build and push Docker images with Docker Compose
       run: |
-       echo "GitHub workspace: ${{ github.workspace }}"
-       echo "App source path: ${{ github.workspace }}/${{ matrix.appsourcepath }}"
-
-    - name: Build and push Docker image
-      run: |
-        docker build -t ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ matrix.containername }}:${{ github.sha }} ${{ github.workspace }}/${{ matrix.appsourcepath }}
         echo "${{ secrets.coffeeshopbackend_PASSWORD }}" | docker login ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} -u ${{ secrets.coffeeshopbackend_USERNAME }} --password-stdin
-        docker push ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ matrix.containername }}:${{ github.sha }}
-    
+        
+        docker-compose -f docker-compose.yml build
+
+        docker-compose -f docker-compose.yml push
+
     - name: Deploy container to Azure Container Apps
       run: |
-        az containerapp update \
-          --name ${{ env.CONTAINER_APP_NAME }} \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
-          --add-container name=${{ matrix.containername }} image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ matrix.containername }}:${{ github.sha }}
+        for service in apigateway auth-api catalog-api ordering-api shoppingcart-api; do
+          az containerapp update \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --add-container name=$service image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/$service:${{ github.sha }}
+        done
