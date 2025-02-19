@@ -9,8 +9,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/Services/ShoppingCart/ShoppingCart.API/ShoppingCart.API.csproj", "src/Services/ShoppingCart/ShoppingCart.API/"]
-RUN dotnet restore "src/Services/ShoppingCart/ShoppingCart.API/ShoppingCart.API.csproj"
+COPY ["Services/ShoppingCart/ShoppingCart.API/ShoppingCart.API.csproj", "Services/ShoppingCart/ShoppingCart.API/"]
+RUN dotnet restore "./Services/ShoppingCart/ShoppingCart.API/ShoppingCart.API.csproj"
 COPY . .
 WORKDIR "/src/Services/ShoppingCart/ShoppingCart.API"
 RUN dotnet build "./ShoppingCart.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
