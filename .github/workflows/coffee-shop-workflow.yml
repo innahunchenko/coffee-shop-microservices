@@ -2,91 +2,48 @@ on:
   push:
     branches:
     - main
-  workflow_dispatch:
-
 env:
   DOTNET_CORE_VERSION: 7.0.x
   CONTAINER_APP_ENVIRONMENT_NAME: managedEnv20250219184953
   RESOURCE_GROUP: coffee-shop-backend
   CONTAINER_REGISTRY_NAME: coffeeshopbackend
   CONTAINER_REGISTRY_LOGIN_SERVER: coffeeshopbackend.azurecr.io
-  CONTAINER_APP_NAME: coffee-shop-aca
-
 jobs:
-  SetupAzureResources:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Azure login
-      uses: azure/login@v2
-      with:
-        creds: ${{ secrets.managedEnv20250219184953_SPN }}
-    
-    - name: Create Azure Container Registry (if not exists)
-      run: |
-        az acr show --name ${{ env.CONTAINER_REGISTRY_NAME }} || \
-        az acr create --name ${{ env.CONTAINER_REGISTRY_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --sku Basic
-    
-    - name: Create Azure Container App (if not exists)
-      run: |
-        az containerapp show --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} || \
-        az containerapp create --name ${{ env.CONTAINER_APP_NAME }} \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
-          --environment ${{ env.CONTAINER_APP_ENVIRONMENT_NAME }} \
-          --image nginx \
-          --target-port 80 \
-          --ingress external
-
   BuildAndDeployContainerApp:
     runs-on: ubuntu-latest
-    needs: SetupAzureResources
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+        - appsourcepath: ./src/ApiGateway/ApiGateway
+          containerappname: apigateway-container-app
+        - appsourcepath: ./src/Services/Auth/Auth.API
+          containerappname: auth.api-container-app
+        - appsourcepath: ./src/Services/Catalog/Catalog.API
+          containerappname: catalog.api-container-app
+        - appsourcepath: ./src/Services/Ordering/Ordering.API
+          containerappname: ordering.api-container-app
+        - appsourcepath: ./src/Services/ShoppingCart/ShoppingCart.API
+          containerappname: shoppingcart.api-container-app
     steps:
     - name: Checkout source code
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0 
-    
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
-    
-    - name: Install docker-compose
-      run: |
-        sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        sudo chmod +x /usr/local/bin/docker-compose
-        docker-compose --version
-
-    - name: List files in a specific directory
-      run: |
-       ls -l ./src 
-        
     - name: Azure login
       uses: azure/login@v2
       with:
         creds: ${{ secrets.managedEnv20250219184953_SPN }}
-
-    - name: Build and push Docker images using Docker Compose
-      run: |
-        echo "${{ secrets.coffeeshopbackend_PASSWORD }}" | docker login ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} -u ${{ secrets.coffeeshopbackend_USERNAME }} --password-stdin
-        
-        TAG=${{ github.sha }}
-
-        docker-compose -f ./src/docker-compose.yml build --no-cache
-
-        SERVICES=$(docker-compose -f ./src/docker-compose.yml config --services)
-
-        for SERVICE in $SERVICES; do
-          docker tag $SERVICE ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/$SERVICE:$TAG
-          docker push ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/$SERVICE:$TAG
-        done
-
-    - name: Deploy containers to Azure Container Apps
-      run: |
-        az containerapp update \
-          --name ${{ env.CONTAINER_APP_NAME }} \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
-          --add-container name=apigateway image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/apigateway:${{ github.sha }} \
-          --add-container name=auth-api image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/auth-api:${{ github.sha }} \
-          --add-container name=catalog-api image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/catalog-api:${{ github.sha }} \
-          --add-container name=ordering-api image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/ordering-api:${{ github.sha }} \
-          --add-container name=shoppingcart-api image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/shoppingcart-api:${{ github.sha }}
+    - name: Container App deploy
+      uses: azure/container-apps-deploy-action@v1
+      with:
+        appSourcePath: ${{ github.workspace }}/${{ matrix.appsourcepath }}
+        acrName: ${{ env.CONTAINER_REGISTRY_NAME }}
+        acrUsername: ${{ secrets.coffeeshopbackend_USERNAME }}
+        acrPassword: ${{ secrets.coffeeshopbackend_PASSWORD }}
+        imageToBuild: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ matrix.containerappname }}:${{ github.sha }}
+        containerAppName: ${{ matrix.containerappname }}
+        containerAppEnvironment: ${{ env.CONTAINER_APP_ENVIRONMENT_NAME }}
+        resourceGroup: ${{ env.RESOURCE_GROUP }}
