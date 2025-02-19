@@ -9,8 +9,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Services/Auth/Auth.API/Auth.API.csproj", "Services/Auth/Auth.API/"]
-RUN dotnet restore "./Services/Auth/Auth.API/Auth.API.csproj"
+COPY ["src/Services/Auth/Auth.API/Auth.API.csproj", "src/Services/Auth/Auth.API/"]
+RUN dotnet restore "src/Services/Auth/Auth.API/Auth.API.csproj"
 COPY . .
 WORKDIR "/src/Services/Auth/Auth.API"
 RUN dotnet build "./Auth.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
@@ -22,8 +22,4 @@ RUN dotnet publish "./Auth.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-#COPY ./Services/Auth/Auth.API/Security/Certificates/auth-api.crt /usr/local/share/ca-certificates/
-#COPY ./Services/Auth/Auth.API/Security/Certificates/localhost.crt /usr/local/share/ca-certificates/ 
-#USER root
-#RUN update-ca-certificates
 ENTRYPOINT ["dotnet", "Auth.API.dll"]
