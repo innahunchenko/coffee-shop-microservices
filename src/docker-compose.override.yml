@@ -33,7 +33,7 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
-      - ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates:/usr/local/share/ca-certificates/
+     # - ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates:/usr/local/share/ca-certificates/
 
   shoppingCartdb:
     container_name: shopping-cart-db
@@ -67,7 +67,7 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
-      - ./ApiGateway/ApiGateway/Security/Certificates:/usr/local/share/ca-certificates
+      #- ./ApiGateway/ApiGateway/Security/Certificates:/usr/local/share/ca-certificates
 
   messagebroker:
     container_name: messagebroker
@@ -99,7 +99,7 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
-      - ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates:/usr/local/share/ca-certificates/
+     # - ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates:/usr/local/share/ca-certificates/
 
   orderdb:
     container_name: orderdb
@@ -125,7 +125,7 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
-      - ./ApiGateway/ApiGateway/Security/Certificates:/usr/local/share/ca-certificates
+      #- ./ApiGateway/ApiGateway/Security/Certificates:/usr/local/share/ca-certificates
     
 
   identitydb:
@@ -152,7 +152,7 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro 
-      - ./Services/Auth/Auth.API/Security/Certificates:/usr/local/share/ca-certificates/
+      #- ./Services/Auth/Auth.API/Security/Certificates:/usr/local/share/ca-certificates/
 
 volumes:
   mssql_catalog:
