@@ -64,8 +64,6 @@ jobs:
 
     - name: Build and push Docker images using Docker Compose
       run: |
-        echo "${{ secrets.coffeeshopbackend_PASSWORD }}" | docker login ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} -u ${{ secrets.coffeeshopbackend_USERNAME }} --password-stdin
-      
         TAG=${{ github.sha }}
 
         docker-compose -f ./src/docker-compose.yml build --no-cache
