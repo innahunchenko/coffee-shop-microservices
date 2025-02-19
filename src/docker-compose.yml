@@ -2,49 +2,67 @@ version: '3.4'
 
 services:
   catalogdb:
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
+    build:
+      context: .
+      dockerfile: Services/Catalog/Catalog.API/Dockerfile
 
   distributedcache:
-    image: redis
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/distributedcache:${TAG}
+    build:
+      context: .
+      dockerfile: Services/DistributedCache/Dockerfile 
 
   catalog.api:
-    image: ${DOCKER_REGISTRY-}catalogapi
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
     build:
       context: .
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
 
   shoppingCartdb:
-    image: postgres
-    
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartdb:${TAG}
+    build:
+      context: .
+      dockerfile: Services/ShoppingCart/ShoppingCartDb/Dockerfile 
+
   shoppingCart.api:
-    image: ${DOCKER_REGISTRY-}shoppingcartapi
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
     build:
       context: .
       dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
-  
+
   messagebroker:
-    image: rabbitmq:management
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/messagebroker:${TAG}
+    build:
+      context: .
+      dockerfile: Services/MessageBroker/Dockerfile  
 
   apigateway:
-    image: ${DOCKER_REGISTRY-}apigateway
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/apigateway:${TAG}
     build:
       context: .
       dockerfile: ApiGateway/ApiGateway/Dockerfile
 
   orderdb:
-    image: mcr.microsoft.com/mssql/server
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderdb:${TAG}
+    build:
+      context: .
+      dockerfile: Services/Ordering/OrderDb/Dockerfile 
 
   ordering.api:
-    image: ${DOCKER_REGISTRY-}orderingapi
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${TAG}
     build:
       context: .
       dockerfile: Services/Ordering/Ordering.API/Dockerfile
-  
+
   identitydb:
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/identitydb:${TAG}
+    build:
+      context: .
+      dockerfile: Services/IdentityDb/Dockerfile  
 
   auth.api:
-    image: ${DOCKER_REGISTRY-}authapi
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${TAG}
     build:
       context: .
       dockerfile: Services/Auth/Auth.API/Dockerfile
@@ -52,4 +70,3 @@ services:
 volumes:
   mssql_catalog:
   postgres_shoppingcart:
- 
