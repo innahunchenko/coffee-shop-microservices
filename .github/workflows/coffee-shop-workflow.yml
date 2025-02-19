@@ -43,15 +43,15 @@ jobs:
       fail-fast: true
       matrix:
         include:
-        - appsourcepath: ApiGateway/ApiGateway
+        - appsourcepath: src/ApiGateway/ApiGateway
           containername: apigateway
-        - appsourcepath: Services/Auth/Auth.API
+        - appsourcepath: src/Services/Auth/Auth.API
           containername: auth-api
-        - appsourcepath: Services/Catalog/Catalog.API
+        - appsourcepath: src/Services/Catalog/Catalog.API
           containername: catalog-api
-        - appsourcepath: Services/Ordering/Ordering.API
+        - appsourcepath: src/Services/Ordering/Ordering.API
           containername: ordering-api
-        - appsourcepath: Services/ShoppingCart/ShoppingCart.API
+        - appsourcepath: src/Services/ShoppingCart/ShoppingCart.API
           containername: shoppingcart-api
     steps:
     - name: Checkout source code
