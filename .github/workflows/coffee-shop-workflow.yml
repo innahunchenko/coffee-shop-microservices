@@ -13,28 +13,28 @@ env:
   CONTAINER_APP_NAME: coffee-shop-aca
 
 jobs:
-  SetupAzureResources:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Azure login
-      uses: azure/login@v2
-      with:
-        creds: ${{ secrets.managedEnv20250219184953_SPN }}
+  # SetupAzureResources:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Azure login
+  #     uses: azure/login@v2
+  #     with:
+  #       creds: ${{ secrets.managedEnv20250219184953_SPN }}
     
-    - name: Create Azure Container Registry (if not exists)
-      run: |
-        az acr show --name ${{ env.CONTAINER_REGISTRY_NAME }} || \
-        az acr create --name ${{ env.CONTAINER_REGISTRY_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --sku Basic
+  #   - name: Create Azure Container Registry (if not exists)
+  #     run: |
+  #       az acr show --name ${{ env.CONTAINER_REGISTRY_NAME }} || \
+  #       az acr create --name ${{ env.CONTAINER_REGISTRY_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --sku Basic
     
-    - name: Create Azure Container App (if not exists)
-      run: |
-        az containerapp show --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} || \
-        az containerapp create --name ${{ env.CONTAINER_APP_NAME }} \
-          --resource-group ${{ env.RESOURCE_GROUP }} \
-          --environment ${{ env.CONTAINER_APP_ENVIRONMENT_NAME }} \
-          --image nginx \
-          --target-port 80 \
-          --ingress external
+  #   - name: Create Azure Container App (if not exists)
+  #     run: |
+  #       az containerapp show --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} || \
+  #       az containerapp create --name ${{ env.CONTAINER_APP_NAME }} \
+  #         --resource-group ${{ env.RESOURCE_GROUP }} \
+  #         --environment ${{ env.CONTAINER_APP_ENVIRONMENT_NAME }} \
+  #         --image nginx \
+  #         --target-port 80 \
+  #         --ingress external
 
   BuildAndDeployContainerApp:
     runs-on: ubuntu-latest
@@ -43,7 +43,7 @@ jobs:
     - name: Checkout source code
       uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # Загружает всю историю и все файлы
+        fetch-depth: 0 
     
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
@@ -67,9 +67,9 @@ jobs:
 
     - name: Build and push Docker images using Docker Compose
       run: |
-        docker-compose -f ./docker-compose.yml build
-        echo "${{ secrets.coffeeshopbackend_PASSWORD }}" | docker login ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} -u ${{ secrets.coffeeshopbackend_USERNAME }} --password-stdin
-        docker-compose -f ./docker-compose.yml push
+       docker-compose -f ./src/docker-compose.yml build
+       echo "${{ secrets.coffeeshopbackend_PASSWORD }}" | docker login ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} -u ${{ secrets.coffeeshopbackend_USERNAME }} --password-stdin
+       docker-compose -f ./src/docker-compose.yml push
 
     - name: Deploy containers to Azure Container Apps
       run: |
