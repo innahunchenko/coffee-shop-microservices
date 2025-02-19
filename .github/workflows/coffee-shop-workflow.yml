@@ -1,0 +1,51 @@
+on:
+  push:
+    branches:
+    - main
+  workflow_dispatch:
+
+env:
+  DOTNET_CORE_VERSION: 7.0.x
+  CONTAINER_APP_ENVIRONMENT_NAME: managedEnv20250219184953
+  RESOURCE_GROUP: coffee-shop-backend
+  CONTAINER_REGISTRY_NAME: coffeeshopbackend
+  CONTAINER_REGISTRY_LOGIN_SERVER: coffeeshopbackend.azurecr.io
+jobs:
+  BuildAndDeployContainerApp:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+        - appsourcepath: ApiGateway/ApiGateway
+          containerappname: apigateway-container-app
+        - appsourcepath: Services/Auth/Auth.API
+          containerappname: auth.api-container-app
+        - appsourcepath: Services/Catalog/Catalog.API
+          containerappname: catalog.api-container-app
+        - appsourcepath: Services/Ordering/Ordering.API
+          containerappname: ordering.api-container-app
+        - appsourcepath: Services/ShoppingCart/ShoppingCart.API
+          containerappname: shoppingcart.api-container-app
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_CORE_VERSION }}
+    - name: Azure login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.managedEnv20250219184953_SPN }}
+    - name: Container App deploy
+      uses: azure/container-apps-deploy-action@v1
+      with:
+        appSourcePath: ${{ github.workspace }}/${{ matrix.appsourcepath }}
+        acrName: ${{ env.CONTAINER_REGISTRY_NAME }}
+        acrUsername: ${{ secrets.coffeeshopbackend_USERNAME_03D8 }}
+        acrPassword: ${{ secrets.coffeeshopbackend_PASSWORD_03D8 }}
+        imageToBuild: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ matrix.containerappname }}:${{ github.sha }}
+        containerAppName: ${{ matrix.containerappname }}
+        containerAppEnvironment: ${{ env.CONTAINER_APP_ENVIRONMENT_NAME }}
+        resourceGroup: ${{ env.RESOURCE_GROUP }}
