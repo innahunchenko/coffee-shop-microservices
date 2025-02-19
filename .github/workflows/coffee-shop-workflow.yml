@@ -13,13 +13,13 @@ env:
   CONTAINER_APP_NAME: coffee-shop-aca
 
 jobs:
-  # SetupAzureResources:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Azure login
-  #     uses: azure/login@v2
-  #     with:
-  #       creds: ${{ secrets.managedEnv20250219184953_SPN }}
+  SetupAzureResources:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Azure login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.managedEnv20250219184953_SPN }}
     
   #   - name: Create Azure Container Registry (if not exists)
   #     run: |
