@@ -58,7 +58,12 @@ jobs:
 
     - name: List files in a specific directory
       run: ls -l ./src 
-        
+    
+    - name: Azure login
+      uses: azure/login@v2
+      with:
+        creds: ${{ secrets.managedEnv20250219184953_SPN }}
+      
     - name: Login to Azure Container Registry
       run: az acr login --name ${{ env.CONTAINER_REGISTRY_NAME }}
 
