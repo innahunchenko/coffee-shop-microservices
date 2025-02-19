@@ -77,9 +77,23 @@ jobs:
 
       - name: Deploy containers to Azure Container Apps
         run: |
-          az containerapp update --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} \
-            --add-container name=catalogapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/catalogapi:${{ env.TAG }} \
-            --add-container name=shoppingcartapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/shoppingcartapi:${{ env.TAG }} \
-            --add-container name=apigateway image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/apigateway:${{ env.TAG }} \
-            --add-container name=orderingapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/orderingapi:${{ env.TAG }} \
-            --add-container name=authapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/authapi:${{ env.TAG }}
+            az containerapp revision copy --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} \
+              --image ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${{ env.TAG }} \
+              --name catalogapi
+
+            az containerapp revision copy --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} \
+              --image ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${{ env.TAG }} \
+              --name shoppingcartapi
+
+            az containerapp revision copy --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} \
+              --image ${CONTAINER_REGISTRY_LOGIN_SERVER}/apigateway:${{ env.TAG }} \
+              --name apigateway
+
+            az containerapp revision copy --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} \
+              --image ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${{ env.TAG }} \
+              --name orderingapi
+
+            az containerapp revision copy --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} \
+              --image ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${{ env.TAG }} \
+              --name authapi
+
