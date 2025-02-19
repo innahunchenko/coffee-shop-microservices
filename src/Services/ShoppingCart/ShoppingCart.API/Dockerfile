@@ -22,9 +22,4 @@ RUN dotnet publish "./ShoppingCart.API.csproj" -c $BUILD_CONFIGURATION -o /app/p
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates/shopping-cart-api.crt /usr/local/share/ca-certificates/ 
-COPY ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates/api-gateway.crt /usr/local/share/ca-certificates/ 
-COPY ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates/localhost.crt /usr/local/share/ca-certificates/ 
-USER root
-RUN update-ca-certificates
 ENTRYPOINT ["dotnet", "ShoppingCart.API.dll"]

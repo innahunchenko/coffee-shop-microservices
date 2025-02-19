@@ -22,10 +22,4 @@ RUN dotnet publish "./Ordering.API.csproj" -c $BUILD_CONFIGURATION -o /app/publi
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY ./Services/Ordering/Ordering.API/Security/Certificates/ordering-api.crt /usr/local/share/ca-certificates/ 
-COPY ./Services/Ordering/Ordering.API/Security/Certificates/api-gateway.crt /usr/local/share/ca-certificates/ 
-COPY ./Services/Ordering/Ordering.API/Security/Certificates/localhost.crt /usr/local/share/ca-certificates/ 
-USER root
-RUN update-ca-certificates
-COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Ordering.API.dll"]

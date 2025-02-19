@@ -22,8 +22,4 @@ RUN dotnet publish "./Catalog.API.csproj" -c $BUILD_CONFIGURATION -o /app/publis
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-COPY ./Services/Catalog/Catalog.API/Security/Certificates/catalog-api.crt /usr/local/share/ca-certificates/
-COPY ./Services/Catalog/Catalog.API/Security/Certificates/localhost.crt /usr/local/share/ca-certificates/ 
-USER root
-RUN update-ca-certificates
 ENTRYPOINT ["dotnet", "Catalog.API.dll"]
