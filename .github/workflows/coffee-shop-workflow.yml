@@ -60,15 +60,10 @@ jobs:
         sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         sudo chmod +x /usr/local/bin/docker-compose
         docker-compose --version
-
-    - name: List files in the repository
-      run: |
-       ls -l
-
+        
     - name: List files in a specific directory
       run: |
-       ls -l ./  
-       ls -l ./docker  
+       ls -l ./src 
 
     - name: Build and push Docker images using Docker Compose
       run: |
