@@ -72,27 +72,32 @@ jobs:
         TAG=${{ github.sha }}
 
         echo "TAG is set to: $TAG"
-        echo "CONTAINER_REGISTRY_LOGIN_SERVER is: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}"
-
+        echo "Logging in to Azure Container Registry"
+    
         docker-compose -f ./src/docker-compose.yml build --no-cache
 
-        SERVICES=$(docker-compose -f ./src/docker-compose.yml config --services)
+        docker tag catalog.api ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/catalogapi:$TAG
+        docker push ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/catalogapi:$TAG
 
-        for SERVICE in $SERVICES; do
-          IMAGE_TAG="${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/$SERVICE:$TAG"
-          echo "Tagging $SERVICE as $IMAGE_TAG"
-          docker tag $SERVICE $IMAGE_TAG
-          docker push $IMAGE_TAG
-        done
+        docker tag shoppingCart.api ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/shoppingcartapi:$TAG
+        docker push ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/shoppingcartapi:$TAG
+
+        docker tag apigateway ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/apigateway:$TAG
+        docker push ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/apigateway:$TAG
+
+        docker tag ordering.api ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/orderingapi:$TAG
+        docker push ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/orderingapi:$TAG
+
+        docker tag auth.api ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/authapi:$TAG
+        docker push ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/authapi:$TAG
 
     - name: Deploy containers to Azure Container Apps
       run: |
-        SERVICES=$(docker-compose -f ./src/docker-compose.yml config --services)
-        UPDATE_COMMAND="az containerapp update --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }}"
-        
-        for SERVICE in $SERVICES; do
-          UPDATE_COMMAND="$UPDATE_COMMAND --add-container name=$SERVICE image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/$SERVICE:${{ github.sha }}"
-        done
-
-        echo "Executing: $UPDATE_COMMAND"
-        eval $UPDATE_COMMAND
+        TAG=${{ github.sha }}
+    
+        az containerapp update --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} \
+          --add-container name=catalogapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/catalogapi:$TAG \
+          --add-container name=shoppingcartapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/shoppingcartapi:$TAG \
+          --add-container name=apigateway image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/apigateway:$TAG \
+          --add-container name=orderingapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/orderingapi:$TAG \
+          --add-container name=authapi image=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/authapi:$TAG

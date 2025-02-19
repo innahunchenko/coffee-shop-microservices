@@ -8,7 +8,7 @@ services:
     image: redis
 
   catalog.api:
-    image: ${DOCKER_REGISTRY-}catalogapi
+    image: catalogapi
     build:
       context: .
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
@@ -17,7 +17,7 @@ services:
     image: postgres
     
   shoppingCart.api:
-    image: ${DOCKER_REGISTRY-}shoppingcartapi
+    image: shoppingcartapi
     build:
       context: .
       dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
@@ -26,7 +26,7 @@ services:
     image: rabbitmq:management
 
   apigateway:
-    image: ${DOCKER_REGISTRY-}apigateway
+    image: apigateway
     build:
       context: .
       dockerfile: ApiGateway/ApiGateway/Dockerfile
@@ -35,7 +35,7 @@ services:
     image: mcr.microsoft.com/mssql/server
 
   ordering.api:
-    image: ${DOCKER_REGISTRY-}orderingapi
+    image: orderingapi
     build:
       context: .
       dockerfile: Services/Ordering/Ordering.API/Dockerfile
@@ -44,7 +44,7 @@ services:
     image: mcr.microsoft.com/mssql/server:2019-latest
 
   auth.api:
-    image: ${DOCKER_REGISTRY-}authapi
+    image: authapi
     build:
       context: .
       dockerfile: Services/Auth/Auth.API/Dockerfile
