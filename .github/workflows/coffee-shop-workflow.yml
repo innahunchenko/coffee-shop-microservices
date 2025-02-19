@@ -1,3 +1,11 @@
+name: Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
 env:
   DOTNET_CORE_VERSION: 7.0.x
   CONTAINER_APP_ENVIRONMENT_NAME: managedEnv20250219184953
@@ -5,11 +13,35 @@ env:
   CONTAINER_REGISTRY_NAME: coffeeshopbackend
   CONTAINER_REGISTRY_LOGIN_SERVER: coffeeshopbackend.azurecr.io
   CONTAINER_APP_NAME: coffee-shop-aca
-  TAG: ${{ github.sha }}  # Устанавливаем TAG здесь
+  TAG: ${{ github.sha }}
 
 jobs:
+  SetupAzureResources:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.managedEnv20250219184953_SPN }}
+      
+      - name: Create Azure Container Registry (if not exists)
+        run: |
+          az acr show --name ${{ env.CONTAINER_REGISTRY_NAME }} || \
+          az acr create --name ${{ env.CONTAINER_REGISTRY_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --sku Basic
+      
+      - name: Create Azure Container App (if not exists)
+        run: |
+          az containerapp show --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} || \
+          az containerapp create --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --environment ${{ env.CONTAINER_APP_ENVIRONMENT_NAME }} \
+            --image nginx \
+            --target-port 80 \
+            --ingress external
+
   BuildAndDeployContainerApp:
     runs-on: ubuntu-latest
+    needs: SetupAzureResources
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
