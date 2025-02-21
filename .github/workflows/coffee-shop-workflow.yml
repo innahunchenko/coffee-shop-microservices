@@ -46,7 +46,7 @@ jobs:
             azure_credentials: ${{ secrets.managedEnv20250219184953_SPN }}
             resource_group: ${{ env.RESOURCE_GROUP }}
             container_app_name: ${{ env.CONTAINER_APP_NAME }}
-            image_name: |
+            imageToDeploy: |
               ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/catalogapi:${{ env.TAG }}
               ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/shoppingcartapi:${{ env.TAG }}
               ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/apigateway:${{ env.TAG }}
