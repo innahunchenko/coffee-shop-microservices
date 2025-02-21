@@ -47,18 +47,17 @@ jobs:
 
             docker-compose -f ./src/docker-compose.yml push
 
-      - name: Import base images to ACR
-        run: |
+            # Import base images
             az acr import --name ${CONTAINER_REGISTRY_NAME} --source postgres:latest --image postgres
             az acr import --name ${CONTAINER_REGISTRY_NAME} --source redis:latest --image redis
             az acr import --name ${CONTAINER_REGISTRY_NAME} --source mcr.microsoft.com/mssql/server:2019-latest --image catalogdb
             az acr import --name ${CONTAINER_REGISTRY_NAME} --source mcr.microsoft.com/mssql/server --image orderdb
             az acr import --name ${CONTAINER_REGISTRY_NAME} --source mcr.microsoft.com/mssql/server:2019-latest --image identitydb
 
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # - name: Azure Login
+      #   uses: azure/login@v2
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       # - name: Deploy multiple containers with YAML
       #   uses: azure/cli-action@v1
