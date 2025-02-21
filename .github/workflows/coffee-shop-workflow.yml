@@ -11,7 +11,7 @@ env:
   CONTAINER_APP_ENVIRONMENT_NAME: managedEnv20250219184953
   RESOURCE_GROUP: coffee-shop-backend
   CONTAINER_REGISTRY_NAME: coffeshopbackend
-  CONTAINER_REGISTRY_LOGIN_SERVER: coffeeshopbackend.azurecr.io
+  CONTAINER_REGISTRY_LOGIN_SERVER: coffeshopbackend.azurecr.io
   CONTAINER_APP_NAME: coffee-shop-backend
   TAG: ${{ github.sha }}
 
