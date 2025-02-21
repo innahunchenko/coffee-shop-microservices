@@ -1,0 +1,10 @@
+- name: catalogdb
+  image: catalogdb
+  env:
+    - name: SA_PASSWORD
+      value: "MyPass123"
+    - name: ACCEPT_EULA
+      value: "Y"
+  cpu: 0.5
+  memory: 1Gi
+
