@@ -43,12 +43,7 @@ jobs:
       - name: Deploy containers to Azure Container Apps
         uses: azure/container-apps-deploy-action@v1
         with:
-            azure_credentials: ${{ secrets.managedEnv20250219184953_SPN }}
-            resource_group: ${{ env.RESOURCE_GROUP }}
-            container_app_name: ${{ env.CONTAINER_APP_NAME }}
-            imageToDeploy: |
-              ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/catalogapi:${{ env.TAG }}
-              ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/shoppingcartapi:${{ env.TAG }}
-              ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/apigateway:${{ env.TAG }}
-              ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/orderingapi:${{ env.TAG }}
-              ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/authapi:${{ env.TAG }}
+          azure_credentials: ${{ secrets.managedEnv20250219184953_SPN }}
+          resource_group: ${{ env.RESOURCE_GROUP }}
+          container_app_name: ${{ env.CONTAINER_APP_NAME }}
+          imageToDeploy: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/catalogapi:${{ env.TAG }} ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/shoppingcartapi:${{ env.TAG }} ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/apigateway:${{ env.TAG }} ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/orderingapi:${{ env.TAG }} ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/authapi:${{ env.TAG }}
