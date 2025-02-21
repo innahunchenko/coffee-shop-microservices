@@ -18,7 +18,7 @@ env:
 jobs:
   BuildAndDeployContainerApp:
     runs-on: ubuntu-latest
-    needs: SetupAzureResources
+
     steps:
       - uses: actions/checkout@v4
 
