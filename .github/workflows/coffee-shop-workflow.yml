@@ -46,4 +46,14 @@ jobs:
           azure_credentials: ${{ secrets.managedEnv20250219184953_SPN }}
           resource_group: ${{ env.RESOURCE_GROUP }}
           container_app_name: ${{ env.CONTAINER_APP_NAME }}
-          imageToDeploy: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/catalogapi:${{ env.TAG }} ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/shoppingcartapi:${{ env.TAG }} ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/apigateway:${{ env.TAG }} ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/orderingapi:${{ env.TAG }} ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/authapi:${{ env.TAG }}
+          containerAppConfigs: |
+            - name: catalogapi
+              image: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/catalogapi:${{ env.TAG }}
+            - name: shoppingcartapi
+              image: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/shoppingcartapi:${{ env.TAG }}
+            - name: apigateway
+              image: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/apigateway:${{ env.TAG }}
+            - name: orderingapi
+              image: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/orderingapi:${{ env.TAG }}
+            - name: authapi
+              image: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}/authapi:${{ env.TAG }}
