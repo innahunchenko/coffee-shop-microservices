@@ -12,7 +12,7 @@ env:
   RESOURCE_GROUP: coffee-shop-backend
   CONTAINER_REGISTRY_NAME: coffeshopbackend
   CONTAINER_REGISTRY_LOGIN_SERVER: coffeshopbackend.azurecr.io
-  CONTAINER_APP_NAME: coffee-shop-aca
+  CONTAINER_APP_NAME: coffee-shop-backend
   TAG: ${{ github.sha }}
 
 jobs:
@@ -44,7 +44,7 @@ jobs:
       - name: Log in to ACR
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io
+          registry: ${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.AZURE_REGISTRY_USERNAME }}
           password: ${{ secrets.AZURE_REGISTRY_PASSWORD }}
 
