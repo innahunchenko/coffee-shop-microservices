@@ -32,10 +32,13 @@ services:
     image: rabbitmq:management
 
   apigateway:
-    image: apigateway
     build:
       context: .
       dockerfile: ApiGateway/ApiGateway/Dockerfile
+      args:
+        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+        TAG: ${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/apigateway:${TAG}
 
   orderdb:
     image: mcr.microsoft.com/mssql/server
