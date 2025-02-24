@@ -2,15 +2,9 @@ version: '3.4'
 
 services:
   catalogdb:
-    build:
-      args:
-        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/mssql/server:2019-latest
 
   distributedcache:
-    build:
-      args:
-        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/redis:latest
 
   catalog.api:
