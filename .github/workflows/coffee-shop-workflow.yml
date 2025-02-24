@@ -57,9 +57,7 @@ jobs:
             # az acr import --name ${CONTAINER_REGISTRY_NAME} --source docker.io/library/redis:latest --image redis
             # az acr import --name ${CONTAINER_REGISTRY_NAME} --source mcr.microsoft.com/mssql/server:2019-latest --image catalogdb
 
-            az acr import --name ${CONTAINER_REGISTRY_NAME} --source docker.io/library/redis:latest --image redis
-            az acr import --name ${CONTAINER_REGISTRY_NAME} --source docker.io/library/mssql/server:2019-latest --image catalogdb
-
+            
             #az acr import --name ${CONTAINER_REGISTRY_NAME} --source mcr.microsoft.com/mssql/server:2019-latest --image orderdb
             #az acr import --name ${CONTAINER_REGISTRY_NAME} --source mcr.microsoft.com/mssql/server:2019-latest --image identitydb
             # docker images
