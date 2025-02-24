@@ -50,7 +50,7 @@ jobs:
               --build-arg CONTAINER_REGISTRY_LOGIN_SERVER=${{ env.CONTAINER_REGISTRY_LOGIN_SERVER }} \
               --build-arg TAG=${{ env.TAG }}
 
-            # docker-compose -f ./src/docker-compose.yml push
+            docker-compose -f ./src/docker-compose.yml push
 
             # Import base images
             #az acr import --name ${CONTAINER_REGISTRY_NAME} --source docker.io/library/postgres:latest --image postgres
