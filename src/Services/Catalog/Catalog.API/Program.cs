@@ -6,6 +6,9 @@ using Carter;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
+var connectionString = builder.Configuration.GetConnectionString("ProductsConnection");
+Console.WriteLine(connectionString);
+
 builder.Services
     .AddInfrastructureServices(builder.Configuration)
     .AddApplicationServices();
@@ -60,6 +63,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.UseExceptionHandler(options => { });
+
 await app.InitialiseDatabaseAsync();
 
 app.Run();
