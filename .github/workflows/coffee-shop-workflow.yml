@@ -58,8 +58,8 @@ jobs:
             # az acr import --name ${CONTAINER_REGISTRY_NAME} --source mcr.microsoft.com/mssql/server:2019-latest --image catalogdb
 
             
-            az acr import --name ${CONTAINER_REGISTRY_NAME} --source coffeeshopbackend.azurecr.io/redis:latest --image redis
-            az acr import --name ${CONTAINER_REGISTRY_NAME} --source coffeeshopbackend.azurecr.io/mssql/server:2019-latest --image catalogdb
+            az acr import --name ${CONTAINER_REGISTRY_NAME} --source ${CONTAINER_REGISTRY_NAME}/redis:latest --image redis
+            az acr import --name ${CONTAINER_REGISTRY_NAME} --source ${CONTAINER_REGISTRY_NAME}/mssql/server:2019-latest --image catalogdb
 
 
 
