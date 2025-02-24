@@ -24,6 +24,7 @@ namespace Catalog.Infrastructure
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
             var redisConnectionString = configuration.GetValue<string>("CacheSettings:RedisConnectionString");
+            Console.WriteLine(redisConnectionString);
             var expiryTime = TimeSpan.FromMinutes(configuration.GetValue<double>("CacheSettings:DefaultCacheDurationMinutes"));
             var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConnectionString!);
             services.AddSingleton(connectionMultiplexer);
@@ -34,6 +35,7 @@ namespace Catalog.Infrastructure
             });
 
             var connectionString = configuration.GetConnectionString("ProductsConnection");
+            Console.WriteLine(connectionString);
             services.AddHttpContextAccessor();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductService, ProductService>();

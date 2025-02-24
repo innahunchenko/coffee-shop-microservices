@@ -23,7 +23,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:8080"
-      ConnectionStrings__Database: "Server=catalogdb;Database=CoffeeShop_Catalog;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
+     # ConnectionStrings__Products: "Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - catalogdb
       - distributedcache
@@ -52,11 +52,11 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:8080"
-      ConnectionStrings__Database: "Host=shoppingcartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
-      ConnectionStrings__Redis: "distributedcache:6379"
-      MessageBroker__Host: rabbitmq://ecommerce-mq:5672
-      MessageBroker__UserName: guest
-      MessageBroker__Password: guest
+      # ConnectionStrings__Database: "Host=shoppingcartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
+      # ConnectionStrings__Redis: "distributedcache:6379"
+      # MessageBroker__Host: rabbitmq://ecommerce-mq:5672
+      # MessageBroker__UserName: guest
+      # MessageBroker__Password: guest
     depends_on:
       - shoppingCartdb
       - distributedcache
@@ -85,11 +85,11 @@ services:
     environment:
         ASPNETCORE_ENVIRONMENT: Development
         ASPNETCORE_URLS: "http://+:8080"
-        ConnectionStrings__Database: Server=orderdb;Database=CoffeeShop_Order;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True
-        MessageBroker__Host: rabbitmq://ecommerce-mq:5672
-        MessageBroker__UserName: guest
-        MessageBroker__Password: guest
-        FeatureManagement__OrderFullfilment: false
+        # ConnectionStrings__Database: Server=orderdb;Database=CoffeeShop_Order;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True
+        # MessageBroker__Host: rabbitmq://ecommerce-mq:5672
+        # MessageBroker__UserName: guest
+        # MessageBroker__Password: guest
+        # FeatureManagement__OrderFullfilment: false
     depends_on:
       - orderdb
       - messagebroker
@@ -142,7 +142,7 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:8080"
-      ConnectionStrings__Database: "Server=identitydb;Database=CoffeeShop_Identity;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
+      #ConnectionStrings__Database: "Server=identitydb;Database=CoffeeShop_Identity;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - identitydb
       - distributedcache
