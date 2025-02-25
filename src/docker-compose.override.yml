@@ -12,21 +12,21 @@ services:
     volumes:
       - mssql_catalog:/var/opt/mssql
 
-  distributedcache:
-    container_name: distributed-cache
-    restart: always
-    ports:
-      - "6379:6379" 
+  # distributedcache:
+  #   container_name: distributed-cache
+  #   restart: always
+  #   ports:
+  #     - "6379:6379" 
 
   catalog.api:
     container_name: catalog-api
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: "http://+:8080"
+    #environment:
+     # ASPNETCORE_ENVIRONMENT: Development
+     # ASPNETCORE_URLS: "http://+:8080"
      # ConnectionStrings__Products: "Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - catalogdb
-      - distributedcache
+      #- distributedcache
     ports:
       - "7000:8080"
       - "7070:8081"
@@ -59,7 +59,7 @@ services:
       # MessageBroker__Password: guest
     depends_on:
       - shoppingCartdb
-      - distributedcache
+      #- distributedcache
       - messagebroker
     ports:
       - "7001:8080"
@@ -145,7 +145,7 @@ services:
       #ConnectionStrings__Database: "Server=identitydb;Database=CoffeeShop_Identity;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - identitydb
-      - distributedcache
+    #  - distributedcache
     ports:
       - "7007:8080"
       - "7077:8081"

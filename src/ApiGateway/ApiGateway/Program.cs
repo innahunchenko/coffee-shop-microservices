@@ -1,6 +1,5 @@
 using ApiGateway;
 using Foundation.Abstractions.Services;
-using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddReverseProxy()
@@ -20,11 +19,11 @@ builder.Services.AddSingleton<ICookieService, CookieService>();
 //    });
 //});
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
-    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
-    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
+//    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
+//    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
     //options.ListenAnyIP(8081, listenOptions =>
     //{
     //    listenOptions.UseHttps(httpsOptions =>
@@ -44,7 +43,7 @@ builder.WebHost.ConfigureKestrel(options =>
     //        };
     //    });
     //});
-});
+//});
 
 var app = builder.Build();
 app.UseCors("AllowSpecificAndDynamicOrigins");
