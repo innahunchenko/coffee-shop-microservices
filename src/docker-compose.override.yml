@@ -20,16 +20,16 @@ services:
 
   catalog.api:
     container_name: catalog-api
-    #environment:
+    environment:
      # ASPNETCORE_ENVIRONMENT: Development
-     # ASPNETCORE_URLS: "http://+:8080"
+     ASPNETCORE_URLS: "http://+:80"
      # ConnectionStrings__Products: "Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - catalogdb
       #- distributedcache
     ports:
-      - "7000:8080"
-      - "7070:8081"
+      - "7000:80"
+      - "7070:81"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
@@ -114,14 +114,14 @@ services:
     container_name: api-gateway
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_URLS: "http://+:80"
     depends_on:
       - catalog.api
       - shoppingCart.api
       - auth.api
     ports:
-      - "7005:8080"
-      - "7075:8081"
+      - "7005:80"
+      - "7075:81"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
