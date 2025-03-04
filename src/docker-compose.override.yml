@@ -22,14 +22,14 @@ services:
     container_name: catalog-api
     environment:
      # ASPNETCORE_ENVIRONMENT: Development
-     ASPNETCORE_URLS: "http://+:8080"
+     ASPNETCORE_URLS: "http://+:80"
      # ConnectionStrings__Products: "Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - catalogdb
       #- distributedcache
     ports:
-      - "7000:8080"
-      - "7070:8081"
+      - "7000:80"
+      - "7070:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
@@ -113,7 +113,8 @@ services:
   apigateway:
     container_name: api-gateway
     environment:
-      ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address: "http://catalog-api:8080"
+      ASPNETCORE_URLS: "http://+:80"
+      ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address: "http://catalog-api:80"
       ReverseProxy__Clusters__shoppingCart-cluster__Destinations__destination1__Address: "http://shopping-cart-api:8080"
       ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address: "http://ordering-api:8080"
       ReverseProxy__Clusters__auth-cluster__Destinations__destination1__Address: "http://auth-api:8080"
@@ -123,8 +124,8 @@ services:
       - shoppingCart.api
       - auth.api
     ports:
-      - "7005:8080"
-      - "7075:8081"
+      - "7005:80"
+      - "7075:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro

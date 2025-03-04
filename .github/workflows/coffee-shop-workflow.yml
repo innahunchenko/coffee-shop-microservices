@@ -8,7 +8,7 @@ on:
 
 env:
   DOTNET_CORE_VERSION: 7.0.x
-  RESOURCE_GROUP: coffeeshop
+  RESOURCE_GROUP: backend
   CONTAINER_REGISTRY_NAME: coffeshopbackend
   CONTAINER_REGISTRY_LOGIN_SERVER: coffeshopbackend.azurecr.io
   CONTAINER_APP_NAME: coffee-shop-backend
