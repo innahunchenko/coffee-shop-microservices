@@ -52,14 +52,14 @@ jobs:
 
             docker-compose -f ./src/docker-compose.yml push
 
-            # Import base images
-            #az acr import --name ${CONTAINER_REGISTRY_NAME} --source docker.io/library/postgres:latest --image postgres
-            # az acr import --name ${CONTAINER_REGISTRY_NAME} --source docker.io/library/redis:latest --image redis
-            # az acr import --name ${CONTAINER_REGISTRY_NAME} --source mcr.microsoft.com/mssql/server:2019-latest --image catalogdb
-
-            
+            Import base images
+            az acr import --name ${CONTAINER_REGISTRY_NAME} --source docker.io/library/postgres:latest --image postgres
+            az acr import --name ${CONTAINER_REGISTRY_NAME} --source docker.io/library/redis:latest --image redis
+            #az acr import --name ${CONTAINER_REGISTRY_NAME} --source mcr.microsoft.com/mssql/server:2019-latest --image catalogdb            
             #az acr import --name ${CONTAINER_REGISTRY_NAME} --source mcr.microsoft.com/mssql/server:2019-latest --image orderdb
             #az acr import --name ${CONTAINER_REGISTRY_NAME} --source mcr.microsoft.com/mssql/server:2019-latest --image identitydb
+            
+            
             # docker images
 
             # docker tag mcr.microsoft.com/mssql/server:2019-latest coffeeshopbackend.azurecr.io/mssql/server:2019-latest

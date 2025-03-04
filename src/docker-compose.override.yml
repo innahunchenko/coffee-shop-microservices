@@ -51,7 +51,8 @@ services:
     container_name: shopping-cart-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_URLS: "http://+:80"
+      ApiSettings__GatewayAddress: "http://api-gateway:80"
       ConnectionStrings__Database: "Host=shoppingcartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
       ConnectionStrings__Redis: "distributedcache:6379"
       MessageBroker__Host: rabbitmq://ecommerce-mq:5672
@@ -62,8 +63,8 @@ services:
       - distributedcache
       - messagebroker
     ports:
-      - "7001:8080"
-      - "7071:8081"
+      - "7001:80"
+      - "7071:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
@@ -84,7 +85,7 @@ services:
     container_name: ordering-api
     environment:
         ASPNETCORE_ENVIRONMENT: Development
-        ASPNETCORE_URLS: "http://+:8080"
+        ASPNETCORE_URLS: "http://+:80"
         ConnectionStrings__Database: Server=orderdb;Database=CoffeeShop_Order;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True
         MessageBroker__Host: rabbitmq://ecommerce-mq:5672
         MessageBroker__UserName: guest
@@ -94,8 +95,8 @@ services:
       - orderdb
       - messagebroker
     ports:
-      - "7002:8080"
-      - "7072:8081"
+      - "7002:80"
+      - "7072:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
@@ -115,9 +116,9 @@ services:
     environment:
       ASPNETCORE_URLS: "http://+:80"
       ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address: "http://catalog-api:80"
-      ReverseProxy__Clusters__shoppingCart-cluster__Destinations__destination1__Address: "http://shopping-cart-api:8080"
-      ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address: "http://ordering-api:8080"
-      ReverseProxy__Clusters__auth-cluster__Destinations__destination1__Address: "http://auth-api:8080"
+      ReverseProxy__Clusters__shoppingCart-cluster__Destinations__destination1__Address: "http://shopping-cart-api:80"
+      ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address: "http://ordering-api:80"
+      ReverseProxy__Clusters__auth-cluster__Destinations__destination1__Address: "http://auth-api:80"
 
     depends_on:
       - catalog.api
@@ -145,14 +146,14 @@ services:
     container_name: auth-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_URLS: "http://+:80"
       ConnectionStrings__Database: "Server=identitydb;Database=CoffeeShop_Identity;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - identitydb
       - distributedcache
     ports:
-      - "7007:8080"
-      - "7077:8081"
+      - "7007:80"
+      - "7077:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro 
