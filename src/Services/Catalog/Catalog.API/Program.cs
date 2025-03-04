@@ -60,3 +60,5 @@ app.UseExceptionHandler(options => { });
 await app.InitialiseDatabaseAsync();
 
 app.Run();
+
+Console.WriteLine("FROM CATALOG API!!");

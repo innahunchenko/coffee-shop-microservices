@@ -1,5 +1,6 @@
 using ApiGateway;
 using Foundation.Abstractions.Services;
+using Microsoft.Extensions.Configuration;
 using Yarp.ReverseProxy.Configuration;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,7 +71,24 @@ app.UseRouting();
 app.MapReverseProxy();
 //app.UseHttpsRedirection();
 
+Console.WriteLine(builder.Configuration.GetValue<string>("ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address"));
+//Console.WriteLine(builder.Configuration.GetValue<string>("ReverseProxy__Clusters__shoppingCart-cluster__Destinations__destination1__Address"));
+
+
+var proxyConfigProvider = app.Services.GetRequiredService<IProxyConfigProvider>();
+var config = proxyConfigProvider.GetConfig();
+foreach (var cluster in config.Clusters)
+{
+    Console.WriteLine($"Cluster: {cluster.ClusterId}");
+    foreach (var destination in cluster.Destinations)
+    {
+        Console.WriteLine($"  Destination: {destination.Key}, Address: {destination.Value.Address}");
+    }
+}
+
 app.Run();
+
+Console.WriteLine("FROM API GATEWAY!!");
 
 /*
 static IEnumerable<RouteConfig> GetRoutes()
