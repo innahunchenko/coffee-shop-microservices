@@ -1,7 +1,6 @@
 using Catalog.Infrastructure;
 using Catalog.Infrastructure.Data;
 using Catalog.Application;
-using Foundation.Exceptions;
 using Carter;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,18 +14,11 @@ builder.Services
 
 builder.Services.AddControllers();
 builder.Services.AddCarter();
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowSpecificAndDynamicOrigins", builder =>
-//    {
-//        builder.WithOrigins("https://4e97-188-163-68-200.ngrok-free.app")
-//        .AllowAnyMethod()
-//        .AllowAnyHeader()
-//        .AllowCredentials();
-//    });
-//});
 
-builder.Services.AddExceptionHandler<CustomExceptionHandler>();
+builder.Configuration.AddEnvironmentVariables();
+
+
+//builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
 //builder.WebHost.ConfigureKestrel(options =>
 //{
@@ -55,6 +47,7 @@ builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 //});
 
 var app = builder.Build();
+//app.MapGet("/", () => Results.Redirect("/categories"));
 app.UseCors("AllowSpecificAndDynamicOrigins");
 app.MapCarter();
 app.UseStaticFiles();

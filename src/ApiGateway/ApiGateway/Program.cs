@@ -1,9 +1,26 @@
 using ApiGateway;
 using Foundation.Abstractions.Services;
-
+using Yarp.ReverseProxy.Configuration;
 var builder = WebApplication.CreateBuilder(args);
+
+//builder.Services.AddReverseProxy()
+//    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+//var routes = GetRoutes().ToList();
+//var clusters = GetClusters().ToList();
+
+//builder.Services.AddReverseProxy()
+//    .LoadFromMemory(routes, clusters);
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables(); 
+
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+
+
 builder.Services.AddHttpContextAccessor();
 builder.Configuration.AddUserSecrets<Program>();
 builder.Services.AddSingleton<ICookieService, CookieService>();
@@ -54,3 +71,93 @@ app.MapReverseProxy();
 //app.UseHttpsRedirection();
 
 app.Run();
+
+/*
+static IEnumerable<RouteConfig> GetRoutes()
+{
+    return
+    [
+        new RouteConfig
+        {
+            RouteId = "catalog-route",
+            ClusterId = "catalog-cluster",
+            Match = new RouteMatch
+            {
+                Path = "/catalog/{**catch-all}"
+            }
+        },
+        new RouteConfig
+        {
+            RouteId = "shoppingCart-route",
+            ClusterId = "shoppingCart-cluster",
+            Match = new RouteMatch
+            {
+                Path = "/cart/{**catch-all}"
+            }
+        },
+        new RouteConfig
+        {
+            RouteId = "ordering-route",
+            ClusterId = "ordering-cluster",
+            Match = new RouteMatch
+            {
+                Path = "/ordering/{**catch-all}"
+            }
+        },
+        new RouteConfig
+        {
+            RouteId = "auth-route",
+            ClusterId = "auth-cluster",
+            Match = new RouteMatch
+            {
+                Path = "/auth/{**catch-all}"
+            }
+        }
+    ];
+}
+
+static IReadOnlyList<ClusterConfig> GetClusters()
+{
+    return new List<ClusterConfig>
+    {
+        new ClusterConfig
+        {
+            ClusterId = "catalog-cluster",
+            Destinations = new Dictionary<string, DestinationConfig>
+            {
+                { "destination1", new DestinationConfig { Address = GetEnvironmentVariable("CATALOG_API_URL") } }
+            }
+        },
+        new ClusterConfig
+        {
+            ClusterId = "shoppingCart-cluster",
+            Destinations = new Dictionary<string, DestinationConfig>
+            {
+                { "destination1", new DestinationConfig { Address = GetEnvironmentVariable("SHOPPING_CART_API_URL") } }
+            }
+        },
+        new ClusterConfig
+        {
+            ClusterId = "ordering-cluster",
+            Destinations = new Dictionary<string, DestinationConfig>
+            {
+                { "destination1", new DestinationConfig { Address = GetEnvironmentVariable("ORDERING_API_URL") } }
+            }
+        },
+        new ClusterConfig
+        {
+            ClusterId = "auth-cluster",
+            Destinations = new Dictionary<string, DestinationConfig>
+            {
+                { "destination1", new DestinationConfig { Address = GetEnvironmentVariable("AUTH_API_URL") } }
+            }
+        }
+    };
+}
+
+static string GetEnvironmentVariable(string variableName)
+{
+    return Environment.GetEnvironmentVariable(variableName) 
+        ?? throw new InvalidOperationException($"Environment variable {variableName} is not set.");
+}
+*/

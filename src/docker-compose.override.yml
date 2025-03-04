@@ -12,11 +12,11 @@ services:
     volumes:
       - mssql_catalog:/var/opt/mssql
 
-  # distributedcache:
-  #   container_name: distributed-cache
-  #   restart: always
-  #   ports:
-  #     - "6379:6379" 
+  distributedcache:
+    container_name: distributed-cache
+    restart: always
+    ports:
+      - "6379:6379" 
 
   catalog.api:
     container_name: catalog-api
@@ -52,14 +52,14 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:8080"
-      # ConnectionStrings__Database: "Host=shoppingcartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
-      # ConnectionStrings__Redis: "distributedcache:6379"
-      # MessageBroker__Host: rabbitmq://ecommerce-mq:5672
-      # MessageBroker__UserName: guest
-      # MessageBroker__Password: guest
+      ConnectionStrings__Database: "Host=shoppingcartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
+      ConnectionStrings__Redis: "distributedcache:6379"
+      MessageBroker__Host: rabbitmq://ecommerce-mq:5672
+      MessageBroker__UserName: guest
+      MessageBroker__Password: guest
     depends_on:
       - shoppingCartdb
-      #- distributedcache
+      - distributedcache
       - messagebroker
     ports:
       - "7001:8080"
@@ -85,11 +85,11 @@ services:
     environment:
         ASPNETCORE_ENVIRONMENT: Development
         ASPNETCORE_URLS: "http://+:8080"
-        # ConnectionStrings__Database: Server=orderdb;Database=CoffeeShop_Order;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True
-        # MessageBroker__Host: rabbitmq://ecommerce-mq:5672
-        # MessageBroker__UserName: guest
-        # MessageBroker__Password: guest
-        # FeatureManagement__OrderFullfilment: false
+        ConnectionStrings__Database: Server=orderdb;Database=CoffeeShop_Order;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True
+        MessageBroker__Host: rabbitmq://ecommerce-mq:5672
+        MessageBroker__UserName: guest
+        MessageBroker__Password: guest
+        FeatureManagement__OrderFullfilment: false
     depends_on:
       - orderdb
       - messagebroker
@@ -113,8 +113,11 @@ services:
   apigateway:
     container_name: api-gateway
     environment:
-      #ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: "http://+:8080"
+      ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address: "http://catalog-api:8080"
+      ReverseProxy__Clusters__shoppingCart-cluster__Destinations__destination1__Address: "http://shopping-cart-api:8080"
+      ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address: "http://ordering-api:8080"
+      ReverseProxy__Clusters__auth-cluster__Destinations__destination1__Address: "http://auth-api:8080"
+
     depends_on:
       - catalog.api
       - shoppingCart.api
@@ -142,10 +145,10 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:8080"
-      #ConnectionStrings__Database: "Server=identitydb;Database=CoffeeShop_Identity;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
+      ConnectionStrings__Database: "Server=identitydb;Database=CoffeeShop_Identity;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - identitydb
-    #  - distributedcache
+      - distributedcache
     ports:
       - "7007:8080"
       - "7077:8081"
