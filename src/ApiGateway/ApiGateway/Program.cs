@@ -64,6 +64,7 @@ builder.Services.AddSingleton<ICookieService, CookieService>();
 //});
 
 var app = builder.Build();
+app.MapGet("/", () => Results.Redirect("/catalog"));
 app.UseCors("AllowSpecificAndDynamicOrigins");
 app.UseMiddleware<TokenMiddleware>();
 app.UseRouting();
