@@ -47,7 +47,7 @@ builder.Configuration.AddEnvironmentVariables();
 //});
 
 var app = builder.Build();
-app.MapGet("/", () => Results.Redirect("/categories"));
+//app.MapGet("/", () => Results.Redirect("/categories"));
 app.UseCors("AllowSpecificAndDynamicOrigins");
 app.MapCarter();
 app.UseStaticFiles();
