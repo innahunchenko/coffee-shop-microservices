@@ -2,6 +2,18 @@ using ApiGateway;
 using Foundation.Abstractions.Services;
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular",
+        policy =>
+        {
+            policy.WithOrigins("https://angular-app.politeglacier-1c984408.polandcentral.azurecontainerapps.io")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        });
+});
+
 //builder.Services.AddReverseProxy()
 //    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
@@ -61,7 +73,7 @@ builder.Services.AddSingleton<ICookieService, CookieService>();
 
 var app = builder.Build();
 //app.MapGet("/", () => Results.Redirect("/catalog"));
-app.UseCors("AllowSpecificAndDynamicOrigins");
+app.UseCors("AllowAngular");
 app.UseMiddleware<TokenMiddleware>();
 app.UseRouting();
 
