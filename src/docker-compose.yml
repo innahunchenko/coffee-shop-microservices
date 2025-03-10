@@ -4,8 +4,8 @@ services:
   # catalogdb:
   #   image: mcr.microsoft.com/mssql/server:2019-latest
 
-  distributedcache:
-    image: redis
+  # distributedcache:
+  #   image: redis
 
   catalog.api:
     build:
@@ -16,17 +16,17 @@ services:
         TAG: ${TAG}
     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
 
-  shoppingCartdb:
-    image: postgres
+  # shoppingCartdb:
+  #   image: postgres
     
-  shoppingCart.api:
-    build:
-      context: .
-      dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
-      args:
-        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-        TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
+  # shoppingCart.api:
+  #   build:
+  #     context: .
+  #     dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
+  #     args:
+  #       CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #       TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
   
   # messagebroker:
   #   image: rabbitmq:management
