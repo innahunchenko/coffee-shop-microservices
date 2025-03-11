@@ -40,8 +40,8 @@ services:
   #       TAG: ${TAG}
   #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/apigateway:${TAG}
 
-  # orderdb:
-  #   image: mcr.microsoft.com/mssql/server
+  orderdb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
 
   # ordering.api:
   #   build:
