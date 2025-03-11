@@ -30,9 +30,15 @@ builder.Services.AddCarter();
 
 builder.Services.AddSingleton<IDocumentStore>(provider =>
 {
+    var connectionString = $"Host={Environment.GetEnvironmentVariable("PGHOST")};" +
+                           $"Username={Environment.GetEnvironmentVariable("PGUSER")};" +
+                           $"Password={Environment.GetEnvironmentVariable("PGPASSWORD")};" +
+                           $"Port={Environment.GetEnvironmentVariable("PGPORT")};" +
+                           $"Database={Environment.GetEnvironmentVariable("PGDATABASE")}";
+
     return DocumentStore.For(opts =>
     {
-        opts.Connection(builder.Configuration.GetConnectionString("Database")!);
+        opts.Connection(connectionString);
         opts.Schema.Include<CartConfiguration>();
     });
 });
@@ -86,45 +92,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<CheckoutCartRequestValidato
 
 builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowSpecificAndDynamicOrigins", builder =>
-//    {
-//        builder.WithOrigins("https://4e97-188-163-68-200.ngrok-free.app")
-//        .AllowAnyMethod()
-//        .AllowAnyHeader()
-//        .AllowCredentials();
-//    });
-//});
-
-
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
-
-//builder.WebHost.ConfigureKestrel(options =>
-//{
-//    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
-//    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
-//    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
-//    options.ListenAnyIP(8081, listenOptions =>
-//    {
-//        listenOptions.UseHttps(httpsOptions =>
-//        {
-//            httpsOptions.ServerCertificateSelector = (context, name) =>
-//            {
-//                if (name == "shopping-cart-api")
-//                {
-//                    return X509Certificate2.CreateFromPemFile(
-//                        "/https/shopping-cart-api.crt",
-//                        "/https/shopping-cart-api.key");
-//                }
-//                else
-//                {
-//                    return defaultCertificate;
-//                }
-//            };
-//        });
-//    });
-//});
 
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
 builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
