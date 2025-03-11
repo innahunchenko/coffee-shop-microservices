@@ -37,7 +37,7 @@ namespace Foundation.Abstractions.Services
             {
                 Expires = dateTimeOffset,
                 HttpOnly = true,
-                Secure = false,
+                Secure = true,
                 SameSite = SameSiteMode.None
             };
 
