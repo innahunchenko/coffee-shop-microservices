@@ -40,17 +40,17 @@ services:
   #       TAG: ${TAG}
   #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/apigateway:${TAG}
 
-  orderdb:
-    image: mcr.microsoft.com/mssql/server:2019-latest
+  # orderdb:
+  #   image: mcr.microsoft.com/mssql/server:2019-latest
 
-  # ordering.api:
-  #   build:
-  #     context: .
-  #     dockerfile: Services/Ordering/Ordering.API/Dockerfile
-  #     args:
-  #       CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-  #       TAG: ${TAG}
-  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${TAG}
+  ordering.api:
+    build:
+      context: .
+      dockerfile: Services/Ordering/Ordering.API/Dockerfile
+      args:
+        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+        TAG: ${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${TAG}
   
   # identitydb:
   #   image: mcr.microsoft.com/mssql/server:2019-latest

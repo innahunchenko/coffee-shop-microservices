@@ -32,7 +32,8 @@ namespace Ordering.API.Data.Configurations
                 .IsRequired()
                 .HasConversion(
                     productName => productName.Value, 
-                    value => ProductName.From(value)); 
+                    value => ProductName.From(value));
+            builder.Property(o => o.Price).HasColumnType("decimal(18,2)");
 
             builder.Property(oi => oi.Quantity).IsRequired();
             builder.Property(oi => oi.Price).IsRequired();

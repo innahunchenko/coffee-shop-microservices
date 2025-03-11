@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Ordering.API.Domain.Models;
 using Ordering.API.Domain.ValueObjects.OrderObjects;
+using System.Reflection.Emit;
 
 namespace Ordering.API.Data.Configurations
 {
@@ -10,6 +11,7 @@ namespace Ordering.API.Data.Configurations
         public void Configure(EntityTypeBuilder<Order> builder)
         {
             builder.HasKey(o => o.Id);
+            builder.Property(o => o.TotalPrice).HasColumnType("decimal(18,2)");
             builder.Property(o => o.Id).HasConversion(orderId => orderId.Value, dbId => OrderId.From(dbId));
             builder.Property(o => o.OrderName).HasConversion(orderName => orderName.Value, dbOrderName => OrderName.From(dbOrderName));
             builder.HasMany(o => o.OrderItems).WithOne().HasForeignKey(oi => oi.OrderId);
