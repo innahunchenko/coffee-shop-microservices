@@ -30,15 +30,9 @@ builder.Services.AddCarter();
 
 builder.Services.AddSingleton<IDocumentStore>(provider =>
 {
-    var connectionString = $"Host={Environment.GetEnvironmentVariable("PGHOST")};" +
-                           $"Username={Environment.GetEnvironmentVariable("PGUSER")};" +
-                           $"Password={Environment.GetEnvironmentVariable("PGPASSWORD")};" +
-                           $"Port={Environment.GetEnvironmentVariable("PGPORT")};" +
-                           $"Database={Environment.GetEnvironmentVariable("PGDATABASE")}";
-
     return DocumentStore.For(opts =>
     {
-        opts.Connection(connectionString);
+        opts.Connection(builder.Configuration.GetConnectionString("Database")!);
         opts.Schema.Include<CartConfiguration>();
     });
 });

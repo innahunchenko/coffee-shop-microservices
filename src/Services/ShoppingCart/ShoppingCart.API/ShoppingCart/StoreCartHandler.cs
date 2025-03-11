@@ -9,7 +9,7 @@ namespace ShoppingCart.API.ShoppingCart
     {
         public Task<Cart> Handle(StoreCartRequest request, CancellationToken cancellationToken)
         {
-            return service.StoreCartAsync(request.Selections, cancellationToken);
+            return Task.FromResult(service.StoreCart(request.Selections));
         }
     }
 }

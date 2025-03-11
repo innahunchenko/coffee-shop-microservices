@@ -11,31 +11,31 @@ public class ShoppingCartRepository : IShoppingCartRepository
         this.session = session;
     }
 
-    public async Task<Cart?> GetCartByUserIdAsync(string userId, CancellationToken cancellationToken)
+    public Cart? GetCartByUserId(string userId)
     {
-        return await session
+        return session
             .Query<Cart>()
             .Where(c => c.UserId == userId)
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefault();
     }
 
-    public async Task<Cart?> GetCartByCartIdAsync(string cartId, CancellationToken cancellationToken)
+    public Cart? GetCartByCartId(string cartId)
     {
-        return await session
+        return session
             .Query<Cart>()
             .Where(c => c.CartId == cartId)
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefault();
     }
 
-    public async Task StoreCartAsync(Cart cart, CancellationToken cancellationToken)
+    public void StoreCart(Cart cart)
     {
         session.Store(cart);
-        await session.SaveChangesAsync(cancellationToken);
+        session.SaveChanges();
     }
 
-    public async Task DeleteCartAsync(Guid shoppingCartId, CancellationToken cancellationToken)
+    public void DeleteCart(Guid shoppingCartId)
     {
         session.Delete<Cart>(shoppingCartId);
-        await session.SaveChangesAsync(cancellationToken);
+        session.SaveChanges();
     }
 }
