@@ -33,6 +33,7 @@ builder.Services.AddScoped<IRedisCacheRepository, RedisCacheRepository>(provider
 });
 
 var connectionString = builder.Configuration.GetConnectionString("OrdersConnection");
+Console.WriteLine(connectionString);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<ICommandFactory, OrdersCommandFactory>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
