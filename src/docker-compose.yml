@@ -7,14 +7,14 @@ services:
   # distributedcache:
   #   image: redis
 
-  catalog.api:
-    build:
-      context: .
-      dockerfile: Services/Catalog/Catalog.API/Dockerfile
-      args:
-        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-        TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
+  # catalog.api:
+  #   build:
+  #     context: .
+  #     dockerfile: Services/Catalog/Catalog.API/Dockerfile
+  #     args:
+  #       CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #       TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
 
   # shoppingCartdb:
   #   image: postgres
@@ -43,26 +43,26 @@ services:
   # orderdb:
   #   image: mcr.microsoft.com/mssql/server
 
-  ordering.api:
-    build:
-      context: .
-      dockerfile: Services/Ordering/Ordering.API/Dockerfile
-      args:
-        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-        TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${TAG}
+  # ordering.api:
+  #   build:
+  #     context: .
+  #     dockerfile: Services/Ordering/Ordering.API/Dockerfile
+  #     args:
+  #       CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #       TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${TAG}
   
   # identitydb:
   #   image: mcr.microsoft.com/mssql/server:2019-latest
 
-  auth.api:
-    build:
-      context: .
-      dockerfile: Services/Auth/Auth.API/Dockerfile
-      args:
-        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-        TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${TAG}
+  # auth.api:
+  #   build:
+  #     context: .
+  #     dockerfile: Services/Auth/Auth.API/Dockerfile
+  #     args:
+  #       CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #       TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${TAG}
 
 volumes:
   mssql_catalog:
