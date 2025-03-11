@@ -23,29 +23,29 @@ namespace Catalog.Infrastructure
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
         {
-            //var redisConnectionString = configuration.GetValue<string>("CacheSettings:RedisConnectionString");
-            //Console.WriteLine(redisConnectionString);
-            //var expiryTime = TimeSpan.FromMinutes(configuration.GetValue<double>("CacheSettings:DefaultCacheDurationMinutes"));
-            //var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConnectionString!);
-            //services.AddSingleton(connectionMultiplexer);
-            //services.AddScoped<IRedisCacheRepository, RedisCacheRepository>(provider =>
-            //{
-            //    var multiplexer = provider.GetRequiredService<ConnectionMultiplexer>();
-            //    return new RedisCacheRepository(multiplexer, expiryTime);
-            //});
+            var redisConnectionString = configuration.GetValue<string>("CacheSettings:RedisConnectionString");
+            Console.WriteLine(redisConnectionString);
+            var expiryTime = TimeSpan.FromMinutes(configuration.GetValue<double>("CacheSettings:DefaultCacheDurationMinutes"));
+            var connectionMultiplexer = ConnectionMultiplexer.Connect(redisConnectionString!);
+            services.AddSingleton(connectionMultiplexer);
+            services.AddScoped<IRedisCacheRepository, RedisCacheRepository>(provider =>
+            {
+                var multiplexer = provider.GetRequiredService<ConnectionMultiplexer>();
+                return new RedisCacheRepository(multiplexer, expiryTime);
+            });
 
             var connectionString = configuration.GetConnectionString("ProductsConnection");
             Console.WriteLine(connectionString);
             services.AddHttpContextAccessor();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductService, ProductService>();
-         //   services.AddScoped<IProductCacheService, ProductCacheService>();
-         //   services.Decorate<IProductService, ProductServiceCacheDecorator>();
+            services.AddScoped<IProductCacheService, ProductCacheService>();
+            services.Decorate<IProductService, ProductServiceCacheDecorator>();
 
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ICategoryService, CategoryService>();
-            //services.AddScoped<ICategoryCacheService, CategoryCacheService>();
-            //services.Decorate<ICategoryService, CategoryServiceCacheDecorator>();
+            services.AddScoped<ICategoryCacheService, CategoryCacheService>();
+            services.Decorate<ICategoryService, CategoryServiceCacheDecorator>();
 
             services.AddScoped<ISaveChangesInterceptor, SaveEntityInterceptor>();
             services.AddDbContext<AppDbContext>((sp, options) =>

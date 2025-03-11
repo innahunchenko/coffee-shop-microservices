@@ -7,29 +7,29 @@ services:
   # distributedcache:
   #   image: redis
 
-  # catalog.api:
-  #   build:
-  #     context: .
-  #     dockerfile: Services/Catalog/Catalog.API/Dockerfile
-  #     args:
-  #       CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-  #       TAG: ${TAG}
-  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
-
-  shoppingCartdb:
-    image: postgres
-    
-  shoppingCart.api:
+  catalog.api:
     build:
       context: .
-      dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
+      dockerfile: Services/Catalog/Catalog.API/Dockerfile
       args:
         CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
         TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
+
+  # shoppingCartdb:
+  #   image: postgres
+    
+  # shoppingCart.api:
+  #   build:
+  #     context: .
+  #     dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
+  #     args:
+  #       CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #       TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
   
-  messagebroker:
-    image: rabbitmq:management
+  # messagebroker:
+  #   image: rabbitmq:management
 
   # apigateway:
   #   build:
@@ -43,26 +43,26 @@ services:
   # orderdb:
   #   image: mcr.microsoft.com/mssql/server
 
-  # ordering.api:
-  #   build:
-  #     context: .
-  #     dockerfile: Services/Ordering/Ordering.API/Dockerfile
-  #     args:
-  #       CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-  #       TAG: ${TAG}
-  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${TAG}
+  ordering.api:
+    build:
+      context: .
+      dockerfile: Services/Ordering/Ordering.API/Dockerfile
+      args:
+        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+        TAG: ${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${TAG}
   
   # identitydb:
   #   image: mcr.microsoft.com/mssql/server:2019-latest
 
-  # auth.api:
-  #   build:
-  #     context: .
-  #     dockerfile: Services/Auth/Auth.API/Dockerfile
-  #     args:
-  #       CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-  #       TAG: ${TAG}
-  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${TAG}
+  auth.api:
+    build:
+      context: .
+      dockerfile: Services/Auth/Auth.API/Dockerfile
+      args:
+        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+        TAG: ${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${TAG}
 
 volumes:
   mssql_catalog:
