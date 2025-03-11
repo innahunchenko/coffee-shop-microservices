@@ -73,7 +73,6 @@ namespace Auth.API.Controllers
         }
 
         [HttpGet("check-auth-status")]
-        [Authorize]
         public IActionResult CheckAuthenticationStatus(CancellationToken ct)
         {
             var isLoggedInUser = User?.Identity?.IsAuthenticated ?? false;
