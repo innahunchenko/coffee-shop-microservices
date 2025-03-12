@@ -67,8 +67,9 @@ namespace Auth.API.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync();
             cookieService.ClearData(tokenCookieKey);
+            Console.WriteLine("cookie deleted");
+            await HttpContext.SignOutAsync();
             return Ok(true);
         }
 

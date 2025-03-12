@@ -19,14 +19,14 @@ services:
   # shoppingCartdb:
   #   image: postgres
     
-  shoppingCart.api:
-    build:
-      context: .
-      dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
-      args:
-        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-        TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
+  # shoppingCart.api:
+  #   build:
+  #     context: .
+  #     dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
+  #     args:
+  #       CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #       TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
   
   # messagebroker:
   #   image: rabbitmq:management
@@ -55,14 +55,14 @@ services:
   # identitydb:
   #   image: mcr.microsoft.com/mssql/server:2019-latest
 
-  # auth.api:
-  #   build:
-  #     context: .
-  #     dockerfile: Services/Auth/Auth.API/Dockerfile
-  #     args:
-  #       CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-  #       TAG: ${TAG}
-  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${TAG}
+  auth.api:
+    build:
+      context: .
+      dockerfile: Services/Auth/Auth.API/Dockerfile
+      args:
+        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+        TAG: ${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${TAG}
 
 volumes:
   mssql_catalog:
