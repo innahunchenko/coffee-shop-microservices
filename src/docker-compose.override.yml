@@ -35,17 +35,17 @@ services:
       - ${USERPROFILE}/.aspnet/https:/https:ro
      # - ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates:/usr/local/share/ca-certificates/
 
-  shoppingCartdb:
-    container_name: shopping-cart-db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ShoppingCartDb
-    restart: always
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_shoppingcart:/var/lib/postgresql/data/
+  # shoppingCartdb:
+  #   container_name: shopping-cart-db
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: postgres
+  #     POSTGRES_DB: ShoppingCartDb
+  #   restart: always
+  #   ports:
+  #     - "5433:5432"
+  #   volumes:
+  #     - postgres_shoppingcart:/var/lib/postgresql/data/
 
   shoppingCart.api:
     container_name: shopping-cart-api
@@ -53,13 +53,18 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: "http://+:80"
       ApiSettings__GatewayAddress: "http://api-gateway:80"
-      ConnectionStrings__Database: "Host=shoppingcartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
+      ConnectionStrings__Database: "Host=server-for-postgres.postgres.database.azure.com;Port=5432;Database=postgres;Username=coffeeshop;Password=MyPass123!"
       ConnectionStrings__Redis: "distributedcache:6379"
       MessageBroker__Host: rabbitmq://ecommerce-mq:5672
       MessageBroker__UserName: guest
       MessageBroker__Password: guest
+      # PGHOST: server-for-postgres.postgres.database.azure.com
+      # PGUSER: coffeeshop
+      # PGPORT: 5432
+      # PGDATABASE: postgres
+      # PGPASSWORD: "MyPass123!" 
     depends_on:
-      - shoppingCartdb
+      #- shoppingCartdb
       - distributedcache
       - messagebroker
     ports:
