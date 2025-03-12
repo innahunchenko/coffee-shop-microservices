@@ -28,10 +28,10 @@ namespace ShoppingCart.API.Services
 
         public string GenerateUniqueId() => Guid.NewGuid().ToString();
 
-        public Cart GetOrCreateCart()
+        public async Task<Cart> GetOrCreateCartAsync(CancellationToken cancellationToken)
         {
-            var cart = GetCart()
-                ?? CreateNewCart();
+            var cart = await GetCartAsync(cancellationToken)
+                ?? await CreateNewCartAsync(cancellationToken);
 
             if (cart == null)
                 throw new NotFoundException("Cannot find the shopping cart");
@@ -39,7 +39,7 @@ namespace ShoppingCart.API.Services
             return cart;
         }
 
-        private Cart? GetCart()
+        private async Task<Cart?> GetCartAsync(CancellationToken cancellationToken)
         {
             Cart? cart = null;
             string cartId;
@@ -49,23 +49,23 @@ namespace ShoppingCart.API.Services
                 return cart;
 
             cartId = secureTokenService.DecodeCartId(cartIdFromCookie!).ToString();
-            cart = cartRepository.GetCartByCartId(cartId!);
+            cart = await cartRepository.GetCartByCartIdAsync(cartId!, cancellationToken);
             return cart;
         }
 
-        private Cart CreateNewCart()
+        private async Task<Cart> CreateNewCartAsync(CancellationToken cancellationToken)
         {
             var cartId = GenerateUniqueId();
             var cart = new Cart { CartId = cartId };
             var encodedCartId = secureTokenService.EncodeCartId(Guid.Parse(cartId));
             cookieService.SetData(cookieKey, encodedCartId, dateTimeOffset);
-            cartRepository.StoreCart(cart);
+            await cartRepository.StoreCartAsync(cart, cancellationToken);
             return cart;
         }
 
-        public Cart StoreCart(IList<ProductSelection> productSelections)
+        public async Task<Cart> StoreCartAsync(IList<ProductSelection> productSelections, CancellationToken cancellationToken)
         {
-            var cart = GetOrCreateCart();
+            var cart = await GetOrCreateCartAsync(cancellationToken);
             
             if (cart == null)
             {
@@ -76,7 +76,7 @@ namespace ShoppingCart.API.Services
                 .Select(p => Guid.Parse(p.ProductId))
                 .ToList();
 
-            var products = catalogService.GetProductsByIdsAsync(productIds).GetAwaiter().GetResult();
+            var products = await catalogService.GetProductsByIdsAsync(productIds);
 
             foreach (var selection in productSelections)
             {
@@ -86,13 +86,13 @@ namespace ShoppingCart.API.Services
             }
 
             cart.Selections = productSelections.ToList();
-            cartRepository.StoreCart(cart);
+            await cartRepository.StoreCartAsync(cart, cancellationToken);
             return cart;
         }
 
-        public void DeleteCart(Guid shoppingCartId)
+        public async Task DeleteCartAsync(Guid shoppingCartId, CancellationToken cancellationToken)
         {
-            cartRepository.DeleteCart(shoppingCartId);
+            await cartRepository.DeleteCartAsync(shoppingCartId, cancellationToken);
         }
     }
 }

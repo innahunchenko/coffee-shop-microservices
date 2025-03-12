@@ -17,7 +17,7 @@ namespace ShoppingCart.API.ShoppingCart
     {
         public async Task<IResult> Handle(CheckoutCartRequest checkoutCartRequest, CancellationToken cancellationToken)
         {
-            var cart = service.GetOrCreateCart();
+            var cart = await service.GetOrCreateCartAsync(cancellationToken);
             var userId = userContext.GetUserId();
             var eventMessage = new CartCheckoutEvent()
             {
@@ -46,7 +46,7 @@ namespace ShoppingCart.API.ShoppingCart
             }
 
             await publishEndpoint.Publish(eventMessage, cancellationToken);
-            service.DeleteCart(cart.Id);
+            await service.DeleteCartAsync(cart.Id, cancellationToken);
             return Results.Ok();
         }
     }

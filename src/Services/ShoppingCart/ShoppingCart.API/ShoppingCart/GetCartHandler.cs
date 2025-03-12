@@ -8,10 +8,9 @@ namespace ShoppingCart.API.ShoppingCart
 
     public sealed class GetCartHandler(IShoppingCartService service) : IRequestHandler<GetCartRequest, Cart>
     {
-        public Task<Cart> Handle(GetCartRequest request, CancellationToken cancellationToken)
+        public async Task<Cart> Handle(GetCartRequest request, CancellationToken cancellationToken)
         {
-            Cart result = service.GetOrCreateCart();
-            return Task.FromResult(result);
+            return await service.GetOrCreateCartAsync(cancellationToken);
         }
     }
 }

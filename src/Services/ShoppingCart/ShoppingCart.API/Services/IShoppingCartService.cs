@@ -4,8 +4,8 @@ namespace ShoppingCart.API.Services
 {
     public interface IShoppingCartService
     {
-        Cart GetOrCreateCart();
-        Cart StoreCart(IList<ProductSelection> productSelections);
-        void DeleteCart(Guid shoppingCartId);
+        Task<Cart> GetOrCreateCartAsync(CancellationToken cancellationToken);
+        Task<Cart> StoreCartAsync(IList<ProductSelection> productSelections, CancellationToken cancellationToken);
+        Task DeleteCartAsync(Guid shoppingCartId, CancellationToken cancellationToken);
     }
 }
