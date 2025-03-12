@@ -2,18 +2,18 @@ using ApiGateway;
 using Foundation.Abstractions.Services;
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowAngular",
-//        policy =>
-//        {
-//           policy.WithOrigins("https://coffeesshop.org/")
-//            //policy.WithOrigins("http://localhost:4200")
-//                  .AllowAnyMethod()
-//                  .AllowAnyHeader()
-//                  .AllowCredentials();
-//        });
-//});
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular",
+        policy =>
+        {
+           policy.WithOrigins("https://coffeeshop-front.orangeforest-73176966.polandcentral.azurecontainerapps.io")
+            //policy.WithOrigins("http://localhost:4200")
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
+        });
+});
 
 //builder.Services.AddReverseProxy()
 //    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
@@ -74,7 +74,7 @@ builder.Services.AddSingleton<ICookieService, CookieService>();
 
 var app = builder.Build();
 //app.MapGet("/", () => Results.Redirect("/catalog"));
-//app.UseCors("AllowAngular");
+app.UseCors("AllowAngular");
 app.UseMiddleware<TokenMiddleware>();
 app.UseRouting();
 
