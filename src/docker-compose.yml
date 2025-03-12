@@ -19,14 +19,14 @@ services:
   # shoppingCartdb:
   #   image: postgres
     
-  # shoppingCart.api:
-  #   build:
-  #     context: .
-  #     dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
-  #     args:
-  #       CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-  #       TAG: ${TAG}
-  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
+  shoppingCart.api:
+    build:
+      context: .
+      dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
+      args:
+        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+        TAG: ${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
   
   # messagebroker:
   #   image: rabbitmq:management

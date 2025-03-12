@@ -28,7 +28,18 @@ namespace Foundation.Abstractions.Services
 
         public void ClearData(string key)
         {
-            contextAccessor.HttpContext?.Response.Cookies.Delete(key);
+            //contextAccessor.HttpContext?.Response.Cookies.Delete(key);
+
+            var cookieOptions = new CookieOptions
+            {
+                Expires = DateTime.UtcNow.AddDays(-1), 
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/"
+            };
+
+            contextAccessor.HttpContext?.Response.Cookies.Append(key, "", cookieOptions);
         }
 
         private void SetCookieData(string key, string value, DateTimeOffset? dateTimeOffset)
