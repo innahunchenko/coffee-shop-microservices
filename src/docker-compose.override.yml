@@ -54,14 +54,14 @@ services:
       ASPNETCORE_URLS: "http://+:80"
       ApiSettings__GatewayAddress: "http://api-gateway:80"
       ConnectionStrings__Database: "Host=shoppingCartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
-      ConnectionStrings__Redis: "distributedcache:6379"
-      MessageBroker__Host: rabbitmq://ecommerce-mq:5672
-      MessageBroker__UserName: guest
-      MessageBroker__Password: guest
+      # ConnectionStrings__Redis: "distributedcache:6379"
+      # MessageBroker__Host: rabbitmq://ecommerce-mq:5672
+      # MessageBroker__UserName: guest
+      # MessageBroker__Password: guest
     depends_on:
       - shoppingCartdb
       - distributedcache
-      - messagebroker
+     # - messagebroker
     ports:
       - "7001:80"
       - "7071:443"
@@ -70,16 +70,16 @@ services:
       - ${USERPROFILE}/.aspnet/https:/https:ro
       #- ./ApiGateway/ApiGateway/Security/Certificates:/usr/local/share/ca-certificates
 
-  messagebroker:
-    container_name: messagebroker
-    hostname: ecommerce-mq
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    restart: always
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+  # messagebroker:
+  #   container_name: messagebroker
+  #   hostname: ecommerce-mq
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: guest
+  #     RABBITMQ_DEFAULT_PASS: guest
+  #   restart: always
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
 
   ordering.api:
     container_name: ordering-api
@@ -87,13 +87,13 @@ services:
         ASPNETCORE_ENVIRONMENT: Development
         ASPNETCORE_URLS: "http://+:80"
         ConnectionStrings__Database: Server=orderdb;Database=CoffeeShop_Order;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True
-        MessageBroker__Host: rabbitmq://ecommerce-mq:5672
-        MessageBroker__UserName: guest
-        MessageBroker__Password: guest
+        # MessageBroker__Host: rabbitmq://ecommerce-mq:5672
+        # MessageBroker__UserName: guest
+        # MessageBroker__Password: guest
         FeatureManagement__OrderFullfilment: false
     depends_on:
       - orderdb
-      - messagebroker
+     # - messagebroker
     ports:
       - "7002:80"
       - "7072:443"
@@ -110,6 +110,8 @@ services:
     restart: always
     ports:
       - "1435:1433"
+    volumes:
+      - mssql_order:/var/opt/mssql
 
   apigateway:
     container_name: api-gateway
@@ -162,3 +164,4 @@ services:
 volumes:
   mssql_catalog:
   postgres_shoppingcart:
+  mssql_order:

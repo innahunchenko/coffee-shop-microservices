@@ -1,9 +1,11 @@
-﻿using MassTransit;
+﻿using Azure.Messaging.ServiceBus;
 using MediatR;
 using Messaging.Events;
+using Microsoft.Extensions.Options;
 using Security.Services;
 using ShoppingCart.API.Dtos;
 using ShoppingCart.API.Services;
+using System.Text.Json;
 
 namespace ShoppingCart.API.ShoppingCart
 {
@@ -11,8 +13,9 @@ namespace ShoppingCart.API.ShoppingCart
     public record CheckoutBasketResult(CartCheckoutDto CartCheckoutDto); 
 
     public sealed class CheckoutCartHandler(IShoppingCartService service,
+        ServiceBusClient client,
         IUserContext userContext,
-        IPublishEndpoint publishEndpoint
+        IConfiguration configuration
         ) : IRequestHandler<CheckoutCartRequest, IResult>
     {
         public async Task<IResult> Handle(CheckoutCartRequest checkoutCartRequest, CancellationToken cancellationToken)
@@ -45,7 +48,8 @@ namespace ShoppingCart.API.ShoppingCart
                 });
             }
 
-            await publishEndpoint.Publish(eventMessage, cancellationToken);
+            await using ServiceBusSender sender = client.CreateSender(configuration["ServiceBus:QueueName"]);
+            await sender.SendMessageAsync(new ServiceBusMessage(JsonSerializer.Serialize(eventMessage)));
             await service.DeleteCartAsync(cart.Id, cancellationToken);
             return Results.Ok();
         }

@@ -1,9 +1,12 @@
 ﻿using MediatR;
+using Messaging.Events;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ordering.API.Domain.Dtos;
+using Ordering.API.Mapping;
 using Ordering.API.Orders.Commands.CreateOrder;
 using Security.Services;
+using System.Text.Json;
 
 namespace Ordering.API.Controllers
 {
@@ -22,12 +25,22 @@ namespace Ordering.API.Controllers
             this.commandDispatcher = commandDispatcher;
         }
 
-        //[HttpPost("create")]
-        //public async Task<IActionResult> CreateOrder([FromBody] CreateOrderRequest orderRequest, CancellationToken ct)
-        //{
-        //    var result = await sender.Send(orderRequest, ct);
-        //    return Ok(result);
-        //}
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateOrder([FromBody] CartCheckoutEvent request, CancellationToken ct)
+        {
+            if (request == null)
+            {
+                return BadRequest("Request body is null or invalid.");
+            }
+
+            //logger.LogInformation("Received order request: {@Request}", request);
+
+            var orderRequest = new CreateOrderRequest(request.ToOrderDto());
+
+            var result = await sender.Send(orderRequest, ct);
+
+            return Ok(result);
+        }
 
         [HttpGet]
         [Authorize]

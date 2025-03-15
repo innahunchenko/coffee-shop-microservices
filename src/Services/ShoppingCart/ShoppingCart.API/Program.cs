@@ -1,9 +1,9 @@
+using Azure.Messaging.ServiceBus;
 using Carter;
 using FluentValidation;
 using Foundation.Abstractions.Services;
 using Foundation.Exceptions;
 using Marten;
-using Messaging.MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Newtonsoft.Json.Serialization;
 using Refit;
@@ -15,7 +15,6 @@ using ShoppingCart.API.Services;
 using ShoppingCart.API.Validation;
 using StackExchange.Redis;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
@@ -84,7 +83,11 @@ builder.Services.AddMediatR(config =>
 
 builder.Services.AddValidatorsFromAssemblyContaining<CheckoutCartRequestValidator>();
 
-builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
+var config = builder.Configuration;
+builder.Services.AddSingleton(sp =>
+{
+    return new ServiceBusClient(config["ServiceBus:ConnectionString"]);
+});
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 

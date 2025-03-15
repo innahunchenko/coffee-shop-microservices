@@ -17,7 +17,6 @@ using Security;
 using Security.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Security.OptionsSetup;
-using System.Security.Cryptography.X509Certificates;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>();
@@ -58,23 +57,12 @@ builder.Services.AddScoped<IDbConnection>(sp => new SqlConnection(connectionStri
 builder.Services.AddMediatR(config =>
 {
     config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-   // config.AddBehavior(typeof(ValidationBehavior<,>));
+    // config.AddBehavior(typeof(ValidationBehavior<,>));
 });
 
-builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
+//builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowSpecificAndDynamicOrigins", builder =>
-//    {
-//        builder.WithOrigins("https://4e97-188-163-68-200.ngrok-free.app")
-//        .AllowAnyMethod()
-//        .AllowAnyHeader()
-//        .AllowCredentials();
-//    });
-//});
-
 
 builder.Services.ConfigureOptions<JwtOptionsSetup>();
 builder.Services.ConfigureOptions<JwtBearerOptionsSetup>();
@@ -85,32 +73,6 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer();
-
-//builder.WebHost.ConfigureKestrel(options =>
-//{
-//    var certificatePassword = builder.Configuration["Kestrel:Certificates:Default:Password"];
-//    var certificatePath = builder.Configuration["Kestrel:Certificates:Default:Path"]!;
-//    var defaultCertificate = new X509Certificate2(certificatePath, certificatePassword);
-//    options.ListenAnyIP(8081, listenOptions =>
-//    {
-//        listenOptions.UseHttps(httpsOptions =>
-//        {
-//            httpsOptions.ServerCertificateSelector = (context, name) =>
-//            {
-//                if (name == "ordering-api")
-//                {
-//                    return X509Certificate2.CreateFromPemFile(
-//                        "/https/ordering-api.crt",
-//                        "/https/ordering-api.key");
-//                }
-//                else
-//                {
-//                    return defaultCertificate;
-//                }
-//            };
-//        });
-//    });
-//});
 
 var app = builder.Build();
 app.UseCors("AllowSpecificAndDynamicOrigins");
