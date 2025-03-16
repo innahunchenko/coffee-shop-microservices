@@ -6,7 +6,7 @@ namespace Ordering.API.Domain.Dtos
     public class OrderDto
     {
         public string? OrderName { get; set; }
-        public string OrderStatus { get; set; } = "Pending";
+        public string OrderStatus { get; set; } = "Created";
         public List<OrderItemDto> OrderItems { get; set; } = new();
         public PaymentDto Payment { get; set; } = default!;
         public AddressDto ShippingAddress { get; set; } = default!;

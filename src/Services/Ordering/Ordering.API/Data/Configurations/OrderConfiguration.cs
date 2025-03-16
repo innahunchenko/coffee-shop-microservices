@@ -20,7 +20,7 @@ namespace Ordering.API.Data.Configurations
                 .HasConversion(phoneNumber => phoneNumber.Value, dbPhoneNumber => PhoneNumber.From(dbPhoneNumber));
             builder.Property(o => o.Email)
                 .HasConversion(email => email.Value, dbEmail => Email.From(dbEmail));
-            builder.Property(o => o.Status).HasDefaultValue(OrderStatus.Pending)
+            builder.Property(o => o.Status).HasDefaultValue(OrderStatus.Created)
                 .HasConversion(s => s.ToString(), dbStatus => (OrderStatus)Enum.Parse(typeof(OrderStatus), dbStatus));
 
             builder.ComplexProperty(o => o.ShippingAddress, addressBuilder =>

@@ -14,7 +14,7 @@ namespace Ordering.API.Domain.Models
         public Email Email { get; private set; } = default!;
         public Address ShippingAddress { get; private set; } = default!;
         public Payment Payment { get; private set; } = default!;
-        public OrderStatus? Status { get; private set; } = OrderStatus.Pending;
+        public OrderStatus? Status { get; private set; } = OrderStatus.Created;
         public string? UserId { get; private set; }
         public decimal TotalPrice
         {
