@@ -2,8 +2,14 @@
   "profiles": {
     "ProcessCheckoutAzFunc": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7220",
-      "launchBrowser": false
+      "commandLineArgs": "--port 7220"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "containerRunArguments": "--init",
+      "httpPort": 31436,
+      "useSSL": false
     }
   }
 }

@@ -163,6 +163,16 @@ services:
       - ${USERPROFILE}/.aspnet/https:/https:ro 
       #- ./Services/Auth/Auth.API/Security/Certificates:/usr/local/share/ca-certificates/
 
+  azure-functions:
+    container_name: process-checkout
+    environment:
+      - orderApiUrl=http://api-gateway:80/ordering/orders/create
+    ports:
+      - "7006:80" 
+      - "7076:443"
+    volumes:
+      - ./src:/home/site/wwwroot
+
 volumes:
   mssql_catalog:
   postgres_shoppingcart:

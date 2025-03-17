@@ -45,6 +45,12 @@ services:
     build:
       context: .
       dockerfile: Services/Auth/Auth.API/Dockerfile
+  
+  azure-functions:
+    image: ${DOCKER_REGISTRY-}processcheckout
+    build:
+      context: .
+      dockerfile: Services/Ordering/ProcessCheckoutAzFunc/Dockerfile
 
 volumes:
   mssql_catalog:
