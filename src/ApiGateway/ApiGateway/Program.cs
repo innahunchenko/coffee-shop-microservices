@@ -7,8 +7,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngular",
         policy =>
         {
-         //  policy.WithOrigins("https://coffeeshop-front.orangeforest-73176966.polandcentral.azurecontainerapps.io")
-            policy.WithOrigins("http://localhost:4200")
+              policy.WithOrigins("https://angular-app.victoriouscliff-3386796d.polandcentral.azurecontainerapps.io")
+            //policy.WithOrigins("http://localhost:4200")
                   .AllowAnyMethod()
                   .AllowAnyHeader()
                   .AllowCredentials();
