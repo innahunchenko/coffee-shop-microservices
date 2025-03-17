@@ -4,8 +4,8 @@ services:
   catalogdb:
     image: mcr.microsoft.com/mssql/server:2019-latest
 
-  distributedcache:
-    image: redis
+  # distributedcache:
+  #   image: redis
 
   catalog.api:
     image: ${DOCKER_REGISTRY-}catalogapi

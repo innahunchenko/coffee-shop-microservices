@@ -5,6 +5,7 @@ using Foundation.Abstractions.Services;
 using Foundation.Exceptions;
 using Marten;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Data.SqlClient;
 using Newtonsoft.Json.Serialization;
 using Refit;
 using Security.OptionsSetup;
@@ -42,16 +43,27 @@ builder.Services.AddScoped(provider =>
     return documentStore.LightweightSession();
 });
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-{
-    var configuration = builder.Configuration["CacheSettings:RedisConnectionString"];
-    return ConnectionMultiplexer.Connect(configuration!);
-});
+//builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+//{
+//    var configuration = builder.Configuration["CacheSettings:RedisConnectionString"];
+//    return ConnectionMultiplexer.Connect(configuration!);
+//});
 
-builder.Services.AddStackExchangeRedisCache(options =>
+//builder.Services.AddStackExchangeRedisCache(options =>
+//{
+//    options.Configuration = builder.Configuration["CacheSettings:RedisConnectionString"];
+//    options.InstanceName = "SessionCache_";
+//});
+
+var connectionString = builder.Configuration.GetConnectionString("SqlDatabase");
+
+CreateSessionTable(connectionString!);
+
+builder.Services.AddDistributedSqlServerCache(options =>
 {
-    options.Configuration = builder.Configuration["CacheSettings:RedisConnectionString"];
-    options.InstanceName = "SessionCache_";
+    options.ConnectionString = connectionString;
+    options.SchemaName = "dbo";
+    options.TableName = "SessionData";
 });
 
 builder.Services.AddSession(options =>
@@ -113,3 +125,28 @@ app.UseAuthorization();
 app.UseExceptionHandler(options => { });
 
 app.Run();
+
+void CreateSessionTable(string connectionString)
+{
+    var script = @"
+    IF NOT EXISTS (SELECT * FROM sysobjects WHERE name = 'SessionData' AND xtype = 'U')
+    BEGIN
+        CREATE TABLE [dbo].[SessionData](
+            [Id] NVARCHAR(449) NOT NULL PRIMARY KEY, 
+            [Value] VARBINARY(MAX) NOT NULL, 
+            [ExpiresAtTime] DATETIMEOFFSET NOT NULL, 
+            [SlidingExpirationInSeconds] BIGINT NULL, 
+            [AbsoluteExpiration] DATETIMEOFFSET NULL
+        );
+    END
+";
+
+    using (var connection = new SqlConnection(connectionString))
+    {
+        connection.Open();
+        using (var command = new SqlCommand(script, connection))
+        {
+            command.ExecuteNonQuery();
+        }
+    }
+}

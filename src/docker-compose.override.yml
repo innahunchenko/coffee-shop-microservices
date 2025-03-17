@@ -12,11 +12,11 @@ services:
     volumes:
       - mssql_catalog:/var/opt/mssql
 
-  distributedcache:
-    container_name: distributed-cache
-    restart: always
-    ports:
-      - "6379:6379" 
+  # distributedcache:
+  #   container_name: distributed-cache
+  #   restart: always
+  #   ports:
+  #     - "6379:6379" 
 
   catalog.api:
     container_name: catalog-api
@@ -26,7 +26,7 @@ services:
      ConnectionStrings__Products: "Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - catalogdb
-      - distributedcache
+     # - distributedcache
     ports:
       - "7000:80"
       - "7070:443"
@@ -54,13 +54,15 @@ services:
       ASPNETCORE_URLS: "http://+:80"
       ApiSettings__GatewayAddress: "http://api-gateway:80"
       ConnectionStrings__Database: "Host=shoppingCartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
+      ConnectionStrings__SqlDatabase: "Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
       # ConnectionStrings__Redis: "distributedcache:6379"
       # MessageBroker__Host: rabbitmq://ecommerce-mq:5672
       # MessageBroker__UserName: guest
       # MessageBroker__Password: guest
     depends_on:
       - shoppingCartdb
-      - distributedcache
+      - catalogdb 
+     # - distributedcache
      # - messagebroker
     ports:
       - "7001:80"
@@ -152,7 +154,7 @@ services:
       ConnectionStrings__Database: "Server=identitydb;Database=CoffeeShop_Identity;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
     depends_on:
       - identitydb
-      - distributedcache
+     # - distributedcache
     ports:
       - "7007:80"
       - "7077:443"
