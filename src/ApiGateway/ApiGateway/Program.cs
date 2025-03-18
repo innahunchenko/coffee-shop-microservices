@@ -7,7 +7,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngular",
         policy =>
         {
-              policy.WithOrigins("https://angular-app.victoriouscliff-3386796d.polandcentral.azurecontainerapps.io")
+              policy.WithOrigins("https://coffeesshop.org")
             //policy.WithOrigins("http://localhost:4200")
                   .AllowAnyMethod()
                   .AllowAnyHeader()
