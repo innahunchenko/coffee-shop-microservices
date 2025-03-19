@@ -13,6 +13,7 @@ using Security.Services;
 using ShoppingCart.API;
 using ShoppingCart.API.Repository;
 using ShoppingCart.API.Services;
+using ShoppingCart.API.Services.Catalog.Infrastructure;
 using ShoppingCart.API.Validation;
 using StackExchange.Redis;
 using System.Reflection;
@@ -38,6 +39,8 @@ builder.Services.AddSingleton<IDocumentStore>(provider =>
         opts.Schema.Include<CartConfiguration>();
     });
 });
+
+builder.Services.AddHostedService<MartenWarmupService>();
 
 builder.Services.AddScoped(provider =>
 {
