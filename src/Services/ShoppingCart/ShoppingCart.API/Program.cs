@@ -28,6 +28,8 @@ builder.Services.AddControllers()
 
 builder.Services.AddCarter();
 
+Console.WriteLine(builder.Configuration.GetConnectionString("Database")!);
+
 builder.Services.AddSingleton<IDocumentStore>(provider =>
 {
     return DocumentStore.For(opts =>
@@ -72,6 +74,8 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromHours(48);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 });
 
 builder.Services.AddScoped<ICookieService, CookieService>();

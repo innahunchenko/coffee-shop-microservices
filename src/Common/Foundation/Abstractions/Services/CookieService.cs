@@ -35,8 +35,8 @@ namespace Foundation.Abstractions.Services
                 Expires = DateTime.UtcNow.AddDays(-1), 
                 HttpOnly = true,
                 Secure = true,
-                SameSite = SameSiteMode.None,
-                Path = "/"
+                SameSite = SameSiteMode.None
+                //Path = "/"
             };
 
             contextAccessor.HttpContext?.Response.Cookies.Append(key, "", cookieOptions);
