@@ -34,7 +34,7 @@ namespace Foundation.Abstractions.Services
             var cookieOptions = new CookieOptions
             {
                 Expires = DateTime.UtcNow.AddDays(-1),
-                Domain = "coffeessop.org",
+                Domain = "https://api-gateway.thankfulhill-341e0e46.polandcentral.azurecontainerapps.io",
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None
@@ -49,7 +49,7 @@ namespace Foundation.Abstractions.Services
             var cookieOptions = new CookieOptions
             {
                 Expires = dateTimeOffset,
-                Domain = "coffeessop.org",
+                Domain = "https://api-gateway.thankfulhill-341e0e46.polandcentral.azurecontainerapps.io",
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None
