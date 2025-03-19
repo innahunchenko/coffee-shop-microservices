@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 
 namespace Foundation.Abstractions.Services
 {
@@ -32,7 +33,8 @@ namespace Foundation.Abstractions.Services
 
             var cookieOptions = new CookieOptions
             {
-                Expires = DateTime.UtcNow.AddDays(-1), 
+                Expires = DateTime.UtcNow.AddDays(-1),
+                Domain = "coffeessop.org",
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None
@@ -47,6 +49,7 @@ namespace Foundation.Abstractions.Services
             var cookieOptions = new CookieOptions
             {
                 Expires = dateTimeOffset,
+                Domain = "coffeessop.org",
                 HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None
