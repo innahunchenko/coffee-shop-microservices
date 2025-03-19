@@ -1,31 +1,35 @@
-﻿namespace ShoppingCart.API.Services
+﻿using Marten;
+
+namespace ShoppingCart.API.Services
 {
-    using Marten;
-    using Microsoft.Extensions.Hosting;
-
-    namespace Catalog.Infrastructure
+    public class MartenWarmupService : BackgroundService
     {
-        public class MartenWarmupService : BackgroundService
+        private readonly IServiceProvider _serviceProvider;
+
+        public MartenWarmupService(IServiceProvider serviceProvider)
         {
-            private readonly IDocumentStore _documentStore;
+            _serviceProvider = serviceProvider;
+        }
 
-            public MartenWarmupService(IDocumentStore documentStore)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            while (!stoppingToken.IsCancellationRequested)
             {
-                _documentStore = documentStore;
-            }
+                using var scope = _serviceProvider.CreateScope();
+                var documentStore = scope.ServiceProvider.GetRequiredService<IDocumentStore>();
 
-            protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-            {
                 try
                 {
-                    using var session = _documentStore.LightweightSession();
-                    await session.QueryAsync<int>("SELECT 1"); 
+                    using var session = documentStore.LightweightSession();
+                    await session.QueryAsync<int>("SELECT 1");
                     Console.WriteLine("Marten (Postgres) Warmup complete at: " + DateTime.UtcNow);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Marten Warmup failed: " + ex.Message);
                 }
+
+                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
             }
         }
     }

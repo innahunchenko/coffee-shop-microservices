@@ -13,7 +13,6 @@ using Security.Services;
 using ShoppingCart.API;
 using ShoppingCart.API.Repository;
 using ShoppingCart.API.Services;
-using ShoppingCart.API.Services.Catalog.Infrastructure;
 using ShoppingCart.API.Validation;
 using StackExchange.Redis;
 using System.Reflection;
@@ -31,6 +30,8 @@ builder.Services.AddCarter();
 
 Console.WriteLine(builder.Configuration.GetConnectionString("Database")!);
 
+builder.Services.AddHostedService<MartenWarmupService>();
+
 builder.Services.AddSingleton<IDocumentStore>(provider =>
 {
     return DocumentStore.For(opts =>
@@ -40,7 +41,6 @@ builder.Services.AddSingleton<IDocumentStore>(provider =>
     });
 });
 
-builder.Services.AddHostedService<MartenWarmupService>();
 
 builder.Services.AddScoped(provider =>
 {
@@ -120,6 +120,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer();
 
+// Регистрация прогрева как HostedService
 var app = builder.Build();
 app.UseCors("AllowSpecificAndDynamicOrigins");
 app.UseSession();
