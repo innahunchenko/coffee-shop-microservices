@@ -57,6 +57,8 @@ namespace Catalog.Infrastructure
             services.AddScoped<IAppDbContext, AppDbContext>();
             services.AddScoped<IDbConnection>(sp => new SqlConnection(connectionString));
 
+            services.AddHostedService<DbWarmupService>();
+
             return services;
         }
     }
