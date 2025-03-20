@@ -31,7 +31,7 @@ namespace Catalog.Infrastructure.Services.Products
                     Console.WriteLine("Warmup failed: " + ex.Message);
                 }
 
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
             }
         }
     }
