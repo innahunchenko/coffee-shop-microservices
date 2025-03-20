@@ -16,23 +16,23 @@
 #   # identitydb:
 #   #   image: mcr.microsoft.com/mssql/server:2019-latest
 
-#   catalog.api:
-#     build:
-#       context: .
-#       dockerfile: Services/Catalog/Catalog.API/Dockerfile
-#       args:
-#          CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-#          TAG: ${TAG}
-#     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
-    
-  shoppingCart.api:
+  catalog.api:
     build:
       context: .
-      dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
+      dockerfile: Services/Catalog/Catalog.API/Dockerfile
       args:
          CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
          TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
+    
+  # shoppingCart.api:
+  #   build:
+  #     context: .
+  #     dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
+  #     args:
+  #        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #        TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
 
   # apigateway:
   #   build:
