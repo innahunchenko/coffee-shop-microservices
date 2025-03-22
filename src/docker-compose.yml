@@ -25,50 +25,50 @@
          TAG: ${TAG}
     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
     
-  # shoppingCart.api:
-  #   build:
-  #     context: .
-  #     dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
-  #     args:
-  #        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-  #        TAG: ${TAG}
-  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
+  shoppingCart.api:
+    build:
+      context: .
+      dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
+      args:
+         CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+         TAG: ${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
 
-  # apigateway:
-  #   build:
-  #     context: .
-  #     dockerfile: ApiGateway/ApiGateway/Dockerfile
-  #     args:
-  #        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-  #        TAG: ${TAG}
-  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/apigateway:${TAG}
+  apigateway:
+    build:
+      context: .
+      dockerfile: ApiGateway/ApiGateway/Dockerfile
+      args:
+         CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+         TAG: ${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/apigateway:${TAG}
 
-#   ordering.api:
-#     build:
-#       context: .
-#       dockerfile: Services/Ordering/Ordering.API/Dockerfile
-#       args:
-#          CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-#          TAG: ${TAG}
-#     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${TAG}
+  ordering.api:
+    build:
+      context: .
+      dockerfile: Services/Ordering/Ordering.API/Dockerfile
+      args:
+         CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+         TAG: ${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${TAG}
 
-#   auth.api:
-#     build:
-#       context: .
-#       dockerfile: Services/Auth/Auth.API/Dockerfile
-#       args:
-#          CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-#          TAG: ${TAG}
-#     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${TAG}
+  auth.api:
+    build:
+      context: .
+      dockerfile: Services/Auth/Auth.API/Dockerfile
+      args:
+         CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+         TAG: ${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${TAG}
   
-#   azure-functions:
-#     build:
-#       context: .
-#       dockerfile: Services/Ordering/ProcessCheckoutAzFunc/Dockerfile
-#       args:
-#          CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-#          TAG: ${TAG}
-#     image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/processcheckout:${TAG}
+  azure-functions:
+    build:
+      context: .
+      dockerfile: Services/Ordering/ProcessCheckoutAzFunc/Dockerfile
+      args:
+         CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+         TAG: ${TAG}
+    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/processcheckout:${TAG}
 
 # volumes:
 #   mssql_catalog:
