@@ -2,7 +2,7 @@ This is the backend solution for the Coffee Shop app. It is built using ASP.NET 
 
 This infrastructure setup uses Bicep to deploy various resources and services for the Coffee Shop app on Azure. 
 
-1.Azure Container Apps: Deploys microservices such as Auth, Catalog, Ordering, ShoppingCart, and API Gateway. These services are containerized using Docker for easy deployment and scalability.
+1. Azure Container Apps: Deploys microservices such as Auth, Catalog, Ordering, ShoppingCart, and API Gateway. These services are containerized using Docker for easy deployment and scalability.
 2. SQL Server: Hosts the main relational database (coffeeshop-sqldb) for storing catalog, user and order data.
 3. PostgreSQL: Manages the shopping cart data (shoppingcart-db-postgresql).
 4. Azure Service Bus: Handles message queuing and communication between microservices (e.g., for order processing).
