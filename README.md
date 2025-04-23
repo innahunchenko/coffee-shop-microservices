@@ -11,7 +11,7 @@ This infrastructure setup uses Bicep to deploy various resources and services fo
 
 External Dependencies and Links:
 
-1. The API Gateway links all microservices together, routing requests from the frontend to the appropriate services.
+1. The API Gateway links all microservices together, routing requests from the frontend to the appropriate services. It also adds a JWT token to requests to ensure secure communication and authentication between services.
 2. The Authentication API is used for securing user access, with JWT tokens being validated across services.
 
 The project utilizes Docker to containerize all backend services, Docker Compose is used for local development
