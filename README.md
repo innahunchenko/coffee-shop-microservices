@@ -17,5 +17,5 @@ External Dependencies and Links:
 The project utilizes Docker to containerize all backend services, Docker Compose is used for local development
 
 To run localy:
-go to the **src** folder and 
+go to the **src** folder and run:
 docker-compose up
