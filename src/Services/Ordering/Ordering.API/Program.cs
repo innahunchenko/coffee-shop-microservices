@@ -60,7 +60,7 @@ builder.Services.AddMediatR(config =>
     // config.AddBehavior(typeof(ValidationBehavior<,>));
 });
 
-//builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
+builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 

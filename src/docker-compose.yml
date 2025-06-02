@@ -1,76 +1,106 @@
-# version: '3.4'
+ version: '3.4'
 
  services:
-#   # catalogdb:
-#   #   image: mcr.microsoft.com/mssql/server:2019-latest
+  catalogdb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
 
-#   # distributedcache:
-#   #   image: redis
+  distributedcache:
+    image: redis
 
-#   # shoppingCartdb:
-#   #   image: postgres
+  shoppingCartdb:
+    image: postgres
 
-#   # orderdb:
-#   #   image: mcr.microsoft.com/mssql/server
+  orderdb:
+    image: mcr.microsoft.com/mssql/server
 
-#   # identitydb:
-#   #   image: mcr.microsoft.com/mssql/server:2019-latest
+  identitydb:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+
+  messagebroker:
+    image: rabbitmq:management
 
   catalog.api:
+    image: ${DOCKER_REGISTRY-}catalogapi
     build:
       context: .
       dockerfile: Services/Catalog/Catalog.API/Dockerfile
-      args:
-         CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-         TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
     
   shoppingCart.api:
+    image: ${DOCKER_REGISTRY-}shoppingcartapi
     build:
       context: .
       dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
-      args:
-         CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-         TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
 
   apigateway:
+    image: ${DOCKER_REGISTRY-}apigateway
     build:
       context: .
       dockerfile: ApiGateway/ApiGateway/Dockerfile
-      args:
-         CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-         TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/apigateway:${TAG}
 
   ordering.api:
+    image: ${DOCKER_REGISTRY-}orderingapi
     build:
       context: .
       dockerfile: Services/Ordering/Ordering.API/Dockerfile
-      args:
-         CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-         TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${TAG}
 
   auth.api:
+    image: ${DOCKER_REGISTRY-}authapi
     build:
       context: .
       dockerfile: Services/Auth/Auth.API/Dockerfile
-      args:
-         CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-         TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${TAG}
-  
-  azure-functions:
-    build:
-      context: .
-      dockerfile: Services/Ordering/ProcessCheckoutAzFunc/Dockerfile
-      args:
-         CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
-         TAG: ${TAG}
-    image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/processcheckout:${TAG}
 
-# volumes:
-#   mssql_catalog:
-#   postgres_shoppingcart:
+  # catalog.api:
+  #   build:
+  #     context: .
+  #     dockerfile: Services/Catalog/Catalog.API/Dockerfile
+  #     args:
+  #        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #        TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/catalogapi:${TAG}
+    
+  # shoppingCart.api:
+  #   build:
+  #     context: .
+  #     dockerfile: Services/ShoppingCart/ShoppingCart.API/Dockerfile
+  #     args:
+  #        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #        TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/shoppingcartapi:${TAG}
+
+  # apigateway:
+  #   build:
+  #     context: .
+  #     dockerfile: ApiGateway/ApiGateway/Dockerfile
+  #     args:
+  #        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #        TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/apigateway:${TAG}
+
+  # ordering.api:
+  #   build:
+  #     context: .
+  #     dockerfile: Services/Ordering/Ordering.API/Dockerfile
+  #     args:
+  #        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #        TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/orderingapi:${TAG}
+
+  # auth.api:
+  #   build:
+  #     context: .
+  #     dockerfile: Services/Auth/Auth.API/Dockerfile
+  #     args:
+  #        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #        TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/authapi:${TAG}
+  
+  # azure-functions:
+  #   build:
+  #     context: .
+  #     dockerfile: Services/Ordering/ProcessCheckoutAzFunc/Dockerfile
+  #     args:
+  #        CONTAINER_REGISTRY_LOGIN_SERVER: ${CONTAINER_REGISTRY_LOGIN_SERVER}
+  #        TAG: ${TAG}
+  #   image: ${CONTAINER_REGISTRY_LOGIN_SERVER}/processcheckout:${TAG}
+
  

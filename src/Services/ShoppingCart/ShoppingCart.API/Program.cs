@@ -1,4 +1,5 @@
 using Azure.Messaging.ServiceBus;
+using Messaging.MassTransit;
 using Carter;
 using FluentValidation;
 using Foundation.Abstractions.Services;
@@ -48,17 +49,17 @@ builder.Services.AddScoped(provider =>
     return documentStore.LightweightSession();
 });
 
-//builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-//{
-//    var configuration = builder.Configuration["CacheSettings:RedisConnectionString"];
-//    return ConnectionMultiplexer.Connect(configuration!);
-//});
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = builder.Configuration["CacheSettings:RedisConnectionString"];
+    return ConnectionMultiplexer.Connect(configuration!);
+});
 
-//builder.Services.AddStackExchangeRedisCache(options =>
-//{
-//    options.Configuration = builder.Configuration["CacheSettings:RedisConnectionString"];
-//    options.InstanceName = "SessionCache_";
-//});
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["CacheSettings:RedisConnectionString"];
+    options.InstanceName = "SessionCache_";
+});
 
 var connectionString = builder.Configuration.GetConnectionString("SqlDatabase");
 
@@ -102,11 +103,13 @@ builder.Services.AddMediatR(config =>
 
 builder.Services.AddValidatorsFromAssemblyContaining<CheckoutCartRequestValidator>();
 
-var config = builder.Configuration;
-builder.Services.AddSingleton(sp =>
-{
-    return new ServiceBusClient(config["ServiceBus:ConnectionString"]);
-});
+//var config = builder.Configuration;
+//builder.Services.AddSingleton(sp =>
+//{
+//    return new ServiceBusClient(config["ServiceBus:ConnectionString"]);
+//});
+
+builder.Services.AddMessageBroker(builder.Configuration, Assembly.GetExecutingAssembly());
 
 builder.Services.AddExceptionHandler<CustomExceptionHandler>();
 
