@@ -15,3 +15,7 @@ External Dependencies and Links:
 2. The Authentication API is used for securing user access, with JWT tokens being validated across services.
 
 The project utilizes Docker to containerize all backend services, Docker Compose is used for local development
+
+To run localy:
+go to the **src** folder and run:
+docker-compose up
