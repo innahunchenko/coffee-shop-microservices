@@ -6,6 +6,7 @@ using Catalog.Domain.Services.Products;
 using Catalog.Infrastructure.Services.Categories;
 using Catalog.Infrastructure.Services.Products;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.Extensions.Logging;
 using Moq;
 
@@ -40,15 +41,21 @@ namespace CoffeeShop.UnitTests.Infrastructure
             var paginationParameters = new PaginationParameters(1, 8);
             var expectedCachedProduct = fixture.Build<ProductDto>().CreateMany(2).ToList();
             var expectedTotalCount = 100;
-            productCacheServiceMock.Setup(c => c.GetProductsFromCacheAsync(It.IsAny<string>())).ReturnsAsync(expectedCachedProduct);
-            productCacheServiceMock.Setup(c => c.GetCachedTotalProductsCountAsync(It.IsAny<string>())).ReturnsAsync(expectedTotalCount);
+            productCacheServiceMock.Setup(c => c.GetProductsFromCacheAsync(It.IsAny<string>()))
+                .ReturnsAsync(expectedCachedProduct);
+            productCacheServiceMock.Setup(c => c.GetCachedTotalProductsCountAsync(It.IsAny<string>()))
+                .ReturnsAsync(expectedTotalCount);
 
             var cachedResult = await productServiceCacheDecorator.GetAllProductsAsync(paginationParameters);
 
-            cachedResult.Should().NotBeNull("because the product cache decorator should return a cached result");
-            cachedResult.Items.Count().Should().Be(expectedCachedProduct.Count(), "because the number of cached items should match the products list");
-            cachedResult.TotalCount.Should().Be(expectedTotalCount, "because the cached total count products should match the expected value");
-            productServiceMock.Verify(s => s.GetAllProductsAsync(It.IsAny<PaginationParameters>()), Times.Never);  
+            using (new AssertionScope())
+            {
+                cachedResult.Should().NotBeNull();
+                cachedResult.Items.Should().HaveCount(expectedCachedProduct.Count);
+                cachedResult.TotalCount.Should().Be(expectedTotalCount);
+            }
+
+            productServiceMock.Verify(s => s.GetAllProductsAsync(It.IsAny<PaginationParameters>()), Times.Never);
         }
 
         [Fact]

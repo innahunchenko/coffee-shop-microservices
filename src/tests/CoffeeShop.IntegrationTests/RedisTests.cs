@@ -1,4 +1,5 @@
 using FluentAssertions;
+using FluentAssertions.Execution;
 using RedisCachingService;
 using StackExchange.Redis;
 
@@ -33,10 +34,14 @@ namespace CoffeeShop.IntegrationTests
             await Task.WhenAll(tasks);
 
             var result = await redisCacheRepository.GetValuesFromSetAsync(key);
-            result.Count.Should().Be(10, $"{result.Count} should be 10");
-            foreach (var value in values)
+
+            using (new AssertionScope())
             {
-                result.Contains(value).Should().BeTrue($"Value {value} was not found in the set.");
+                result.Count.Should().Be(10, $"{result.Count} should be 10");
+                foreach (var value in values)
+                {
+                    result.Contains(value).Should().BeTrue($"Value {value} was not found in the set.");
+                }
             }
         }
 
