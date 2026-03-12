@@ -45,7 +45,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - postgres_shoppingcart:/var/lib/postgresql/data/
+      - postgres_shoppingcart:/var/lib/postgresql
 
   shoppingCart.api:
     container_name: shopping-cart-api
