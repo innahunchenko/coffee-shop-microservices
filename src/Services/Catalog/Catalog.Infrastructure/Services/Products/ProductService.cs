@@ -17,71 +17,93 @@ namespace Catalog.Infrastructure.Services.Products
             this.productRepository = productRepository;
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(string subcategory, PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetProductsBySubcategoryAsync(
+            string subcategory,
+            PaginationParameters paginationParameters)
         {
-            var products = await productRepository.GetProductsBySubcategoryAsync(subcategory, paginationParameters);
-            if (products == null)
-            {
-                return new PaginatedList<ProductDto>(new List<ProductDto>(), 0, paginationParameters.PageSize);
-            }
+            var products = await productRepository
+                .GetProductsBySubcategoryAsync(subcategory, paginationParameters)
+                ?? Enumerable.Empty<ProductDto>();
 
-            var totalProducts = await productRepository.GetProductsTotalCountBySubcategoryAsync(subcategory);
-            return new PaginatedList<ProductDto>(products, totalProducts, paginationParameters.PageSize);
+            var totalProducts = products.Any()
+                ? await productRepository.GetProductsTotalCountBySubcategoryAsync(subcategory)
+                : 0;
+
+            return new PaginatedList<ProductDto>(
+                products,
+                totalProducts,
+                paginationParameters.PageSize);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsByCategoryAsync(string category, PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetProductsByCategoryAsync(
+            string category,
+            PaginationParameters paginationParameters)
         {
-            var products = await productRepository.GetProductsByCategoryAsync(category, paginationParameters);
-            if (products == null)
-            {
-                return new PaginatedList<ProductDto>(new List<ProductDto>(), 0, paginationParameters.PageSize);
-            }
+            var products = await productRepository
+                .GetProductsByCategoryAsync(category, paginationParameters)
+                ?? Enumerable.Empty<ProductDto>();
 
-            var totalProducts = await productRepository.GetProductsTotalCountByCategoryAsync(category);
-            return new PaginatedList<ProductDto>(products, totalProducts, paginationParameters.PageSize);
+            var totalProducts = products.Any()
+                ? await productRepository.GetProductsTotalCountByCategoryAsync(category)
+                : 0;
+
+            return new PaginatedList<ProductDto>(
+                products,
+                totalProducts,
+                paginationParameters.PageSize);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetProductsByNameAsync(string name, PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetProductsByNameAsync(
+            string name,
+            PaginationParameters paginationParameters)
         {
-            var products = await productRepository.GetProductsByNameAsync(name, paginationParameters);
-            if (products == null || products.Count() == 0)
-            {
-                return new PaginatedList<ProductDto>(new List<ProductDto>(), 0, paginationParameters.PageSize);
-            }
+            var products = await productRepository
+                .GetProductsByNameAsync(name, paginationParameters)
+                ?? Enumerable.Empty<ProductDto>();
 
-            var totalProducts = await productRepository.GetProductsTotalCountByNameAsync(name);
-            return new PaginatedList<ProductDto>(products, totalProducts, paginationParameters.PageSize);
+            var totalProducts = products.Any()
+                ? await productRepository.GetProductsTotalCountByNameAsync(name)
+                : 0;
+
+            return new PaginatedList<ProductDto>(
+                products,
+                totalProducts,
+                paginationParameters.PageSize);
         }
 
-        public async Task<PaginatedList<ProductDto>> GetAllProductsAsync(PaginationParameters paginationParameters)
+        public async Task<PaginatedList<ProductDto>> GetAllProductsAsync(
+            PaginationParameters paginationParameters)
         {
-            var products = await productRepository.GetAllProductsAsync(paginationParameters);
-            if (products == null)
-            {
-                return new PaginatedList<ProductDto>(new List<ProductDto>(), 0, paginationParameters.PageSize);
-            }
+            var products = await productRepository
+                .GetAllProductsAsync(paginationParameters)
+                ?? Enumerable.Empty<ProductDto>();
 
-            var totalProducts = await productRepository.GetAllProductsTotalCountAsync();
-            return new PaginatedList<ProductDto>(products, totalProducts, paginationParameters.PageSize);
+            var totalProducts = products.Any()
+                ? await productRepository.GetAllProductsTotalCountAsync()
+                : 0;
+
+            return new PaginatedList<ProductDto>(
+                products,
+                totalProducts,
+                paginationParameters.PageSize);
         }
 
         public async Task<ProductDto> GetProductByIdAsync(Guid productId)
         {
-            var product = await productRepository.GetProductByIdAsync(productId);
-            if (product == null)
-            {
-                throw new ProductNotFoundException(productId.ToString());
-            }
-
-            return product;
+            return await productRepository.GetProductByIdAsync(productId)
+                ?? throw new ProductNotFoundException(productId.ToString());
         }
 
-        public async Task<IEnumerable<ProductDto>> GetProductsByIdsAsync(IEnumerable<Guid> productIds)
+        public async Task<IEnumerable<ProductDto>> GetProductsByIdsAsync(
+            IEnumerable<Guid> productIds)
         {
-            var products = await productRepository.GetProductsByIdsAsync(productIds);
-            if (products == null)
+            var products = await productRepository
+                .GetProductsByIdsAsync(productIds)
+                ?? Enumerable.Empty<ProductDto>();
+
+            if (!products.Any())
             {
-                throw new NotFoundException($"Not found any products from {products}");
+                throw new NotFoundException("Not found any products for provided ids");
             }
 
             return products;
