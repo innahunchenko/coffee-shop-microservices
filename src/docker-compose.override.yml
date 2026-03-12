@@ -6,9 +6,9 @@ services:
     restart: always
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: "MyPass123"
+      SA_PASSWORD: ${CATALOGDB_SA_PASSWORD}
     ports:
-      - "1434:1433"
+      - "${CATALOGDB_PORT}:1433"
     volumes:
       - mssql_catalog:/var/opt/mssql
 
@@ -16,162 +16,145 @@ services:
     container_name: distributed-cache
     restart: always
     ports:
-      - "6379:6379" 
+      - "${REDIS_PORT}:6379"
 
   catalog.api:
     container_name: catalog-api
     environment:
-     # ASPNETCORE_ENVIRONMENT: Development
-     ASPNETCORE_URLS: "http://+:80"
-     ConnectionStrings__Products: "Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: ${CATALOG_API_URL}
+      ConnectionStrings__Products: ${CONN_CATALOG_DB}
     depends_on:
       - catalogdb
       - distributedcache
     ports:
-      - "7000:80"
-      - "7070:443"
+      - "${CATALOG_API_PORT}:80"
+      - "${CATALOG_API_HTTPS_PORT}:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
-     # - ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates:/usr/local/share/ca-certificates/
 
   shoppingCartdb:
     container_name: shopping-cart-db
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ShoppingCartDb
+      POSTGRES_USER: ${SHOPPINGCARTDB_USER}
+      POSTGRES_PASSWORD: ${SHOPPINGCARTDB_PASSWORD}
+      POSTGRES_DB: ${SHOPPINGCARTDB_NAME}
     restart: always
     ports:
-      - "5433:5432"
+      - "${SHOPPINGCARTDB_PORT}:${SHOPPINGCARTDB_PORT}"
     volumes:
       - postgres_shoppingcart:/var/lib/postgresql
 
   shoppingCart.api:
     container_name: shopping-cart-api
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: "http://+:80"
-      ApiSettings__GatewayAddress: "http://api-gateway:80"
-      ConnectionStrings__Database: "Host=shoppingCartdb;Port=5432;Database=ShoppingCartDb;Username=postgres;Password=postgres"
-      ConnectionStrings__SqlDatabase: "Server=catalogdb;Database=CoffeeShop_Catalog;User=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
-      ConnectionStrings__Redis: "distributedcache:6379"
-      MessageBroker__Host: rabbitmq://ecommerce-mq:5672
-      MessageBroker__UserName: guest
-      MessageBroker__Password: guest
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: ${SHOPPINGCART_API_URL}
+      ApiSettings__GatewayAddress: ${API_GATEWAY_ADDRESS}
+      ConnectionStrings__Database: ${CONN_SHOPPINGCART_DB}
+      ConnectionStrings__SqlDatabase: ${CONN_CATALOG_DB}
+      ConnectionStrings__Redis: ${CONN_REDIS}
+      MessageBroker__Host: ${RABBITMQ_HOST}
+      MessageBroker__UserName: ${RABBITMQ_USER}
+      MessageBroker__Password: ${RABBITMQ_PASSWORD}
     depends_on:
       - shoppingCartdb
-      - catalogdb 
+      - catalogdb
       - distributedcache
       - messagebroker
     ports:
-      - "7001:80"
-      - "7071:443"
+      - "${SHOPPINGCART_API_PORT}:80"
+      - "${SHOPPINGCART_API_HTTPS_PORT}:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
-      #- ./ApiGateway/ApiGateway/Security/Certificates:/usr/local/share/ca-certificates
 
   messagebroker:
     container_name: messagebroker
     hostname: ecommerce-mq
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     restart: always
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "${RABBITMQ_AMQP_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
 
   ordering.api:
     container_name: ordering-api
     environment:
-        ASPNETCORE_ENVIRONMENT: Development
-        ASPNETCORE_URLS: "http://+:80"
-        ConnectionStrings__Database: Server=orderdb;Database=CoffeeShop_Order;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True
-        MessageBroker__Host: rabbitmq://ecommerce-mq:5672
-        MessageBroker__UserName: guest
-        MessageBroker__Password: guest
-        FeatureManagement__OrderFullfilment: false
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: ${ORDERING_API_URL}
+      ConnectionStrings__Database: ${CONN_ORDER_DB}
+      MessageBroker__Host: ${RABBITMQ_HOST}
+      MessageBroker__UserName: ${RABBITMQ_USER}
+      MessageBroker__Password: ${RABBITMQ_PASSWORD}
+      FeatureManagement__OrderFullfilment: ${FEATURE_ORDER_FULLFILMENT}
     depends_on:
       - orderdb
       - messagebroker
     ports:
-      - "7002:80"
-      - "7072:443"
+      - "${ORDERING_API_PORT}:80"
+      - "${ORDERING_API_HTTPS_PORT}:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
-     # - ./Services/ShoppingCart/ShoppingCart.API/Security/Certificates:/usr/local/share/ca-certificates/
 
   orderdb:
     container_name: orderdb
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=MyPass123
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${ORDERDB_SA_PASSWORD}
     restart: always
     ports:
-      - "1435:1433"
+      - "${ORDERDB_PORT}:1433"
     volumes:
       - mssql_order:/var/opt/mssql
 
   apigateway:
     container_name: api-gateway
     environment:
-      ASPNETCORE_URLS: "http://+:80"
-      ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address: "http://catalog-api:80"
-      ReverseProxy__Clusters__shoppingCart-cluster__Destinations__destination1__Address: "http://shopping-cart-api:80"
-      ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address: "http://ordering-api:80"
-      ReverseProxy__Clusters__auth-cluster__Destinations__destination1__Address: "http://auth-api:80"
-
+      ASPNETCORE_URLS: ${API_GATEWAY_URL}
+      ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address: ${REVERSE_PROXY_CATALOG_ADDRESS}
+      ReverseProxy__Clusters__shoppingCart-cluster__Destinations__destination1__Address: ${REVERSE_PROXY_SHOPPINGCART_ADDRESS}
+      ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address: ${REVERSE_PROXY_ORDERING_ADDRESS}
+      ReverseProxy__Clusters__auth-cluster__Destinations__destination1__Address: ${REVERSE_PROXY_AUTH_ADDRESS}
     depends_on:
       - catalog.api
       - shoppingCart.api
       - auth.api
     ports:
-      - "7005:80"
-      - "7075:443"
+      - "${API_GATEWAY_PORT}:80"
+      - "${API_GATEWAY_HTTPS_PORT}:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${USERPROFILE}/.aspnet/https:/https:ro
-      #- ./ApiGateway/ApiGateway/Security/Certificates:/usr/local/share/ca-certificates
-    
 
   identitydb:
-     container_name: identitydb
-     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=MyPass123
-     restart: always
-     ports:
-      - "1436:1433"
-  
+    container_name: identitydb
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${IDENTITYDB_SA_PASSWORD}
+    restart: always
+    ports:
+      - "${IDENTITYDB_PORT}:1433"
+
   auth.api:
     container_name: auth-api
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: "http://+:80"
-      ConnectionStrings__Database: "Server=identitydb;Database=CoffeeShop_Identity;User Id=sa;Password=MyPass123;Encrypt=False;TrustServerCertificate=True"
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_URLS: ${AUTH_API_URL}
+      ConnectionStrings__Database: ${CONN_IDENTITY_DB}
     depends_on:
       - identitydb
       - distributedcache
     ports:
-      - "7007:80"
-      - "7077:443"
+      - "${AUTH_API_PORT}:80"
+      - "${AUTH_API_HTTPS_PORT}:443"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
-      - ${USERPROFILE}/.aspnet/https:/https:ro 
-      #- ./Services/Auth/Auth.API/Security/Certificates:/usr/local/share/ca-certificates/
-
-  # azure-functions:
-  #   container_name: process-checkout
-  #   environment:
-  #     - orderApiUrl=http://api-gateway:80/ordering/orders/create
-  #   ports:
-  #     - "7006:80" 
-  #     - "7076:443"
-  #   volumes:
-  #     - ./src:/home/site/wwwroot
+      - ${USERPROFILE}/.aspnet/https:/https:ro
 
 volumes:
   mssql_catalog:
