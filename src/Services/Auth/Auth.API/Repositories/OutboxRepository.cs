@@ -27,6 +27,7 @@ namespace Auth.API.Repositories
                     })
             };
 
+            // Only add to DbContext, SaveChanges will be called later in the service
             await appDbContext.Outbox.AddAsync(outboxMessage);
         }
     }

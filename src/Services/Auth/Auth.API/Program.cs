@@ -37,7 +37,6 @@ builder.Services.AddIdentity<CoffeeShopUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 builder.Services.AddScoped<AppDbContext>();
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddMediatR(config =>
 {
