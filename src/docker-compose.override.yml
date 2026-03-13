@@ -116,10 +116,10 @@ services:
     container_name: api-gateway
     environment:
       ASPNETCORE_URLS: ${API_GATEWAY_URL}
-      ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address: ${REVERSE_PROXY_CATALOG_ADDRESS}
-      ReverseProxy__Clusters__shoppingCart-cluster__Destinations__destination1__Address: ${REVERSE_PROXY_SHOPPINGCART_ADDRESS}
-      ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address: ${REVERSE_PROXY_ORDERING_ADDRESS}
-      ReverseProxy__Clusters__auth-cluster__Destinations__destination1__Address: ${REVERSE_PROXY_AUTH_ADDRESS}
+      ReverseProxy__Clusters__catalog-cluster__Destinations__destination1__Address: ${REVERSEPROXY_CATALOG}
+      ReverseProxy__Clusters__shoppingCart-cluster__Destinations__destination1__Address: ${REVERSEPROXY_SHOPPINGCART}
+      ReverseProxy__Clusters__ordering-cluster__Destinations__destination1__Address: ${REVERSEPROXY_ORDERING}
+      ReverseProxy__Clusters__auth-cluster__Destinations__destination1__Address: ${REVERSEPROXY_AUTH}
     depends_on:
       - catalog.api
       - shoppingCart.api
