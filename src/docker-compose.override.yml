@@ -42,7 +42,7 @@ services:
       POSTGRES_DB: ${SHOPPINGCARTDB_NAME}
     restart: always
     ports:
-      - "${SHOPPINGCARTDB_PORT}:${SHOPPINGCARTDB_PORT}"
+      - "${SHOPPINGCARTDB_HOST_PORT}:${SHOPPINGCARTDB_CONTAINER_PORT}"
     volumes:
       - postgres_shoppingcart:/var/lib/postgresql
 
